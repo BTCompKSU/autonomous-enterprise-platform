@@ -52,12 +52,12 @@ const SECTIONS: FAQSection[] = [
     subhead: "The vocabulary and scoring behind every recommendation.",
     items: [
       {
-        q: 'What does "Automate / Augment / Own" actually mean?',
+        q: 'What does "Automate / Augment / Author" actually mean?',
         a: "Three categories that classify every task in a workflow:",
         bullets: [
           "Automate → AI fully handles the task",
           "Augment → AI assists, human stays in control",
-          "Own → Human-only work (judgment, relationships, leadership)",
+          "Author → Human-only work (judgment, relationships, leadership)",
         ],
       },
       {
