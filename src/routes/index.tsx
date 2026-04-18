@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { WhyNowStrip } from "@/components/judging/WhyNowStrip";
 import { AuditSplash } from "@/components/AuditSplash";
 
@@ -34,6 +34,15 @@ function Index() {
               <p className="mt-2 text-sm text-muted-foreground">{b}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            Have questions? See the FAQ →
+          </Link>
         </div>
       </section>
     </main>
