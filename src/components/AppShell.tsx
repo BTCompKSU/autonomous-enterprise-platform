@@ -24,7 +24,7 @@ const adminNav = [
 const employeeNav = [
   { to: "/employee", label: "My Report" },
   { to: "/assessment", label: "Assessment" },
-  { to: "/skill-module", label: "Agent Builder" },
+  { to: "/skill-module", label: "Emulator Builder" },
 ] as const;
 
 export function AppHeader() {
