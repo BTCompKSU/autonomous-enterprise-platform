@@ -20,6 +20,11 @@ import {
   Heart,
   FileText,
   RefreshCw,
+  Maximize2,
+  AlertTriangle,
+  UserRound,
+  Brain,
+  ArrowRight,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
