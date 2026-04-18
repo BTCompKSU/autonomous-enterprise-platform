@@ -350,7 +350,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("generateAudit failed:", message);
       if (leadId) {
-        await supabaseAdmin
+        await sb
           .from("leads")
           .update({ status: "failed", error: message, updated_at: new Date().toISOString() })
           .eq("id", leadId);
