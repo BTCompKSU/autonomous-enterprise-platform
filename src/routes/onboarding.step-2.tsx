@@ -10,7 +10,7 @@ export const Route = createFileRoute("/onboarding/step-2")({
 
 function Step2() {
   const navigate = useNavigate();
-  const { profile, update } = useOnboardingProfile();
+  const { profile, update, hydrated } = useOnboardingProfile();
 
   const dept = profile.selected_department
     ? getDepartment(profile.selected_department)
