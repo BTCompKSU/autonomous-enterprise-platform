@@ -1,56 +1,50 @@
 
-## The tension, restated
 
-- **Oscar's WorkflowAI** (`/workflowai`): rich audit output — donut, task ownership, hours recovered, AI readiness. Diagnostic, executive-facing.
-- **Rick's plug-and-play**: Maria opens something and it just *helps her today*. The Agent Builder preview (`/preview/agent-builder`) hints at this — Trigger → AI Emulator → Confidence Check → Human Review → Action.
+## Plan: Multi-step onboarding flow → Agent Builder
 
-These aren't opposed. They're two ends of one pipeline:
+I'll add a 4-step onboarding flow at `/onboarding/*` that captures role → department → tasks → analyzes, then hands the profile to the existing dashboard.
 
-```text
-  Oscar's view                              Rick's view
-  ───────────                               ──────────
-  Audit → Identify automatable tasks  →→→   Deploy emulator → Maria uses it
-  (diagnostic, exec)                        (operational, employee)
-```
+### Files to create
 
-The audit *finds* AUTOMATE tasks. The emulator *runs* them. One produces the recommendation; the other makes it real.
+1. **`src/lib/job-categories.ts`** — Hardcoded `enterprise_job_categories` JSON (9 departments × ~30 skills each) + the 10 quick-pick role definitions (each mapping to a default department + skill subset for fuzzy matching).
 
-## The happy medium
+2. **`src/lib/onboarding-store.ts`** — Tiny localStorage-backed store with typed getters/setters for `{ selected_role, selected_department, selected_tasks, custom_tasks }`. No external state lib; just a small hook `useOnboardingProfile()`.
 
-A **"Deploy this"** bridge on every AUTOMATE task. Diagnostic stays Oscar's. Action becomes Rick's. Maria's experience: *"Your audit found 9.5 hrs/week of invoice entry is automatable → [Deploy AI Emulator] → it runs tomorrow, you review exceptions only."*
+3. **`src/routes/onboarding.tsx`** — Layout route with `<Outlet />`, persistent header (logo → resets flow, "Skip for now →" link), and the amber 4-segment progress bar driven by current pathname.
 
-Three moves, smallest first:
+4. **`src/routes/onboarding.index.tsx`** — Redirects `/onboarding` → `/onboarding/step-1`.
 
-1. **On `/workflowai`** — every AUTOMATE-bucket task row gets a "Deploy as Emulator →" button that deep-links into the agent-builder with a task slug.
-2. **On `/preview/agent-builder`** — read the `?task=` param, render a contextual header: *"Generated from Maria's audit · Invoice data entry · 9.5 hrs/week recovered"*. The builder becomes the *output* of the audit, not a separate product.
-3. **On Maria's employee view** — add "My Emulators": deployed agents working on her behalf, confidence scores, items waiting for her review. The daily plug-and-play surface Rick wants.
+5. **`src/routes/onboarding.step-1.tsx`** — "What do you do all day?" 10 role cards in 4-col grid (2-col mobile) + freeform text input with fuzzy-match dropdown against category names + skills. Continue disabled until selection or 3+ chars typed.
 
-## What I'd build first
+6. **`src/routes/onboarding.step-2.tsx`** — 9 department cards (3-col / 2-col mobile) with lucide icons (Crown, Settings, DollarSign, TrendingUp, Megaphone, Code, Brain, Users, Scale). Shows the Step 1 selection as an editable chip up top. Auto-suggests department based on Step 1 role.
 
-Just steps 1+2 — the linkage. ~1 hour. No new data model. Proves the bridge is real before investing in step 3.
+7. **`src/routes/onboarding.step-3.tsx`** — Pulls the selected department's `skills` array, renders as togglable amber pills. Live count, encouragement message, custom-task input (Enter to add). "Analyze My Role →" disabled under 3 selections.
 
-### Implementation sketch
+8. **`src/routes/onboarding.step-4.tsx`** — Animated checklist (✓ Role identified, ⟳ Analyzing tasks, etc. revealed every 600ms), circular amber progress ring with pulsing Sparkles icon, rotating fun-fact card every 1.5s. Final state: large checkmark + "See My AI Opportunity →" button. Auto-redirects to `/dashboard` after ~3.5s.
 
-- Add a small `SAMPLE_TASKS` lookup (3–4 entries: invoice entry, PO matching, etc.) keyed by slug, each with `{ label, hoursPerWeek, trigger, confidenceThreshold }`.
-- `/preview/agent-builder` reads `?task=invoice-entry` via search param, renders a provenance strip above the existing builder blocks. Falls back to current generic view when no param.
-- `/workflowai` AUTOMATE rows render a `<Link to="/preview/agent-builder" search={{ task: slug }}>` button.
+### Wiring into existing app
 
-### What changes visually
+- **Entry point**: Add a "Start your profile →" link from `/` (index) into `/onboarding`. The existing `/dashboard` keeps working with the default Maria Reyes data when the user skips.
+- **Profile handoff**: `/dashboard` (or whichever the existing Agent Builder shell is — I'll check `_authed/_admin/dashboard.tsx`) reads `useOnboardingProfile()` on mount; if a profile exists, swap the sidebar name/role and pre-filter the task list to the user's department. If empty, fall back to current Maria Reyes mock. This is additive — zero risk to current demo.
 
-```text
-  /workflowai (AUTOMATE row)              /preview/agent-builder?task=invoice-entry
-  ───────────────────────────             ───────────────────────────────────────
-  Invoice data entry    9.5h → 0.4h       ┌─ Generated from Maria's audit ──────┐
-  [Deploy as Emulator →] ─────────────▶   │ Invoice data entry · 9.5h/wk saved  │
-                                          └──────────────────────────────────────┘
-                                          [Trigger] → [AI Emulator] → ...
-```
+### Design tokens
 
-Step 3 (Maria's "My Emulators" inbox) is the bigger follow-up — worth its own conversation about whether it's mocked or wired to real audit data.
+Reuses existing `--brand` (logo navy), `--warning` (amber/gold), `--success` (green) from `styles.css`. The "amber" in the spec maps to the existing `text-warning` / `bg-warning` token set already used for the "Author" category, so this stays consistent with the recent color-unification work. No new CSS variables needed.
 
-## Two questions before I build
+### Animations
 
-1. **Scope** — just the linkage (steps 1+2), or linkage + Maria's emulator inbox (1+2+3)?
-2. **Lens** — should the bridge optimize CTAs for the executive ("Deploy this recommendation, recover 9.5 hrs/wk") or for Maria ("Hand this off to AI, keep the judgment work")?
+Uses the existing `animate-fade-in`, `animate-scale-in`, `hover-scale` utilities from the project's animation set. Step transitions use `animate-fade-in` on each route's root. Pill bounce + button pulse via Tailwind `transition-transform` + a one-shot `animate-scale-in` when enabled. No new keyframes.
 
-Pick a combo and I'll implement.
+### Routing notes
+
+- TanStack flat dot-routing: `onboarding.tsx` (layout) + `onboarding.step-1.tsx` etc. (children).
+- Logo click and "Skip" use `<Link to="/onboarding/step-1">` and `<Link to="/dashboard">` — type-safe, no string interpolation.
+- Back/Continue buttons are `<Link>`s, not `useNavigate`, so cmd-click and preloading work.
+- No search params needed — state lives in localStorage so refresh doesn't lose progress.
+
+### Out of scope (flag for later)
+
+- Server persistence of the profile (currently localStorage only).
+- Auth gating — onboarding is public; dashboard handoff works whether or not the user is signed in.
+- Analytics events on each step.
+
