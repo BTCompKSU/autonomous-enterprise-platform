@@ -1,5 +1,6 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 
+import type { RouterContext } from "@/router";
 import appCss from "../styles.css?url";
 import { DemoModeProvider } from "@/components/judging/DemoMode";
 import { AppHeader } from "@/components/AppShell";
@@ -27,7 +28,7 @@ function NotFoundComponent() {
   );
 }
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
