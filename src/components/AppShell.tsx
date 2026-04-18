@@ -53,9 +53,9 @@ export function AppHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-6">
         <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
           <span className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
-            <Cpu className="h-4 w-4 text-yellow-400" />
+            <Cpu className="h-4 w-4 text-warning" />
           </span>
-          UpSkill <span className="text-yellow-400">USA</span>
+          UpSkill <span className="text-warning">USA</span>
         </Link>
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {nav.map((n) => {
