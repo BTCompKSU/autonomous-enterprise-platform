@@ -46,9 +46,11 @@ function write(p: OnboardingProfile) {
 
 export function useOnboardingProfile() {
   const [profile, setProfile] = useState<OnboardingProfile>(EMPTY);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setProfile(read());
+    setHydrated(true);
     const handler = () => setProfile(read());
     window.addEventListener("onboarding:update", handler);
     window.addEventListener("storage", handler);
