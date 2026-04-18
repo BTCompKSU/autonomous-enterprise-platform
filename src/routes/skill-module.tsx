@@ -64,6 +64,12 @@ function SkillModule() {
           See impact on a worker <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
+
+      <AuditCTA
+        className="mt-10"
+        headline="Build agents for your business"
+        subline="Get a free audit that maps deployable AI agents to your real workflows — with confidence scores."
+      />
     </main>
   );
 }
