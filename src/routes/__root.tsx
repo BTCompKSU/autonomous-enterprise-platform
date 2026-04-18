@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "
 
 import type { RouterContext } from "@/router";
 import appCss from "../styles.css?url";
+import faviconUrl from "@/assets/favicon.png";
 import { DemoModeProvider } from "@/components/judging/DemoMode";
 import { AppHeader } from "@/components/AppShell";
 import { Toaster } from "@/components/ui/sonner";
@@ -58,7 +59,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7be0f43c-316b-4f18-8af0-b0ad168b1397/id-preview-dfef7eab--0595eddd-c9d9-449a-af87-0208b85cf334.lovable.app-1776527373227.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7be0f43c-316b-4f18-8af0-b0ad168b1397/id-preview-dfef7eab--0595eddd-c9d9-449a-af87-0208b85cf334.lovable.app-1776527373227.png" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: faviconUrl },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "shortcut icon", href: "/favicon.ico" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
