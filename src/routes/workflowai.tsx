@@ -26,6 +26,10 @@ import {
   UserRound,
   Brain,
   ArrowRight,
+  Plus,
+  X,
+  Library,
+  GraduationCap,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
