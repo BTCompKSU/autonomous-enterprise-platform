@@ -1,6 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Cpu } from "lucide-react";
-import { DemoToggle } from "@/components/judging/DemoMode";
+import { Cpu, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -41,7 +40,13 @@ export function AppHeader() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <DemoToggle />
+          <Link
+            to="/demo"
+            className="inline-flex items-center gap-2 rounded-full border border-brand bg-brand px-3 py-1.5 text-xs font-medium text-brand-foreground transition-colors hover:bg-brand/90"
+          >
+            <PlayCircle className="h-3.5 w-3.5" />
+            Watch Demo
+          </Link>
         </div>
       </div>
     </header>

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SkillModuleRouteImport } from './routes/skill-module'
 import { Route as OpportunityRouteImport } from './routes/opportunity'
 import { Route as EmployeeRouteImport } from './routes/employee'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -30,6 +31,11 @@ const EmployeeRoute = EmployeeRouteImport.update({
   path: '/employee',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -44,6 +50,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/demo': typeof DemoRoute
   '/employee': typeof EmployeeRoute
   '/opportunity': typeof OpportunityRoute
   '/skill-module': typeof SkillModuleRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/demo': typeof DemoRoute
   '/employee': typeof EmployeeRoute
   '/opportunity': typeof OpportunityRoute
   '/skill-module': typeof SkillModuleRoute
@@ -59,19 +67,33 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/demo': typeof DemoRoute
   '/employee': typeof EmployeeRoute
   '/opportunity': typeof OpportunityRoute
   '/skill-module': typeof SkillModuleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/employee' | '/opportunity' | '/skill-module'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/employee'
+    | '/opportunity'
+    | '/skill-module'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/employee' | '/opportunity' | '/skill-module'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/employee'
+    | '/opportunity'
+    | '/skill-module'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/demo'
     | '/employee'
     | '/opportunity'
     | '/skill-module'
@@ -80,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  DemoRoute: typeof DemoRoute
   EmployeeRoute: typeof EmployeeRoute
   OpportunityRoute: typeof OpportunityRoute
   SkillModuleRoute: typeof SkillModuleRoute
@@ -108,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmployeeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -128,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  DemoRoute: DemoRoute,
   EmployeeRoute: EmployeeRoute,
   OpportunityRoute: OpportunityRoute,
   SkillModuleRoute: SkillModuleRoute,
