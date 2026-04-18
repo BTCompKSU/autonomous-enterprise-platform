@@ -306,8 +306,8 @@ function ReportPhase({
           {(
             [
               { label: "Automate", count: summary.automate_count, tone: "navy" as const },
-              { label: "Augment", count: summary.augment_count, tone: "gold" as const },
-              { label: "Author", count: summary.own_count, tone: "emerald" as const },
+              { label: "Augment", count: summary.augment_count, tone: "emerald" as const },
+              { label: "Author", count: summary.own_count, tone: "gold" as const },
             ].sort((a, b) => b.count - a.count)
           ).map((b) => (
             <BucketTile key={b.label} label={b.label} count={b.count} tone={b.tone} />
@@ -463,8 +463,8 @@ function TaskRow({ task }: { task: RoleTask }) {
 
   const barByBucket: Record<RoleTask["bucket"], string> = {
     AUTOMATE: "bg-[#0B1F3B]",
-    AUGMENT: "bg-[#F5C84C]",
-    OWN: "bg-emerald-500",
+    AUGMENT: "bg-emerald-500",
+    OWN: "bg-[#F5C84C]",
   };
 
   return (
@@ -498,8 +498,8 @@ function TaskRow({ task }: { task: RoleTask }) {
 function BucketBadge({ bucket }: { bucket: RoleTask["bucket"] }) {
   const tones: Record<RoleTask["bucket"], string> = {
     AUTOMATE: "bg-[#0B1F3B]/10 text-[#0B1F3B] border-[#0B1F3B]/20",
-    AUGMENT: "bg-[#F5C84C]/15 text-[#7c5e10] border-[#F5C84C]/40",
-    OWN: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    AUGMENT: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    OWN: "bg-[#F5C84C]/15 text-[#7c5e10] border-[#F5C84C]/40",
   };
   return (
     <span
