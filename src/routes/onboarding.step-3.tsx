@@ -364,7 +364,7 @@ function ReportPhase({
               .sort((a, b) => b.monthly_hours_saved - a.monthly_hours_saved);
             const topName = automates[0]?.task_name;
             const moreCount = Math.max(0, summary.automate_count - 1);
-            const bullets: { text: React.ReactNode }[] = [];
+            const bullets: { text: ReactNode }[] = [];
             if (topName) {
               bullets.push({
                 text: (
