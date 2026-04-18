@@ -1,9 +1,6 @@
 
+The user wants context for the Autonomous Workforce Score number (e.g. "64%") so readers know if it's good/bad. Need to add a scale/key to both the live report and the dummy executive audit preview.
 
-Replace the user-facing label "OWN" with "AUTHOR" across the app while keeping the underlying type/enum values intact (changing the enum would require LLM prompt changes, DB migrations, and risk breaking stored analyses).
+Let me check the current gauge component and where the score appears.
 
-### Approach
-
-Keep `TaskBucket = "AUTOMATE" | "AUGMENT" | "OWN"` in `assessment-types.ts` as-is (it's the contract with the LLM and stored data). Only swap the **display strings** in UI.
-
-### Files to edit
+The `WorkflowScoreGauge` already shows "Autonomous" vs "Assisted" based on a 60 threshold, but there's no benchmark scale. I need to find the executive audit dummy + live report to know where to add the key.
