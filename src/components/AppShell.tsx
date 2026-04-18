@@ -6,6 +6,9 @@ import { useState, useRef, useEffect } from "react";
 
 const marketingNav = [
   { to: "/opportunity", label: "Opportunity Landscape" },
+  { to: "/preview/executive-audit", label: "Executive Audit" },
+  { to: "/preview/employee-analysis", label: "Employee Analysis" },
+  { to: "/preview/agent-builder", label: "Agent Builder" },
   { to: "/faq", label: "FAQ" },
 ] as const;
 
