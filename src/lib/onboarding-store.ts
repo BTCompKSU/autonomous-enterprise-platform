@@ -4,14 +4,12 @@ import type { DepartmentKey } from "./job-categories";
 const KEY = "upskill.onboarding.profile.v1";
 
 export interface OnboardingProfile {
-  selected_role: string;
   selected_department: DepartmentKey | "";
   selected_tasks: string[];
   custom_tasks: string[];
 }
 
 const EMPTY: OnboardingProfile = {
-  selected_role: "",
   selected_department: "",
   selected_tasks: [],
   custom_tasks: [],
