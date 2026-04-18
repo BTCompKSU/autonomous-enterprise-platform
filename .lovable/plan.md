@@ -1,54 +1,78 @@
 
 
-User wants an FAQ section. Need to figure out: where to put it (homepage? new route?) and how to render it (accordion is the obvious choice given existing shadcn `accordion.tsx`).
+## Plan: Swap analysis to role-based AUTOMATE/AUGMENT/OWN framework
 
-Looking at the content: 20 questions grouped into clear themes (concept, methodology, accuracy, ROI, governance, scope). This is judge/enterprise objection content — fits the homepage marketing surface, not behind auth.
+The new prompt is **role-centric**: input is a job title, output is 10–20 tasks classified into AUTOMATE / AUGMENT / OWN with time-savings math. This is a different shape than the current "readiness score + strengths/gaps" output. The intake form already collects `role` and `department`, so we keep the form intact and feed those (plus the rest of the answers as context) to the new agent.
 
-Best approach: new public route `/faq` with grouped accordion sections, plus a link from the homepage and the AppHeader's public nav. Per TanStack Start guidance, separate route (not hash anchors) — gets its own SSR, title, OG tags, and is shareable (judges can be sent the link directly).
+### 1. New types — `src/lib/assessment-types.ts`
 
-## Plan: Public FAQ page
+Add (keep existing `AssessmentAnalysis` for backwards-compat, but stop using it):
 
-### Route
-`src/routes/faq.tsx` → `/faq` (public, unauthed)
-
-Has its own `head()` with title "FAQ — UpSkill USA", description tuned for judges/enterprise objections, og:title/description.
-
-### Structure
-Group the 20 Qs into 6 themed sections, each rendered as a card with a shadcn `Accordion` (single-expand per section, all collapsed by default):
-
-1. **The Big Picture** — Q1, Q10, Q20
-2. **How the Framework Works** — Q2, Q3, Q16, Q17
-3. **Methodology & Accuracy** — Q4, Q5, Q7, Q8
-4. **Trust, Safety & Governance** — Q6, Q15, Q18
-5. **ROI & Outcomes** — Q11, Q12, Q13, Q9
-6. **Fit & Integration** — Q14, Q19
-
-Each section has a heading + short subhead, then the accordion. Trigger shows the question, content shows the answer with proper formatting (bullet lists rendered as `<ul>`, examples called out in a subtle muted box).
-
-### Page layout
-- `AppHeader` at top
-- Hero strip: "Frequently Asked Questions" + one-line subhead ("Answers for judges, executives, and skeptics — in plain language.")
-- Sticky in-page nav (anchor links to the 6 section IDs) on desktop only
-- 6 sections stacked
-- Bottom CTA card: "Still have questions?" → links to `/opportunity` (Get Audit) and `/demo` (Watch Demo)
-
-### Data
-FAQ content lives in a typed array at the top of the route file:
 ```ts
-type FAQItem = { q: string; a: string; bullets?: string[]; example?: string };
-type FAQSection = { id: string; title: string; subhead: string; items: FAQItem[] };
-const SECTIONS: FAQSection[] = [...]
+type Bucket = "AUTOMATE" | "AUGMENT" | "OWN";
+type Confidence = "HIGH" | "MEDIUM" | "LOW";
+
+interface RoleTask {
+  task_id: number;
+  task_name: string;
+  description: string;
+  frequency: "daily" | "weekly" | "monthly" | "ad-hoc";
+  avg_minutes_per_instance: number;
+  instances_per_month: number;
+  bucket: Bucket;
+  rationale: string;
+  ai_action: string;
+  automation_rate_pct: number;
+  monthly_hours_saved: number;
+  confidence: Confidence;
+  tools_suggested: string[];
+}
+
+interface RoleAnalysis {
+  role: string;
+  department: string;
+  total_tasks_analyzed: number;
+  summary: {
+    automate_count: number;
+    augment_count: number;
+    own_count: number;
+    estimated_monthly_hours_saved: number;
+    estimated_fte_equivalent_saved: number;
+  };
+  tasks: RoleTask[];
+}
 ```
 
-Keeps content easy to edit without component churn.
+`SubmitAssessmentResponse` becomes `{ ok: true; assessment_id; analysis: RoleAnalysis } | { ok: false; error }`.
 
-### Wiring
-- `src/components/AppShell.tsx`: add "FAQ" to the public nav (next to existing public links)
-- `src/routes/index.tsx`: add a "Have questions? See the FAQ →" link in an existing section (or as a small strip near the bottom) so judges can discover it from the homepage
+### 2. Server fn — `src/lib/assessment.functions.ts`
+
+- Replace `SYSTEM_PROMPT` with the full agent prompt provided.
+- User message: `Analyze this role: ${answers.role}` plus a short context block with department, repetitive tasks, hours, and goal so the model has grounding (these directly improve task selection).
+- Replace `analysisSchema` with a JSON schema matching `RoleAnalysis` (used via the existing tool-calling pattern — keeps responses strictly valid).
+- Keep the `create_assessment` / `finalize_assessment` RPC flow as-is — `analysis` is `jsonb`, so the new shape stores fine without a migration.
+
+### 3. Result UI — `src/routes/_authed/assessment.tsx` (`ResultView`)
+
+Rebuild the result screen for the new payload:
+
+- **Header**: role + department, "X tasks analyzed".
+- **3 KPI cards**: monthly hours saved, FTE-equivalent saved, bucket breakdown (e.g. "12 Automate · 5 Augment · 3 Own").
+- **Bucket sections** (Automate / Augment / Own): each task as a row showing name, frequency × minutes, monthly hours saved, confidence chip, and an expandable details area with rationale, ai_action, and tools_suggested as small chips.
+- Color tokens reuse the existing pattern from `preview.employee-analysis.tsx`: success (Automate), brand (Augment), primary (Own).
+- Keep "Retake" button.
+
+### 4. No DB migration needed
+
+`assessments.analysis` is `jsonb`; old rows with the prior shape remain readable but aren't displayed (we always show the latest submission's in-memory result). If you want a history view later, it's a follow-up.
 
 ### Files
-**New**: `src/routes/faq.tsx`
-**Edit**: `src/components/AppShell.tsx` (nav), `src/routes/index.tsx` (homepage link)
 
-No DB, no server function, no migration — pure content page.
+**Edit**: `src/lib/assessment-types.ts`, `src/lib/assessment.functions.ts`, `src/routes/_authed/assessment.tsx`
+
+No new files. No migration. No nav changes.
+
+### Open follow-up (not in this plan)
+
+If you'd rather make this a **two-step flow** (collect role → show role analysis → optionally collect employee context for a personal readiness layer), say so and I'll restructure. Current plan keeps the existing single submission and replaces the output entirely.
 
