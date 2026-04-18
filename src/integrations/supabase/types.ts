@@ -294,6 +294,20 @@ export type Database = {
         Args: { _expires_in_hours: number; _max_uses: number }
         Returns: string
       }
+      create_pending_lead: {
+        Args: { _email: string; _website: string }
+        Returns: string
+      }
+      finalize_lead: {
+        Args: {
+          _audit: Json
+          _enrichment: Json
+          _error: string
+          _lead_id: string
+          _status: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
