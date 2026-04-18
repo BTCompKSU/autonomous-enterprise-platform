@@ -3,6 +3,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { DemoModeProvider } from "@/components/judging/DemoMode";
 import { AppHeader } from "@/components/AppShell";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -75,6 +76,7 @@ function RootComponent() {
     <DemoModeProvider>
       <AppHeader />
       <Outlet />
+      <Toaster richColors position="top-center" />
     </DemoModeProvider>
   );
 }
