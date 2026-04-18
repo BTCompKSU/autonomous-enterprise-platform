@@ -281,7 +281,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const { url, domain } = normalizeUrl(data.website);
 
       // 1. Insert lead row as pending
-      const insert = await sb
+      const insert = await supabaseAdmin
         .from("leads")
         .insert({
           website: domain,
@@ -306,7 +306,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
 
       // 5. Persist results
-      await sb
+      await supabaseAdmin
         .from("leads")
         .update({
           status: "completed",
@@ -333,7 +333,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("generateAudit failed:", message);
       if (leadId) {
-        await sb
+        await supabaseAdmin
           .from("leads")
           .update({ status: "failed", error: message, updated_at: new Date().toISOString() })
           .eq("id", leadId);
