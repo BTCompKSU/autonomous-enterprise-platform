@@ -32,7 +32,7 @@ export function WorkflowScoreGauge({
             cx={size / 2}
             cy={size / 2}
             r={r}
-            stroke="#3B82F6"
+            stroke="var(--brand)"
             strokeWidth={stroke}
             strokeLinecap="round"
             fill="none"
@@ -46,7 +46,7 @@ export function WorkflowScoreGauge({
           <div
             className={cn(
               "text-[10px] font-semibold uppercase tracking-wider",
-              above ? "text-[#3B82F6]" : "text-muted-foreground",
+              above ? "text-brand" : "text-muted-foreground",
             )}
           >
             {above ? "Autonomous" : "Assisted"}
