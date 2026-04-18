@@ -123,7 +123,7 @@ export function AuditSplash() {
 
         <div className="mx-auto mt-12 max-w-2xl print:mt-0 print:max-w-none">
           {step === "website" && (
-            <form onSubmit={onWebsiteSubmit} className="group relative">
+            <form onSubmit={onWebsiteSubmit} className="group relative print:hidden">
               <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
               <div className="relative flex flex-col gap-2 rounded-2xl border border-white/10 bg-white p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:flex-row sm:items-center">
                 <div className="flex flex-1 items-center gap-3 px-5">
@@ -151,7 +151,7 @@ export function AuditSplash() {
           )}
 
           {step === "email" && (
-            <form onSubmit={onEmailSubmit} className="group relative">
+            <form onSubmit={onEmailSubmit} className="group relative print:hidden">
               <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
               <div className="relative rounded-2xl border border-white/10 bg-white p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-8">
                 <div className="mb-5 flex items-center gap-2 text-sm text-slate-500">
@@ -202,7 +202,7 @@ export function AuditSplash() {
           )}
 
           {step === "loading" && (
-            <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+            <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] print:hidden">
               <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#0B1F3B]" />
               <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
                 Analyzing {website}…
@@ -229,7 +229,7 @@ export function AuditSplash() {
         </div>
 
         {step !== "report" && (
-          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3 print:hidden">
             <Trust label="30-second audit" />
             <Trust label="No credit card required" />
             <Trust label="Enterprise-grade security" />
