@@ -169,10 +169,10 @@ function PreviewEmployeeAnalysis() {
                       <div
                         className={`h-full ${
                           t.category === "Author"
-                            ? "bg-primary"
+                            ? "bg-warning"
                             : t.category === "Augment"
-                              ? "bg-brand"
-                              : "bg-success"
+                              ? "bg-success"
+                              : "bg-brand"
                         }`}
                         style={{ width: `${pctAfter}%` }}
                       />
@@ -249,9 +249,9 @@ function BigStat({
 
 function CategoryBadge({ category }: { category: string }) {
   const tones: Record<string, string> = {
-    Automate: "bg-success/15 text-success border-success/30",
-    Augment: "bg-brand/15 text-brand border-brand/30",
-    Author: "bg-primary/10 text-primary border-primary/20",
+    Automate: "bg-brand/15 text-brand border-brand/30",
+    Augment: "bg-success/15 text-success border-success/30",
+    Author: "bg-warning/15 text-warning border-warning/30",
   };
   return (
     <span
