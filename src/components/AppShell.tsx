@@ -4,11 +4,10 @@ import { DemoToggle } from "@/components/judging/DemoMode";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { to: "/", label: "Home" },
-  { to: "/opportunity", label: "Opportunity Map" },
+  { to: "/opportunity", label: "Opportunity Landscape" },
+  { to: "/dashboard", label: "Executive Audit" },
+  { to: "/employee", label: "Employee Analysis" },
   { to: "/skill-module", label: "Agent Builder" },
-  { to: "/employee", label: "Employee Report" },
-  { to: "/dashboard", label: "Executive" },
 ] as const;
 
 export function AppHeader() {
