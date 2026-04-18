@@ -1,12 +1,9 @@
-import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { DemoModeProvider } from "@/components/judging/DemoMode";
 import { AppHeader } from "@/components/AppShell";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider, useAuth } from "@/lib/auth-context";
-import type { RouterContext } from "@/router";
 
 function NotFoundComponent() {
   return (
@@ -30,7 +27,7 @@ function NotFoundComponent() {
   );
 }
 
-export const Route = createRootRouteWithContext<RouterContext>()({
+export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -42,10 +39,23 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           "From AI Pilots to Reliable Autonomous Operations. Deploy enterprise AI agents with confidence scoring, human oversight, and measurable workforce impact.",
       },
       { name: "author", content: "UpSkill USA" },
-      { property: "og:title", content: "UpSkill USA — The Reliable Autonomous Workforce Platform" },
-      { property: "og:description", content: "From AI Pilots to Reliable Autonomous Operations." },
+      {
+        property: "og:title",
+        content: "UpSkill USA — The Reliable Autonomous Workforce Platform",
+      },
+      {
+        property: "og:description",
+        content: "From AI Pilots to Reliable Autonomous Operations.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "UpSkill USA — The Reliable Autonomous Workforce Platform" },
+      { name: "twitter:title", content: "UpSkill USA — The Reliable Autonomous Workforce Platform" },
+      { name: "description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI agents at scale." },
+      { property: "og:description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI agents at scale." },
+      { name: "twitter:description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI agents at scale." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7be0f43c-316b-4f18-8af0-b0ad168b1397/id-preview-dfef7eab--0595eddd-c9d9-449a-af87-0208b85cf334.lovable.app-1776527373227.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7be0f43c-316b-4f18-8af0-b0ad168b1397/id-preview-dfef7eab--0595eddd-c9d9-449a-af87-0208b85cf334.lovable.app-1776527373227.png" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
@@ -68,25 +78,12 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AuthBridge() {
-  const auth = useAuth();
-  const router = useRouter();
-  useEffect(() => {
-    router.update({ context: { ...router.options.context, auth } });
-    void router.invalidate();
-  }, [auth, router]);
-  return null;
-}
-
 function RootComponent() {
   return (
-    <AuthProvider>
-      <AuthBridge />
-      <DemoModeProvider>
-        <AppHeader />
-        <Outlet />
-        <Toaster richColors position="top-center" />
-      </DemoModeProvider>
-    </AuthProvider>
+    <DemoModeProvider>
+      <AppHeader />
+      <Outlet />
+      <Toaster richColors position="top-center" />
+    </DemoModeProvider>
   );
 }
