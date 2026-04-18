@@ -7,7 +7,7 @@ import { RegionalImpactCard } from "@/components/judging/RegionalImpactCard";
 import { DemoTip } from "@/components/judging/DemoMode";
 import { AuditCTA } from "@/components/AuditCTA";
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/_authed/_admin/dashboard")({
   component: ExecutiveDashboard,
 });
 
@@ -16,7 +16,7 @@ function ExecutiveDashboard() {
     <main className="mx-auto max-w-6xl space-y-8 px-6 py-12">
       <header>
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-          Screen 05 — Executive Dashboard
+          Executive Dashboard
         </span>
         <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
           Your Autonomous Workforce Score

@@ -5,7 +5,7 @@ import { WorkforceImpactCard } from "@/components/judging/WorkforceImpactCard";
 import { DemoTip } from "@/components/judging/DemoMode";
 import { AuditCTA } from "@/components/AuditCTA";
 
-export const Route = createFileRoute("/employee")({
+export const Route = createFileRoute("/_authed/employee")({
   component: EmployeeReport,
 });
 
@@ -26,7 +26,7 @@ function EmployeeReport() {
       <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-            Screen 04 — Employee Report
+            Employee Report
           </span>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Maria Hernández</h1>
           <p className="text-muted-foreground">AP Analyst → AI Operations Lead (in progress)</p>
