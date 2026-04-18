@@ -311,7 +311,7 @@ export const generateAudit = createServerFn({ method: "POST" })
             companies_api: enrichment,
           }),
         ),
-        _error: null,
+        _error: null as unknown as string,
       });
 
       return {
