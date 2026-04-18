@@ -76,6 +76,7 @@ function RootComponent() {
     <DemoModeProvider>
       <AppHeader />
       <Outlet />
+      <Toaster richColors position="top-center" />
     </DemoModeProvider>
   );
 }
