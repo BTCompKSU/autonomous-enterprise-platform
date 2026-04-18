@@ -183,7 +183,7 @@ function WorkflowAIPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F172A] font-sans text-slate-100 antialiased">
+    <div className="min-h-screen bg-[#0B1F3B] font-sans text-slate-100 antialiased">
       <style>{`
         @keyframes flowdash { to { stroke-dashoffset: -20; } }
         .flow-line { stroke-dasharray: 6 4; animation: flowdash 1.2s linear infinite; }
@@ -344,7 +344,7 @@ function TopBar({
           <button
             onClick={onRun}
             disabled={running}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#4F46E5] px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-[#4F46E5]/20 transition hover:bg-[#4338CA] disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#4F46E5] px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-[#4F46E5]/20 transition hover:bg-[#E0B43A] disabled:opacity-60"
           >
             <Play className="h-3.5 w-3.5" />
             {running ? "Running…" : "Run Simulation"}
@@ -671,7 +671,7 @@ function NodeCard({
               {n.pills.map((p) => (
                 <span
                   key={p}
-                  className="rounded bg-[#4F46E5]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#A5B4FC]"
+                  className="rounded bg-[#4F46E5]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#F5C84C]"
                 >
                   {p}
                 </span>
@@ -990,7 +990,7 @@ function OversightQueue({
           <div className="mb-3 flex items-center gap-2">
             <Brain className="h-4 w-4 animate-pulse text-[#4F46E5]" />
             <h3 className="text-sm font-semibold">AI Learning Log</h3>
-            <span className="ml-auto rounded-full bg-[#4F46E5]/15 px-2 py-0.5 text-[10px] font-semibold text-[#A5B4FC]">
+            <span className="ml-auto rounded-full bg-[#4F46E5]/15 px-2 py-0.5 text-[10px] font-semibold text-[#F5C84C]">
               Feedback Learned
             </span>
           </div>
@@ -1169,7 +1169,7 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="task" stroke="#94a3b8" fontSize={11} />
               <YAxis stroke="#94a3b8" fontSize={11} label={{ value: "Minutes", angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 11 }} />
-              <RTooltip contentStyle={{ background: "#0F172A", border: "1px solid #334155", borderRadius: 8 }} />
+              <RTooltip contentStyle={{ background: "#0B1F3B", border: "1px solid #334155", borderRadius: 8 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar dataKey="before" name="Before AI" fill="#64748b" radius={[4, 4, 0, 0]}>
                 <LabelList dataKey="before" position="top" fill="#ffffff" fontSize={11} fontWeight={700} />
