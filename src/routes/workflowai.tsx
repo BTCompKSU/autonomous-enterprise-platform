@@ -20,6 +20,11 @@ import {
   Heart,
   FileText,
   RefreshCw,
+  Maximize2,
+  AlertTriangle,
+  UserRound,
+  Brain,
+  ArrowRight,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
@@ -215,6 +220,7 @@ function WorkflowAIPage() {
                   activeNode={activeNode}
                   threshold={threshold}
                   setThreshold={setThreshold}
+                  running={running}
                 />
               </TabsContent>
               <TabsContent value="runs" className="mt-4">
@@ -369,26 +375,33 @@ type NodeDef = {
   pills?: string[];
 };
 
+// Layout: vertical center axis ~x=550. node_4 sits LEFT of axis.
 const NODES: NodeDef[] = [
-  { id: 1, x: 40, y: 40, w: 200, icon: Mail, label: "Incoming Invoice", sub: "Source: Email / Upload", color: "border-slate-600" },
-  { id: 2, x: 40, y: 180, w: 220, icon: Sparkles, label: "Extract Invoice Data", sub: "7 fields extracted", color: "border-[#4F46E5]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
-  { id: 3, x: 60, y: 400, w: 200, icon: Gauge, label: "Confidence Check", sub: "Threshold control", color: "border-[#4F46E5]", diamond: true },
-  { id: 4, x: 320, y: 380, w: 220, icon: UserCheck, label: "Maria Review Queue", sub: "Reviewer: Maria Reyes", color: "border-[#F59E0B]" },
-  { id: 5, x: 600, y: 400, w: 200, icon: CheckCircle2, label: "Approval Step", sub: "Auto or Manual", color: "border-[#10B981]" },
-  { id: 6, x: 600, y: 560, w: 220, icon: Database, label: "Export to Finance", sub: "Destination: ERP_SIM", color: "border-sky-500" },
-  { id: 7, x: 600, y: 700, w: 220, icon: BookOpen, label: "Learning Feedback", sub: "Corrections → model", color: "border-purple-500" },
+  { id: 1, x: 440, y: 30,  w: 220, icon: Mail,        label: "Incoming Invoice",      sub: "Source: Email / Upload",   color: "border-slate-600" },
+  { id: 2, x: 430, y: 160, w: 240, icon: Sparkles,    label: "Extract Invoice Data",  sub: "7 fields extracted",       color: "border-[#4F46E5]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
+  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Confidence Check",      sub: "Threshold control",        color: "border-[#4F46E5]", diamond: true },
+  { id: 4, x: 120, y: 470, w: 240, icon: UserCheck,   label: "Maria Review Queue",    sub: "Reviewer: Maria Reyes",    color: "border-[#F59E0B]" },
+  { id: 5, x: 430, y: 600, w: 240, icon: CheckCircle2,label: "Approval Step",         sub: "Auto or Manual",           color: "border-[#10B981]" },
+  { id: 6, x: 430, y: 730, w: 240, icon: Database,    label: "Export to Finance",     sub: "Destination: ERP_SIM",     color: "border-sky-500" },
+  { id: 7, x: 430, y: 860, w: 240, icon: BookOpen,    label: "Learning Feedback",     sub: "Corrections → model",      color: "border-purple-500" },
 ];
 
 function WorkflowCanvas({
   activeNode,
   threshold,
   setThreshold,
+  running,
 }: {
   activeNode: number | null;
   threshold: number;
   setThreshold: (v: number) => void;
+  running?: boolean;
 }) {
-  // Connectors as SVG paths
+  const [fit, setFit] = useState(false);
+  const CANVAS_W = 800;
+  const CANVAS_H = 1100;
+
+  // Connectors as SVG paths — also used to animate the flow dot.
   const connectors = [
     { from: 1, to: 2, color: "#475569" },
     { from: 2, to: 3, color: "#4F46E5" },
@@ -399,81 +412,99 @@ function WorkflowCanvas({
     { from: 6, to: 7, color: "#A855F7" },
   ];
 
+  // Build path strings + ids so <animateMotion> can reference them.
+  const pathDefs = connectors.map((c, i) => {
+    const a = NODES.find((n) => n.id === c.from)!;
+    const b = NODES.find((n) => n.id === c.to)!;
+    const ax = a.x + a.w / 2;
+    const ay = a.y + 60;
+    const bx = b.x + b.w / 2;
+    const by = b.y + 10;
+    const mid = (ay + by) / 2;
+    return {
+      ...c,
+      idx: i,
+      pathId: `flow-path-${i}`,
+      d: `M ${ax} ${ay} C ${ax} ${mid}, ${bx} ${mid}, ${bx} ${by}`,
+      labelX: (ax + bx) / 2,
+      labelY: mid - 6,
+    };
+  });
+
+  // Dot animation: chain through connectors. Auto path skips connector index 2 (3→4) and 4 (4→5).
+  // For demo, use the human-review path so all branches are exercised.
+  const flowSequence = [0, 1, 2, 4, 5, 6]; // 1→2→3→4→5→6→7
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
       <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Workflow Canvas</h3>
-          <span className="text-[10px] text-slate-500">Hover nodes for config</span>
+          <div className="flex items-center gap-2">
+            <span className="hidden text-[10px] text-slate-500 md:inline">
+              {fit ? "Fit mode" : "Pan / scroll"}
+            </span>
+            <button
+              onClick={() => setFit((f) => !f)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/60 px-2.5 py-1 text-[11px] text-slate-300 hover:bg-slate-800"
+              title="Fit to screen"
+            >
+              <Maximize2 className="h-3 w-3" />
+              {fit ? "Exit fit" : "Fit to screen"}
+            </button>
+          </div>
         </div>
-        <div className="relative h-[860px] w-full overflow-auto rounded-xl bg-[radial-gradient(circle,_rgba(71,85,105,0.25)_1px,_transparent_1px)] [background-size:18px_18px]">
-          <svg className="absolute inset-0 h-[860px] w-[900px]" style={{ pointerEvents: "none" }}>
-            {connectors.map((c, i) => {
-              const a = NODES.find((n) => n.id === c.from)!;
-              const b = NODES.find((n) => n.id === c.to)!;
-              const ax = a.x + a.w / 2;
-              const ay = a.y + 60;
-              const bx = b.x + b.w / 2;
-              const by = b.y + 10;
-              const mid = (ay + by) / 2;
-              const path = `M ${ax} ${ay} C ${ax} ${mid}, ${bx} ${mid}, ${bx} ${by}`;
-              return (
-                <g key={i}>
-                  <path d={path} stroke={c.color} strokeWidth={2} fill="none" className="flow-line" opacity={0.85} />
-                  {c.label && (
-                    <text x={(ax + bx) / 2} y={mid - 6} textAnchor="middle" fill={c.color} fontSize="10" className="font-medium">
-                      {c.label}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
 
-          {NODES.map((n) => {
-            const Icon = n.icon;
-            const active = activeNode === n.id;
-            return (
-              <div
-                key={n.id}
-                className="group absolute"
-                style={{ left: n.x, top: n.y, width: n.w }}
-                title={JSON.stringify({ id: n.id, label: n.label }, null, 2)}
+        <div
+          className={
+            fit
+              ? "relative w-full overflow-hidden rounded-xl bg-[radial-gradient(circle,_rgba(71,85,105,0.25)_1px,_transparent_1px)] [background-size:18px_18px]"
+              : "relative h-[680px] w-full overflow-auto rounded-xl bg-[radial-gradient(circle,_rgba(71,85,105,0.25)_1px,_transparent_1px)] [background-size:18px_18px]"
+          }
+        >
+          {fit ? (
+            // FIT MODE: single SVG containing both connectors AND foreignObject node cards, scaled.
+            <svg
+              viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
+              preserveAspectRatio="xMidYMid meet"
+              className="h-auto w-full"
+            >
+              <CanvasContents
+                pathDefs={pathDefs}
+                activeNode={activeNode}
+                threshold={threshold}
+                running={running}
+                flowSequence={flowSequence}
+                asForeignObject
+              />
+            </svg>
+          ) : (
+            // PAN MODE: absolutely positioned cards over an SVG of the same width/height.
+            <div className="relative" style={{ width: CANVAS_W, height: CANVAS_H }}>
+              <svg
+                width={CANVAS_W}
+                height={CANVAS_H}
+                className="absolute inset-0"
+                style={{ pointerEvents: "none" }}
               >
-                <div
-                  className={`relative rounded-xl border-2 ${n.color} bg-slate-900/90 p-3 shadow-lg transition ${
-                    active ? "node-active scale-[1.03] ring-2 ring-[#4F46E5]/60" : ""
-                  } ${n.diamond ? "rotate-45" : ""}`}
-                >
-                  <div className={n.diamond ? "-rotate-45" : ""}>
-                    <div className="flex items-center gap-2">
-                      <span className="grid h-7 w-7 place-items-center rounded-md bg-slate-800">
-                        <Icon className="h-3.5 w-3.5 text-slate-200" />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-xs font-semibold">{n.label}</div>
-                        <div className="truncate text-[10px] text-slate-400">{n.sub}</div>
-                      </div>
-                    </div>
-                    {n.pills && (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {n.pills.map((p) => (
-                          <span key={p} className="rounded bg-[#4F46E5]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#A5B4FC]">
-                            {p}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {n.id === 3 && (
-                      <div className="mt-2 text-[10px] text-slate-400">
-                        Threshold: <span className="font-mono text-white">{(threshold * 100).toFixed(0)}%</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                <CanvasContents
+                  pathDefs={pathDefs}
+                  activeNode={activeNode}
+                  threshold={threshold}
+                  running={running}
+                  flowSequence={flowSequence}
+                />
+              </svg>
+              {NODES.map((n) => (
+                <NodeCard
+                  key={n.id}
+                  node={n}
+                  active={activeNode === n.id}
+                  threshold={threshold}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -521,6 +552,144 @@ function WorkflowCanvas({
   );
 }
 
+// SVG inner contents — connectors + optional foreignObject nodes (fit mode).
+function CanvasContents({
+  pathDefs,
+  activeNode,
+  threshold,
+  running,
+  flowSequence,
+  asForeignObject,
+}: {
+  pathDefs: Array<{
+    idx: number;
+    pathId: string;
+    d: string;
+    color: string;
+    label?: string;
+    labelX: number;
+    labelY: number;
+  }>;
+  activeNode: number | null;
+  threshold: number;
+  running?: boolean;
+  flowSequence: number[];
+  asForeignObject?: boolean;
+}) {
+  // Build the chained-path string for animateMotion (concat M…C segments).
+  const chained = flowSequence.map((i) => pathDefs[i].d).join(" ");
+  return (
+    <>
+      <defs>
+        {pathDefs.map((p) => (
+          <path key={p.pathId} id={p.pathId} d={p.d} />
+        ))}
+      </defs>
+      {pathDefs.map((p) => (
+        <g key={p.idx}>
+          <path
+            d={p.d}
+            stroke={p.color}
+            strokeWidth={2}
+            fill="none"
+            className="flow-line"
+            opacity={0.85}
+          />
+          {p.label && (
+            <text
+              x={p.labelX}
+              y={p.labelY}
+              textAnchor="middle"
+              fill={p.color}
+              fontSize="10"
+              className="font-medium"
+            >
+              {p.label}
+            </text>
+          )}
+        </g>
+      ))}
+      {running && (
+        <g>
+          <circle r={7} fill="#F5C84C" opacity={0.95}>
+            <animate
+              attributeName="r"
+              values="6;9;6"
+              dur="0.8s"
+              repeatCount="indefinite"
+            />
+            <animateMotion dur="2.4s" repeatCount="indefinite" path={chained} rotate="auto" />
+          </circle>
+        </g>
+      )}
+      {asForeignObject &&
+        NODES.map((n) => (
+          <foreignObject key={n.id} x={n.x} y={n.y} width={n.w} height={n.diamond ? 110 : 130}>
+            <NodeCard node={n} active={activeNode === n.id} threshold={threshold} />
+          </foreignObject>
+        ))}
+    </>
+  );
+}
+
+function NodeCard({
+  node: n,
+  active,
+  threshold,
+}: {
+  node: NodeDef;
+  active: boolean;
+  threshold: number;
+}) {
+  const Icon = n.icon;
+  const positioned = !active; // placeholder to keep types
+  void positioned;
+  return (
+    <div
+      className="group"
+      style={{ position: "absolute", left: n.x, top: n.y, width: n.w }}
+    >
+      <div
+        className={`relative rounded-xl border-2 ${n.color} bg-slate-900/90 p-3 shadow-lg transition ${
+          active ? "scale-[1.04] ring-2 ring-[#F5C84C] animate-pulse" : ""
+        } ${n.diamond ? "rotate-45" : ""}`}
+      >
+        <div className={n.diamond ? "-rotate-45" : ""}>
+          <div className="flex items-center gap-2">
+            <span className="grid h-7 w-7 place-items-center rounded-md bg-slate-800">
+              <Icon className="h-3.5 w-3.5 text-slate-200" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs font-semibold">{n.label}</div>
+              <div className="truncate text-[10px] text-slate-400">{n.sub}</div>
+            </div>
+          </div>
+          {n.pills && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {n.pills.map((p) => (
+                <span
+                  key={p}
+                  className="rounded bg-[#4F46E5]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#A5B4FC]"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          )}
+          {n.id === 3 && (
+            <div className="mt-2 text-[10px] text-slate-400">
+              Threshold:{" "}
+              <span className="font-mono text-white">
+                {(threshold * 100).toFixed(0)}%
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ============= PANEL 2: RUN SIMULATOR =============
 function RunSimulator({
   runs,
@@ -531,8 +700,18 @@ function RunSimulator({
   totalSaved: number;
   running: boolean;
 }) {
+  const avgConf = Math.round(
+    (runs.reduce((s, r) => s + r.confidence, 0) / runs.length) * 100,
+  );
+  const autoCount = runs.filter((r) => r.autoApproved).length;
+
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 md:p-6">
+      {running && (
+        <div className="mb-4 h-1 w-full overflow-hidden rounded-full bg-slate-800">
+          <div className="h-full animate-[slide-in-right_2.4s_linear] bg-gradient-to-r from-[#4F46E5] via-[#F5C84C] to-[#10B981]" />
+        </div>
+      )}
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-semibold">Simulation Runs</h3>
         <span className="text-[11px] text-slate-400">{running ? "Running…" : "Idle"}</span>
@@ -543,11 +722,18 @@ function RunSimulator({
           const conf = Math.round(r.confidence * 100);
           const auto = r.autoApproved;
           const tone = auto ? "#10B981" : "#F59E0B";
+          const path = auto
+            ? ["Auto", "Approval", "ERP"]
+            : ["Human Review", "Correction", "Approval", "ERP"];
+          // Ring math
+          const radius = 34;
+          const circumference = 2 * Math.PI * radius;
+          const offset = circumference - (r.confidence * circumference);
           return (
             <div
               key={r.id}
               className="animate-fade-in rounded-xl border border-slate-800 bg-slate-900/70 p-4"
-              style={{ animationDelay: `${i * 120}ms` }}
+              style={{ animationDelay: `${i * 600}ms` }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -563,67 +749,112 @@ function RunSimulator({
               </div>
 
               <div className="my-4 flex justify-center">
-                <div
-                  className="grid h-20 w-20 place-items-center rounded-full text-xl font-bold"
-                  style={{
-                    background: `${tone}15`,
-                    color: tone,
-                    boxShadow: `0 0 0 2px ${tone}40 inset`,
-                  }}
-                >
-                  {conf}%
-                </div>
-              </div>
-
-              <div className="space-y-1 text-[11px] text-slate-400">
-                <div className="flex justify-between">
-                  <span>confidence_score</span>
-                  <span className="font-mono text-slate-200">{r.confidence.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>review_required</span>
-                  <span className="font-mono text-slate-200">{auto ? "No" : "Yes"}</span>
-                </div>
-                {!auto && (
-                  <div className="flex justify-between">
-                    <span>reviewer</span>
-                    <span className="font-mono text-slate-200">Maria Reyes</span>
+                <div className="relative h-20 w-20">
+                  <svg width={80} height={80} className="-rotate-90">
+                    <circle
+                      cx={40}
+                      cy={40}
+                      r={radius}
+                      stroke="#1e293b"
+                      strokeWidth={8}
+                      fill="none"
+                    />
+                    <circle
+                      cx={40}
+                      cy={40}
+                      r={radius}
+                      stroke={tone}
+                      strokeWidth={8}
+                      strokeLinecap="round"
+                      fill="none"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={offset}
+                      style={{ transition: "stroke-dashoffset 800ms ease" }}
+                    />
+                  </svg>
+                  <div
+                    className="absolute inset-0 grid place-items-center text-lg font-bold"
+                    style={{ color: tone }}
+                  >
+                    {conf}%
                   </div>
-                )}
+                </div>
               </div>
 
-              {r.corrections.length > 0 && !auto && (
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {r.corrections.map((c) => (
-                    <span key={c} className="rounded bg-[#F59E0B]/15 px-1.5 py-0.5 text-[10px] font-mono text-[#F59E0B]">
-                      {c}
+              {/* Time row */}
+              <div className="rounded-lg bg-slate-800/60 p-2.5 text-[11px]">
+                <div className="flex items-center justify-between gap-2 text-slate-400">
+                  <span>
+                    Before <span className="font-mono text-slate-300">{r.before}m</span>
+                  </span>
+                  <ArrowRight className="h-3 w-3 text-slate-500" />
+                  <span>
+                    After <span className="font-mono text-slate-300">{r.after}m</span>
+                  </span>
+                  <ArrowRight className="h-3 w-3 text-slate-500" />
+                  <span className="font-semibold" style={{ color: tone }}>
+                    {auto ? "✅" : "⚠️"} Saved {r.saved}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Path-taken chips */}
+              <div className="mt-3">
+                <div className="text-[10px] uppercase tracking-wide text-slate-500">Path</div>
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  {path.map((step, idx) => (
+                    <span key={step} className="flex items-center gap-1">
+                      <span
+                        className="rounded px-1.5 py-0.5 text-[10px] font-mono"
+                        style={{ background: `${tone}15`, color: tone }}
+                      >
+                        {step}
+                      </span>
+                      {idx < path.length - 1 && (
+                        <ArrowRight className="h-3 w-3 text-slate-600" />
+                      )}
                     </span>
                   ))}
                 </div>
-              )}
-
-              <div className="mt-4 rounded-lg bg-slate-800/60 p-2.5 text-[11px]">
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>Before</span>
-                  <span className="font-mono text-slate-300">{r.before} min</span>
-                </div>
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>After</span>
-                  <span className="font-mono text-slate-300">{r.after} min</span>
-                </div>
-                <div className="mt-1 flex items-center justify-between border-t border-slate-700 pt-1">
-                  <span className="font-medium text-[#10B981]">Saved</span>
-                  <span className="font-mono font-bold text-[#10B981]">{r.saved} min</span>
-                </div>
               </div>
+
+              {/* Corrections + reviewer for human-review card */}
+              {!auto && r.corrections.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                      Corrections made
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {r.corrections.map((c) => (
+                        <span
+                          key={c}
+                          className="rounded bg-[#F59E0B]/15 px-1.5 py-0.5 text-[10px] font-mono text-[#F59E0B]"
+                        >
+                          [{c}]
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-800/80 px-2 py-1 text-[11px] text-slate-300">
+                    <UserRound className="h-3 w-3 text-[#F59E0B]" />
+                    Maria Reyes
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
       <div className="mt-6 rounded-xl border border-[#10B981]/30 bg-[#10B981]/10 px-4 py-3 text-center">
-        <span className="text-xs uppercase tracking-wide text-[#10B981]">Total Time Recovered This Batch</span>
+        <div className="text-xs uppercase tracking-wide text-[#10B981]">
+          Total Time Recovered This Batch
+        </div>
         <div className="mt-0.5 text-2xl font-bold text-white">{totalSaved} minutes</div>
+        <div className="mt-1 text-[11px] text-slate-400">
+          Avg confidence: {avgConf}% · {autoCount} of {runs.length} auto-approved
+        </div>
       </div>
     </div>
   );
@@ -641,6 +872,10 @@ function OversightQueue({
   onApprove: () => void;
   feedbackLog: string[];
 }) {
+  const fieldDiffs = [
+    { field: "po_number", original: "PO-2024-8821", corrected: "PO-2024-8812" },
+    { field: "amount", original: "$12,400.00", corrected: "$12,450.00" },
+  ];
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
@@ -658,7 +893,17 @@ function OversightQueue({
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-slate-200">{run3.id}</span>
+              <div className="flex items-center gap-2">
+                {reviewed ? (
+                  <CheckCircle2 className="h-4 w-4 animate-scale-in text-[#10B981]" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-[#F59E0B]" />
+                )}
+                <span className="font-mono text-sm text-slate-200">
+                  {reviewed ? "" : "Review Required — "}
+                  {run3.id}
+                </span>
+              </div>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                   reviewed
@@ -670,28 +915,62 @@ function OversightQueue({
               </span>
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              Reason: Low confidence: {Math.round(run3.confidence * 100)}% (below 90% threshold)
+              Confidence:{" "}
+              <span className="font-mono text-slate-200">
+                {Math.round(run3.confidence * 100)}%
+              </span>{" "}
+              (below 90% threshold)
             </p>
+
             <div className="mt-3">
-              <div className="text-[10px] uppercase tracking-wide text-slate-500">Fields flagged</div>
+              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                Flagged fields
+              </div>
               <div className="mt-1 flex flex-wrap gap-1">
                 {run3.corrections.map((c) => (
-                  <span key={c} className="rounded bg-[#F59E0B]/15 px-2 py-0.5 text-[11px] font-mono text-[#F59E0B]">
-                    {c}
+                  <span
+                    key={c}
+                    className="rounded bg-[#F59E0B]/15 px-2 py-0.5 text-[11px] font-mono text-[#F59E0B]"
+                  >
+                    [{c}]
                   </span>
                 ))}
               </div>
             </div>
+
+            <div className="mt-4 space-y-2">
+              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                Field corrections
+              </div>
+              {fieldDiffs.map((d) => (
+                <div
+                  key={d.field}
+                  className="rounded-lg border border-slate-700/60 bg-slate-900/60 p-2.5"
+                >
+                  <div className="text-[10px] font-mono text-slate-400">{d.field}</div>
+                  <div className="mt-1 flex items-center gap-2 text-[11px]">
+                    <span className="rounded bg-[#F59E0B]/15 px-1.5 py-0.5 font-mono text-[#F59E0B] line-through">
+                      {d.original}
+                    </span>
+                    <ArrowRight className="h-3 w-3 text-slate-500" />
+                    <span className="rounded bg-[#10B981]/15 px-1.5 py-0.5 font-mono text-[#10B981]">
+                      {d.corrected}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {!reviewed && (
               <div className="mt-4 flex gap-2">
                 <button
                   onClick={onApprove}
                   className="flex-1 rounded-lg bg-[#10B981] px-3 py-2 text-xs font-semibold text-white hover:bg-[#059669]"
                 >
-                  Approve Corrections ✓
+                  ✓ Approve Corrections
                 </button>
                 <button className="flex-1 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800">
-                  Reject ✗
+                  ✗ Reject
                 </button>
               </div>
             )}
@@ -707,10 +986,13 @@ function OversightQueue({
         {/* Feedback Log */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
           <div className="mb-3 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 animate-pulse text-[#4F46E5]" />
+            <Brain className="h-4 w-4 animate-pulse text-[#4F46E5]" />
             <h3 className="text-sm font-semibold">AI Learning Log</h3>
+            <span className="ml-auto rounded-full bg-[#4F46E5]/15 px-2 py-0.5 text-[10px] font-semibold text-[#A5B4FC]">
+              Feedback Learned
+            </span>
           </div>
-          <div className="rounded-lg bg-black/40 p-3 font-mono text-[11px] leading-relaxed text-slate-300">
+          <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 font-mono text-[11px] leading-relaxed text-emerald-400">
             {feedbackLog.map((line, i) => (
               <div key={i} className="animate-fade-in">
                 <span className="text-slate-600">$ </span>
