@@ -2,32 +2,30 @@
 
 ## Diagnosis
 
-Server logs show: `Failed to create lead: new row violates row-level security policy for table "leads"`.
+Server logs confirm the anon-key approach is now reaching the runtime (no "missing env" error) but PostgREST is still rejecting the INSERT with `new row violates row-level security policy`. The RLS policy itself is correct (I verified the regex matches `test@example.com` and the `anon` role is in `polroles`).
 
-The INSERT is being rejected by RLS. Since `client.server.ts` would `throw` if `SUPABASE_SERVICE_ROLE_KEY` were missing (and we don't see that throw), the service role client is being created — but its key isn't actually bypassing RLS. Either way, debugging which env var is mis-mapped in the Cloud runtime is fragile.
+The most likely cause: the `SUPABASE_PUBLISHABLE_KEY` injected into the Lovable Cloud worker runtime is the new `sb_publishable_...` format (not the legacy JWT in `.env`). When supabase-js sends it as `Authorization: Bearer <token>`, PostgREST can't decode a role from it and falls back to a role that doesn't satisfy our policy. The legacy JWT works locally but not in production.
 
-**Better approach**: this is a public lead-capture flow (homepage form, anonymous visitors). It doesn't *need* the admin client. The existing RLS policies are already designed for anon access:
+## Two paths forward — please pick one
 
-- `Anyone can submit a valid lead` — INSERT for anon/authenticated, with email format check
-- `Server can finalize pending leads` — UPDATE for anon/authenticated, only for `status='pending' AND audit IS NULL` → can move to `completed` or `failed`
-- `No direct read access to leads` — SELECT blocked (good)
+### Option A (recommended): Use the service role key for this server-side write
 
-So we just use the regular Lovable Cloud anon client on the server. No service role required.
+`SUPABASE_SERVICE_ROLE_KEY` is already auto-provisioned by Lovable Cloud (it's in the secrets list — the user doesn't need to add anything). Lovable Cloud and the service role key aren't opposed — the service role IS the Lovable-Cloud-provided way for trusted server code to write to the DB. RLS still protects the client; only this one server function bypasses it.
 
-## Plan (single-file change)
+- Switch `audit.functions.ts` back to `import { supabaseAdmin } from "@/integrations/supabase/client.server"`
+- Remove the local `getServerSupabase()` helper
+- Drop the now-unused "Server can finalize pending leads" UPDATE policy (admin client doesn't need it; keeps surface area minimal)
+- Keep the INSERT policy in case any client-side anon insert is ever needed
 
-Edit `src/lib/audit.functions.ts`:
+### Option B: Keep anon-only, route writes through a SECURITY DEFINER RPC
 
-1. **Remove** `import { supabaseAdmin } from "@/integrations/supabase/client.server"`.
-2. **Add** a small server-side helper that creates a Supabase client using `process.env.SUPABASE_URL` + `process.env.SUPABASE_PUBLISHABLE_KEY` (Lovable Cloud injects these automatically into the server runtime). Falls back to `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` for local dev parity. Cached in module scope.
-3. **Replace** all three `supabaseAdmin.from("leads")…` calls (1 INSERT, 2 UPDATEs in the success and failure paths) with the new anon client. RLS allows them all.
-4. **Sanitize email before insert**: `const email = data.email.trim().toLowerCase()` so the regex policy never sees stray whitespace/casing edge cases.
+Create two Postgres functions owned by `postgres` (bypass RLS by definition):
+- `create_pending_lead(website text, email text) returns uuid` — validates inputs, inserts, returns id
+- `finalize_lead(lead_id uuid, status text, audit jsonb, enrichment jsonb, error text)` — updates the row
 
-No DB migrations needed — current policies are correct for this flow.
+Grant `EXECUTE` to `anon, authenticated`. Server function calls `sb.rpc(...)` instead of `.from('leads').insert(...)`. RLS on the table can then be locked to `false` for INSERT/UPDATE, since all writes go through the validated RPCs.
 
-## Why this is the right fix for Lovable Cloud
+This avoids any dependency on the service role key and keeps every write path explicit and validated at the DB layer, but requires two new SQL functions and a migration.
 
-- Uses the standard anon key path that Lovable Cloud reliably provisions.
-- Doesn't depend on the service role key being present in the server runtime (which is the actual cause of the failure).
-- Keeps RLS doing its job: leads can only be inserted with valid emails, and only `pending` rows with no audit yet can be finalized — even if someone got hold of the anon key, they can't read leads or tamper with completed ones.
+Both options fix the bug. Option A is one file edit + one tiny migration. Option B is more code but stricter.
 
