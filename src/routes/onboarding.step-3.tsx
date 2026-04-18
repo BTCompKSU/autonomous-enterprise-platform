@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -28,7 +28,7 @@ const FACTS = [
 
 function Step3() {
   const router = useRouter();
-  const { profile, update } = useOnboardingProfile();
+  const { profile, update, hydrated } = useOnboardingProfile();
   const allSkills = useMemo(
     () => [...profile.selected_tasks, ...profile.custom_tasks],
     [profile.selected_tasks, profile.custom_tasks],
@@ -57,6 +57,10 @@ function Step3() {
     mutation.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.analysis, profile.selected_department, allSkills.length]);
+
+  if (!hydrated) {
+    return <LoadingPhase />;
+  }
 
   if (!profile.selected_department || allSkills.length === 0) {
     return (
@@ -336,20 +340,103 @@ function ReportPhase({
         </div>
       )}
 
-      {/* CTA */}
-      <div className="flex flex-col-reverse items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center">
-        <Link
-          to="/onboarding/step-2"
-          className="text-center text-sm text-white/60 transition hover:text-white"
-        >
-          ← Back to tasks
-        </Link>
+      {/* Skill roadmap CTA — sample-report style */}
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0B1F3B] p-7 text-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-9">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
+          Your skill roadmap is ready
+        </span>
+        <h3 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
+          Turn this into your daily AI workflow.
+        </h3>
+        <ul className="mt-5 space-y-2.5 text-sm text-white/85">
+          {(() => {
+            const automates = tasks
+              .filter((t) => t.bucket === "AUTOMATE")
+              .sort((a, b) => b.monthly_hours_saved - a.monthly_hours_saved);
+            const topName = automates[0]?.task_name;
+            const moreCount = Math.max(0, summary.automate_count - 1);
+            const bullets: { text: ReactNode }[] = [];
+            if (topName) {
+              bullets.push({
+                text: (
+                  <>
+                    Customize <strong className="text-white">{topName}</strong>
+                    {moreCount > 0 ? (
+                      <>
+                        {" "}(and <strong className="text-white">{moreCount}</strong> more)
+                      </>
+                    ) : null}{" "}
+                    inside Emulation Station
+                  </>
+                ),
+              });
+            }
+            bullets.push({
+              text: (
+                <>
+                  Reclaim{" "}
+                  <strong className="text-white">
+                    {summary.estimated_monthly_hours_saved.toFixed(0)}h/month
+                  </strong>{" "}
+                  — that's{" "}
+                  <strong className="text-white">
+                    {summary.estimated_fte_equivalent_saved.toFixed(2)} FTE
+                  </strong>{" "}
+                  of your week back
+                </>
+              ),
+            });
+            if (summary.own_count > 0) {
+              bullets.push({
+                text: (
+                  <>
+                    Keep authoring the{" "}
+                    <strong className="text-white">{summary.own_count}</strong> tasks only you can do
+                  </>
+                ),
+              });
+            }
+            return bullets.map((b, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#F5C84C]" />
+                <span>{b.text}</span>
+              </li>
+            ));
+          })()}
+        </ul>
         <Link
           to="/workflowai"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#F5C84C] px-8 py-4 text-base font-semibold tracking-tight text-[#0B1F3B] shadow-lg shadow-black/30 transition hover:brightness-110"
+          className="mt-7 inline-flex items-center justify-center gap-2 rounded-xl bg-[#F5C84C] px-8 py-4 text-base font-semibold tracking-tight text-[#0B1F3B] shadow-lg shadow-black/30 transition hover:brightness-110"
         >
           Open Emulation Station
           <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+
+      {/* Methodology footer */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-5 py-4 text-xs italic leading-relaxed text-slate-600">
+        <span className="font-semibold not-italic text-slate-700">Methodology:</span>{" "}
+        hours derived from your reported task volume × industry-standard
+        time-per-instance, with AI savings modeled per task type (Automate /
+        Augment / Author). Estimates refresh whenever you add or remove skills.
+      </div>
+
+      {/* Back link */}
+      <div className="pt-1">
+        <Link
+          to="/onboarding/step-2"
+          className="text-sm text-white/60 transition hover:text-white"
+        >
+          ← Back to tasks
         </Link>
       </div>
     </div>
