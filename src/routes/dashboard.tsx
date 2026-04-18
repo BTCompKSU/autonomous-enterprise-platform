@@ -47,6 +47,11 @@ function ExecutiveDashboard() {
       <DemoTip label="Local + economic impact (Miami pilot)">
         <RegionalImpactCard />
       </DemoTip>
+
+      <AuditCTA
+        headline="Benchmark your enterprise"
+        subline="Generate your own Autonomous Workforce Score and executive readiness report — free."
+      />
     </main>
   );
 }
