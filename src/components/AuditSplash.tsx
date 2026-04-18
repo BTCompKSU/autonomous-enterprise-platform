@@ -190,10 +190,10 @@ export function AuditSplash() {
           )}
 
           {step === "loading" && (
-            <div className="rounded-2xl border bg-card p-10 text-center shadow-2xl">
-              <Loader2 className="mx-auto h-10 w-10 animate-spin text-brand" />
-              <h3 className="mt-4 text-xl font-semibold">Analyzing {website}…</h3>
-              <ul className="mx-auto mt-6 max-w-sm space-y-2 text-left text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+              <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#0B1F3B]" />
+              <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">Analyzing {website}…</h3>
+              <ul className="mx-auto mt-6 max-w-sm space-y-2.5 text-left text-sm text-slate-600">
                 <LoadingStep label="Scanning your website" delay={0} />
                 <LoadingStep label="Enriching with company intelligence" delay={1} />
                 <LoadingStep label="Mapping AI deployment opportunities" delay={2} />
