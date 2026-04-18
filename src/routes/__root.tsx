@@ -37,7 +37,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       {
         name: "description",
         content:
-          "From AI Pilots to Reliable Autonomous Operations. Deploy enterprise AI agents with confidence scoring, human oversight, and measurable workforce impact.",
+          "From AI Pilots to Reliable Autonomous Operations. Deploy enterprise AI emulators with confidence scoring, human oversight, and measurable workforce impact.",
       },
       { name: "author", content: "UpSkill USA" },
       {
@@ -52,9 +52,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:title", content: "UpSkill USA — The Reliable Autonomous Workforce Platform" },
       { name: "twitter:title", content: "UpSkill USA — The Reliable Autonomous Workforce Platform" },
-      { name: "description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI agents at scale." },
-      { property: "og:description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI agents at scale." },
-      { name: "twitter:description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI agents at scale." },
+      { name: "description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI emulators at scale." },
+      { property: "og:description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI emulators at scale." },
+      { name: "twitter:description", content: "The Reliable Autonomous Workforce Platform enables enterprises to deploy AI emulators at scale." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7be0f43c-316b-4f18-8af0-b0ad168b1397/id-preview-dfef7eab--0595eddd-c9d9-449a-af87-0208b85cf334.lovable.app-1776527373227.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7be0f43c-316b-4f18-8af0-b0ad168b1397/id-preview-dfef7eab--0595eddd-c9d9-449a-af87-0208b85cf334.lovable.app-1776527373227.png" },
     ],

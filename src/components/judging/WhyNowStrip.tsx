@@ -3,13 +3,13 @@ import { AlertCircle, EyeOff, Unplug, ArrowRight } from "lucide-react";
 const items = [
   {
     icon: AlertCircle,
-    title: "Agents stuck in proof-of-concept",
+    title: "Emulators stuck in proof-of-concept",
     body: "82% of enterprise AI pilots never reach production. Reliability gaps kill momentum.",
   },
   {
     icon: EyeOff,
     title: "No visibility into task-level impact",
-    body: "Leaders can't measure ROI when automation lives inside opaque agent loops.",
+    body: "Leaders can't measure ROI when automation lives inside opaque emulator loops.",
   },
   {
     icon: Unplug,

@@ -45,17 +45,17 @@ import {
 export const Route = createFileRoute("/workflowai")({
   head: () => ({
     meta: [
-      { title: "WorkflowAI — Agent Builder Demo" },
+      { title: "WorkflowAI — Emulator Builder Demo" },
       {
         name: "description",
         content:
           "Build, simulate, and govern AI workflows with human-in-the-loop review. Demo: Invoice Processing for Meridian Financial Group.",
       },
-      { property: "og:title", content: "WorkflowAI — Agent Builder Demo" },
+      { property: "og:title", content: "WorkflowAI — Emulator Builder Demo" },
       {
         property: "og:description",
         content:
-          "Visual agent builder with confidence-based human review. Watch invoices flow through extract → check → approve → export.",
+          "Visual emulator builder with confidence-based human review. Watch invoices flow through extract → check → approve → export.",
       },
     ],
   }),
@@ -256,7 +256,7 @@ function WorkflowAIPage() {
 // ============= SIDEBAR =============
 function SideNav() {
   const items = [
-    { icon: Sparkles, label: "Agent Builder", active: true },
+    { icon: Sparkles, label: "Emulator Builder", active: true },
     { icon: LayoutGrid, label: "My Workflows" },
     { icon: History, label: "Run History" },
     { icon: Users, label: "Team" },

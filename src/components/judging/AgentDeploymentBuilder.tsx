@@ -2,7 +2,7 @@ import { Zap, Brain, ShieldCheck, UserRound, Cog, ArrowRight } from "lucide-reac
 
 const blocks = [
   { icon: Zap, label: "Trigger", sub: "New invoice received", tone: "bg-warning/15 text-warning-foreground" },
-  { icon: Brain, label: "AI Agent", sub: "Extract + classify", tone: "bg-brand/15 text-brand" },
+  { icon: Brain, label: "AI Emulator", sub: "Extract + classify", tone: "bg-brand/15 text-brand" },
   { icon: ShieldCheck, label: "Confidence Check", sub: "≥ 90% threshold", tone: "bg-accent text-accent-foreground" },
   { icon: UserRound, label: "Human Review", sub: "If flagged → Maria", tone: "bg-secondary text-secondary-foreground" },
   { icon: Cog, label: "System Action", sub: "Post to ledger", tone: "bg-success/15 text-success" },
@@ -13,13 +13,13 @@ export function AgentDeploymentBuilder() {
     <div className="rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold">AI Agent Deployment Builder</h3>
+          <h3 className="text-lg font-semibold">AI Emulator Deployment Builder</h3>
           <p className="text-sm text-muted-foreground">
-            Drag-free composition of a deployable agent unit.
+            Drag-free composition of a deployable emulator unit.
           </p>
         </div>
         <span className="rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-medium text-brand">
-          Production-Ready Agent Flow (Simulated)
+          Production-Ready Emulator Flow (Simulated)
         </span>
       </div>
 
