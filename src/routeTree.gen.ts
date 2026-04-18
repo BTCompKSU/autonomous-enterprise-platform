@@ -12,15 +12,21 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkflowaiRouteImport } from './routes/workflowai'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as OpportunityRouteImport } from './routes/opportunity'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as PreviewExecutiveAuditRouteImport } from './routes/preview.executive-audit'
 import { Route as PreviewEmployeeAnalysisRouteImport } from './routes/preview.employee-analysis'
 import { Route as PreviewAgentBuilderRouteImport } from './routes/preview.agent-builder'
+import { Route as OnboardingStep4RouteImport } from './routes/onboarding.step-4'
+import { Route as OnboardingStep3RouteImport } from './routes/onboarding.step-3'
+import { Route as OnboardingStep2RouteImport } from './routes/onboarding.step-2'
+import { Route as OnboardingStep1RouteImport } from './routes/onboarding.step-1'
 import { Route as AuthedSkillModuleRouteImport } from './routes/_authed/skill-module'
 import { Route as AuthedEmployeeRouteImport } from './routes/_authed/employee'
 import { Route as AuthedAssessmentRouteImport } from './routes/_authed/assessment'
@@ -42,6 +48,11 @@ const SignupRoute = SignupRouteImport.update({
 const OpportunityRoute = OpportunityRouteImport.update({
   id: '/opportunity',
   path: '/opportunity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -73,6 +84,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OnboardingRoute,
+} as any)
 const PreviewExecutiveAuditRoute = PreviewExecutiveAuditRouteImport.update({
   id: '/preview/executive-audit',
   path: '/preview/executive-audit',
@@ -87,6 +103,26 @@ const PreviewAgentBuilderRoute = PreviewAgentBuilderRouteImport.update({
   id: '/preview/agent-builder',
   path: '/preview/agent-builder',
   getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingStep4Route = OnboardingStep4RouteImport.update({
+  id: '/step-4',
+  path: '/step-4',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+const OnboardingStep3Route = OnboardingStep3RouteImport.update({
+  id: '/step-3',
+  path: '/step-3',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+const OnboardingStep2Route = OnboardingStep2RouteImport.update({
+  id: '/step-2',
+  path: '/step-2',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+const OnboardingStep1Route = OnboardingStep1RouteImport.update({
+  id: '/step-1',
+  path: '/step-1',
+  getParentRoute: () => OnboardingRoute,
 } as any)
 const AuthedSkillModuleRoute = AuthedSkillModuleRouteImport.update({
   id: '/skill-module',
@@ -131,15 +167,21 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
   '/workflowai': typeof WorkflowaiRoute
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
+  '/onboarding/step-1': typeof OnboardingStep1Route
+  '/onboarding/step-2': typeof OnboardingStep2Route
+  '/onboarding/step-3': typeof OnboardingStep3Route
+  '/onboarding/step-4': typeof OnboardingStep4Route
   '/preview/agent-builder': typeof PreviewAgentBuilderRoute
   '/preview/employee-analysis': typeof PreviewEmployeeAnalysisRoute
   '/preview/executive-audit': typeof PreviewExecutiveAuditRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/dashboard': typeof AuthedAdminDashboardRoute
   '/admin/employees': typeof AuthedAdminAdminEmployeesRoute
   '/admin/governance': typeof AuthedAdminAdminGovernanceRoute
@@ -156,9 +198,14 @@ export interface FileRoutesByTo {
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
+  '/onboarding/step-1': typeof OnboardingStep1Route
+  '/onboarding/step-2': typeof OnboardingStep2Route
+  '/onboarding/step-3': typeof OnboardingStep3Route
+  '/onboarding/step-4': typeof OnboardingStep4Route
   '/preview/agent-builder': typeof PreviewAgentBuilderRoute
   '/preview/employee-analysis': typeof PreviewEmployeeAnalysisRoute
   '/preview/executive-audit': typeof PreviewExecutiveAuditRoute
+  '/onboarding': typeof OnboardingIndexRoute
   '/dashboard': typeof AuthedAdminDashboardRoute
   '/admin/employees': typeof AuthedAdminAdminEmployeesRoute
   '/admin/governance': typeof AuthedAdminAdminGovernanceRoute
@@ -171,6 +218,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
   '/workflowai': typeof WorkflowaiRoute
@@ -178,9 +226,14 @@ export interface FileRoutesById {
   '/_authed/assessment': typeof AuthedAssessmentRoute
   '/_authed/employee': typeof AuthedEmployeeRoute
   '/_authed/skill-module': typeof AuthedSkillModuleRoute
+  '/onboarding/step-1': typeof OnboardingStep1Route
+  '/onboarding/step-2': typeof OnboardingStep2Route
+  '/onboarding/step-3': typeof OnboardingStep3Route
+  '/onboarding/step-4': typeof OnboardingStep4Route
   '/preview/agent-builder': typeof PreviewAgentBuilderRoute
   '/preview/employee-analysis': typeof PreviewEmployeeAnalysisRoute
   '/preview/executive-audit': typeof PreviewExecutiveAuditRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/_authed/_admin/dashboard': typeof AuthedAdminDashboardRoute
   '/_authed/_admin/admin/employees': typeof AuthedAdminAdminEmployeesRoute
   '/_authed/_admin/admin/governance': typeof AuthedAdminAdminGovernanceRoute
@@ -193,15 +246,21 @@ export interface FileRouteTypes {
     | '/faq'
     | '/join'
     | '/login'
+    | '/onboarding'
     | '/opportunity'
     | '/signup'
     | '/workflowai'
     | '/assessment'
     | '/employee'
     | '/skill-module'
+    | '/onboarding/step-1'
+    | '/onboarding/step-2'
+    | '/onboarding/step-3'
+    | '/onboarding/step-4'
     | '/preview/agent-builder'
     | '/preview/employee-analysis'
     | '/preview/executive-audit'
+    | '/onboarding/'
     | '/dashboard'
     | '/admin/employees'
     | '/admin/governance'
@@ -218,9 +277,14 @@ export interface FileRouteTypes {
     | '/assessment'
     | '/employee'
     | '/skill-module'
+    | '/onboarding/step-1'
+    | '/onboarding/step-2'
+    | '/onboarding/step-3'
+    | '/onboarding/step-4'
     | '/preview/agent-builder'
     | '/preview/employee-analysis'
     | '/preview/executive-audit'
+    | '/onboarding'
     | '/dashboard'
     | '/admin/employees'
     | '/admin/governance'
@@ -232,6 +296,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/join'
     | '/login'
+    | '/onboarding'
     | '/opportunity'
     | '/signup'
     | '/workflowai'
@@ -239,9 +304,14 @@ export interface FileRouteTypes {
     | '/_authed/assessment'
     | '/_authed/employee'
     | '/_authed/skill-module'
+    | '/onboarding/step-1'
+    | '/onboarding/step-2'
+    | '/onboarding/step-3'
+    | '/onboarding/step-4'
     | '/preview/agent-builder'
     | '/preview/employee-analysis'
     | '/preview/executive-audit'
+    | '/onboarding/'
     | '/_authed/_admin/dashboard'
     | '/_authed/_admin/admin/employees'
     | '/_authed/_admin/admin/governance'
@@ -254,6 +324,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRouteWithChildren
   OpportunityRoute: typeof OpportunityRoute
   SignupRoute: typeof SignupRoute
   WorkflowaiRoute: typeof WorkflowaiRoute
@@ -283,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/opportunity'
       fullPath: '/opportunity'
       preLoaderRoute: typeof OpportunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -327,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
     '/preview/executive-audit': {
       id: '/preview/executive-audit'
       path: '/preview/executive-audit'
@@ -347,6 +432,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/preview/agent-builder'
       preLoaderRoute: typeof PreviewAgentBuilderRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/step-4': {
+      id: '/onboarding/step-4'
+      path: '/step-4'
+      fullPath: '/onboarding/step-4'
+      preLoaderRoute: typeof OnboardingStep4RouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/step-3': {
+      id: '/onboarding/step-3'
+      path: '/step-3'
+      fullPath: '/onboarding/step-3'
+      preLoaderRoute: typeof OnboardingStep3RouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/step-2': {
+      id: '/onboarding/step-2'
+      path: '/step-2'
+      fullPath: '/onboarding/step-2'
+      preLoaderRoute: typeof OnboardingStep2RouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/step-1': {
+      id: '/onboarding/step-1'
+      path: '/step-1'
+      fullPath: '/onboarding/step-1'
+      preLoaderRoute: typeof OnboardingStep1RouteImport
+      parentRoute: typeof OnboardingRoute
     }
     '/_authed/skill-module': {
       id: '/_authed/skill-module'
@@ -433,6 +546,26 @@ const AuthedRouteChildren: AuthedRouteChildren = {
 const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
+interface OnboardingRouteChildren {
+  OnboardingStep1Route: typeof OnboardingStep1Route
+  OnboardingStep2Route: typeof OnboardingStep2Route
+  OnboardingStep3Route: typeof OnboardingStep3Route
+  OnboardingStep4Route: typeof OnboardingStep4Route
+  OnboardingIndexRoute: typeof OnboardingIndexRoute
+}
+
+const OnboardingRouteChildren: OnboardingRouteChildren = {
+  OnboardingStep1Route: OnboardingStep1Route,
+  OnboardingStep2Route: OnboardingStep2Route,
+  OnboardingStep3Route: OnboardingStep3Route,
+  OnboardingStep4Route: OnboardingStep4Route,
+  OnboardingIndexRoute: OnboardingIndexRoute,
+}
+
+const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
+  OnboardingRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
@@ -440,6 +573,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRouteWithChildren,
   OpportunityRoute: OpportunityRoute,
   SignupRoute: SignupRoute,
   WorkflowaiRoute: WorkflowaiRoute,
