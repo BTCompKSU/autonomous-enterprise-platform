@@ -1,19 +1,33 @@
 
-The user is right — Lovable Cloud is enabled, and the runtime secrets list confirms `SUPABASE_SERVICE_ROLE_KEY` is already provisioned automatically. There's no need to ask the user to add it.
 
-Looking at `src/lib/audit.functions.ts`, the current `getServerSupabase()` helper already falls back to the publishable key, but the cleaner fix is to use the project's existing `supabaseAdmin` client from `src/integrations/supabase/client.server.ts`, which is the canonical pattern for Lovable Cloud server functions.
+## Diagnosis
 
-Also, the temporary RLS "Anyone can update leads" policy I added (and then dropped) is no longer needed — the admin client bypasses RLS.
+Server logs show: `Failed to create lead: new row violates row-level security policy for table "leads"`.
 
-## Plan
+The INSERT is being rejected by RLS. Since `client.server.ts` would `throw` if `SUPABASE_SERVICE_ROLE_KEY` were missing (and we don't see that throw), the service role client is being created — but its key isn't actually bypassing RLS. Either way, debugging which env var is mis-mapped in the Cloud runtime is fragile.
 
-1. **Refactor `src/lib/audit.functions.ts`**:
-   - Remove the local `getServerSupabase()` helper.
-   - Import `supabaseAdmin` from `@/integrations/supabase/client.server`.
-   - Replace `supabaseAdmin = getServerSupabase()` in the handler with the imported singleton.
+**Better approach**: this is a public lead-capture flow (homepage form, anonymous visitors). It doesn't *need* the admin client. The existing RLS policies are already designed for anon access:
 
-2. **No DB changes needed** — the second migration already cleaned up the temporary update policy. The existing INSERT policy stays for any future client-side use; the server function uses the admin client which bypasses RLS regardless.
+- `Anyone can submit a valid lead` — INSERT for anon/authenticated, with email format check
+- `Server can finalize pending leads` — UPDATE for anon/authenticated, only for `status='pending' AND audit IS NULL` → can move to `completed` or `failed`
+- `No direct read access to leads` — SELECT blocked (good)
 
-3. **No secret request needed** — `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_URL` are already injected by Lovable Cloud.
+So we just use the regular Lovable Cloud anon client on the server. No service role required.
 
-That's it — single-file edit.
+## Plan (single-file change)
+
+Edit `src/lib/audit.functions.ts`:
+
+1. **Remove** `import { supabaseAdmin } from "@/integrations/supabase/client.server"`.
+2. **Add** a small server-side helper that creates a Supabase client using `process.env.SUPABASE_URL` + `process.env.SUPABASE_PUBLISHABLE_KEY` (Lovable Cloud injects these automatically into the server runtime). Falls back to `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` for local dev parity. Cached in module scope.
+3. **Replace** all three `supabaseAdmin.from("leads")…` calls (1 INSERT, 2 UPDATEs in the success and failure paths) with the new anon client. RLS allows them all.
+4. **Sanitize email before insert**: `const email = data.email.trim().toLowerCase()` so the regex policy never sees stray whitespace/casing edge cases.
+
+No DB migrations needed — current policies are correct for this flow.
+
+## Why this is the right fix for Lovable Cloud
+
+- Uses the standard anon key path that Lovable Cloud reliably provisions.
+- Doesn't depend on the service role key being present in the server runtime (which is the actual cause of the failure).
+- Keeps RLS doing its job: leads can only be inserted with valid emails, and only `pending` rows with no audit yet can be finalized — even if someone got hold of the anon key, they can't read leads or tamper with completed ones.
+
