@@ -95,8 +95,7 @@ function Index() {
             Like what you see? Get yours free.
           </h3>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-            30 seconds. No credit card. A complete audit with executive,
-            employee, and emulator views — built on your company's real data.
+            30 seconds. No credit card. A complete audit built on your company's real data.
           </p>
           <div className="mt-5">
             <Link
