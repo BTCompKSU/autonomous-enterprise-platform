@@ -40,6 +40,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  LabelList,
 } from "recharts";
 
 export const Route = createFileRoute("/workflowai")({
