@@ -62,12 +62,6 @@ function JoinPage() {
       const { data: sess } = await supabase.auth.getSession();
       const accessToken = sess.session?.access_token;
       if (!accessToken) throw new Error("No session. Please sign in again.");
-      // If the user already belongs to an org, skip redeem and just route them.
-      if (auth.orgId) {
-        toast.info("You're already part of an organization.");
-        window.location.href = auth.role === "admin" ? "/dashboard" : "/employee";
-        return;
-      }
       await redeemInviteCode({
         data: { code: code.trim().toUpperCase() },
         headers: { Authorization: `Bearer ${accessToken}` },
