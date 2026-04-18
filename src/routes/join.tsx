@@ -40,7 +40,13 @@ function JoinPage() {
           if (error) throw error;
         }
       }
-      await redeemInviteCode({ data: { code: code.trim().toUpperCase() } });
+      const { data: sess } = await supabase.auth.getSession();
+      const accessToken = sess.session?.access_token;
+      if (!accessToken) throw new Error("No session. Please sign in again.");
+      await redeemInviteCode({
+        data: { code: code.trim().toUpperCase() },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       toast.success("Joined your organization!");
       window.location.href = "/employee";
     } catch (err) {
