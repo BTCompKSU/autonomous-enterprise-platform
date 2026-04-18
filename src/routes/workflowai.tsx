@@ -1264,6 +1264,7 @@ function KpiCard({
   big,
   label,
   sub,
+  subTone,
   chart,
   warm,
 }: {
@@ -1272,6 +1273,7 @@ function KpiCard({
   big: string;
   label: string;
   sub: string;
+  subTone?: string;
   chart?: React.ReactNode;
   warm?: boolean;
 }) {
@@ -1298,7 +1300,7 @@ function KpiCard({
       <div className="mt-3 text-3xl font-bold" style={{ color: tone }}>
         {big}
       </div>
-      <div className="mt-1 text-[11px] text-slate-400">{sub}</div>
+      <div className="mt-1 text-[11px]" style={{ color: subTone ?? "#94a3b8" }}>{sub}</div>
     </div>
   );
 }
