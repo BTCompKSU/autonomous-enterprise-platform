@@ -323,7 +323,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
 
       // 5. Persist results
-      await supabaseAdmin
+      await sb
         .from("leads")
         .update({
           status: "completed",
