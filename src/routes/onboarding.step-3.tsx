@@ -213,6 +213,19 @@ function ReportPhase({
           ? "Developing"
           : "Emerging";
 
+  const sortedTasks = useMemo(() => {
+    const order: Record<RoleTask["bucket"], number> = {
+      AUTOMATE: 0,
+      AUGMENT: 1,
+      OWN: 2,
+    };
+    return [...tasks].sort((a, b) => {
+      const bucketDiff = order[a.bucket] - order[b.bucket];
+      if (bucketDiff !== 0) return bucketDiff;
+      return b.monthly_hours_saved - a.monthly_hours_saved;
+    });
+  }, [tasks]);
+
   const tools = useMemo(() => {
     const counts = new Map<string, number>();
     for (const t of tasks) {
@@ -311,7 +324,7 @@ function ReportPhase({
           Hours per month, before vs. after AI deployment.
         </p>
         <div className="mt-5 space-y-2">
-          {tasks.map((t) => (
+          {sortedTasks.map((t) => (
             <TaskRow key={t.task_id} task={t} />
           ))}
         </div>
