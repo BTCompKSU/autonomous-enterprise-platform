@@ -700,8 +700,18 @@ function RunSimulator({
   totalSaved: number;
   running: boolean;
 }) {
+  const avgConf = Math.round(
+    (runs.reduce((s, r) => s + r.confidence, 0) / runs.length) * 100,
+  );
+  const autoCount = runs.filter((r) => r.autoApproved).length;
+
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 md:p-6">
+      {running && (
+        <div className="mb-4 h-1 w-full overflow-hidden rounded-full bg-slate-800">
+          <div className="h-full animate-[slide-in-right_2.4s_linear] bg-gradient-to-r from-[#4F46E5] via-[#F5C84C] to-[#10B981]" />
+        </div>
+      )}
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-semibold">Simulation Runs</h3>
         <span className="text-[11px] text-slate-400">{running ? "Running…" : "Idle"}</span>
@@ -712,11 +722,18 @@ function RunSimulator({
           const conf = Math.round(r.confidence * 100);
           const auto = r.autoApproved;
           const tone = auto ? "#10B981" : "#F59E0B";
+          const path = auto
+            ? ["Auto", "Approval", "ERP"]
+            : ["Human Review", "Correction", "Approval", "ERP"];
+          // Ring math
+          const radius = 34;
+          const circumference = 2 * Math.PI * radius;
+          const offset = circumference - (r.confidence * circumference);
           return (
             <div
               key={r.id}
               className="animate-fade-in rounded-xl border border-slate-800 bg-slate-900/70 p-4"
-              style={{ animationDelay: `${i * 120}ms` }}
+              style={{ animationDelay: `${i * 600}ms` }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -732,67 +749,112 @@ function RunSimulator({
               </div>
 
               <div className="my-4 flex justify-center">
-                <div
-                  className="grid h-20 w-20 place-items-center rounded-full text-xl font-bold"
-                  style={{
-                    background: `${tone}15`,
-                    color: tone,
-                    boxShadow: `0 0 0 2px ${tone}40 inset`,
-                  }}
-                >
-                  {conf}%
-                </div>
-              </div>
-
-              <div className="space-y-1 text-[11px] text-slate-400">
-                <div className="flex justify-between">
-                  <span>confidence_score</span>
-                  <span className="font-mono text-slate-200">{r.confidence.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>review_required</span>
-                  <span className="font-mono text-slate-200">{auto ? "No" : "Yes"}</span>
-                </div>
-                {!auto && (
-                  <div className="flex justify-between">
-                    <span>reviewer</span>
-                    <span className="font-mono text-slate-200">Maria Reyes</span>
+                <div className="relative h-20 w-20">
+                  <svg width={80} height={80} className="-rotate-90">
+                    <circle
+                      cx={40}
+                      cy={40}
+                      r={radius}
+                      stroke="#1e293b"
+                      strokeWidth={8}
+                      fill="none"
+                    />
+                    <circle
+                      cx={40}
+                      cy={40}
+                      r={radius}
+                      stroke={tone}
+                      strokeWidth={8}
+                      strokeLinecap="round"
+                      fill="none"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={offset}
+                      style={{ transition: "stroke-dashoffset 800ms ease" }}
+                    />
+                  </svg>
+                  <div
+                    className="absolute inset-0 grid place-items-center text-lg font-bold"
+                    style={{ color: tone }}
+                  >
+                    {conf}%
                   </div>
-                )}
+                </div>
               </div>
 
-              {r.corrections.length > 0 && !auto && (
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {r.corrections.map((c) => (
-                    <span key={c} className="rounded bg-[#F59E0B]/15 px-1.5 py-0.5 text-[10px] font-mono text-[#F59E0B]">
-                      {c}
+              {/* Time row */}
+              <div className="rounded-lg bg-slate-800/60 p-2.5 text-[11px]">
+                <div className="flex items-center justify-between gap-2 text-slate-400">
+                  <span>
+                    Before <span className="font-mono text-slate-300">{r.before}m</span>
+                  </span>
+                  <ArrowRight className="h-3 w-3 text-slate-500" />
+                  <span>
+                    After <span className="font-mono text-slate-300">{r.after}m</span>
+                  </span>
+                  <ArrowRight className="h-3 w-3 text-slate-500" />
+                  <span className="font-semibold" style={{ color: tone }}>
+                    {auto ? "✅" : "⚠️"} Saved {r.saved}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Path-taken chips */}
+              <div className="mt-3">
+                <div className="text-[10px] uppercase tracking-wide text-slate-500">Path</div>
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  {path.map((step, idx) => (
+                    <span key={step} className="flex items-center gap-1">
+                      <span
+                        className="rounded px-1.5 py-0.5 text-[10px] font-mono"
+                        style={{ background: `${tone}15`, color: tone }}
+                      >
+                        {step}
+                      </span>
+                      {idx < path.length - 1 && (
+                        <ArrowRight className="h-3 w-3 text-slate-600" />
+                      )}
                     </span>
                   ))}
                 </div>
-              )}
-
-              <div className="mt-4 rounded-lg bg-slate-800/60 p-2.5 text-[11px]">
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>Before</span>
-                  <span className="font-mono text-slate-300">{r.before} min</span>
-                </div>
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>After</span>
-                  <span className="font-mono text-slate-300">{r.after} min</span>
-                </div>
-                <div className="mt-1 flex items-center justify-between border-t border-slate-700 pt-1">
-                  <span className="font-medium text-[#10B981]">Saved</span>
-                  <span className="font-mono font-bold text-[#10B981]">{r.saved} min</span>
-                </div>
               </div>
+
+              {/* Corrections + reviewer for human-review card */}
+              {!auto && r.corrections.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                      Corrections made
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {r.corrections.map((c) => (
+                        <span
+                          key={c}
+                          className="rounded bg-[#F59E0B]/15 px-1.5 py-0.5 text-[10px] font-mono text-[#F59E0B]"
+                        >
+                          [{c}]
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-800/80 px-2 py-1 text-[11px] text-slate-300">
+                    <UserRound className="h-3 w-3 text-[#F59E0B]" />
+                    Maria Reyes
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
       <div className="mt-6 rounded-xl border border-[#10B981]/30 bg-[#10B981]/10 px-4 py-3 text-center">
-        <span className="text-xs uppercase tracking-wide text-[#10B981]">Total Time Recovered This Batch</span>
+        <div className="text-xs uppercase tracking-wide text-[#10B981]">
+          Total Time Recovered This Batch
+        </div>
         <div className="mt-0.5 text-2xl font-bold text-white">{totalSaved} minutes</div>
+        <div className="mt-1 text-[11px] text-slate-400">
+          Avg confidence: {avgConf}% · {autoCount} of {runs.length} auto-approved
+        </div>
       </div>
     </div>
   );
