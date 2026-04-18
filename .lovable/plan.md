@@ -1,62 +1,72 @@
 
 
-## Plan: WorkflowAI — Agent Builder demo route
+## Plan: Pivot the audit from "deployment recommendations" to "cost-of-inaction" math
 
-This is a self-contained demo page added to the existing site. It lives at a new route and reuses the project's existing shadcn/Tailwind/Lucide/Recharts stack. No backend, no DB, no new deps.
+The current audit hands out the candy (specific opportunities, descriptions, next steps) before the user has signed up. The user wants it inverted: use the real headcount/industry data we already pull from TheCompaniesAPI to do **concrete dollar math** that creates urgency, then make the call-to-action the only way to see *how* to capture that value.
 
-### Route & integration
-- New route: `src/routes/workflowai.tsx` (path `/workflowai`)
-- Has its own `head()` metadata (title, description, og)
-- Wrapped in its own dark `bg-slate-950` shell — does NOT render the global `AppHeader` (avoids the duplicate-nav issue we just fixed on other preview pages)
-- Add nav link "WorkflowAI" to `src/components/AppShell.tsx` `marketingNav` so judges can find it
-- Replace homepage "Agent Builder" preview CTA target from `/preview/agent-builder` to `/workflowai` (or add alongside — will confirm in implementation; safer to add alongside)
+### The data we actually have (confirmed from DB)
 
-### Component structure (all in one route file, or split if it grows)
+From `enrichment.companies_api`:
+- `about.totalEmployeesExact` (e.g. 6410) — the key input
+- `about.totalEmployees` (bucket like "5k-10k") — fallback
+- `about.industry` (e.g. "individual-and-family-services") — drives wage + automation rate
+- `about.yearFounded`, `locations.headquarters.country/state`, `technologies.active`
+
+We don't have revenue, but headcount × industry-avg fully-loaded labor cost × automatable-task % gives a defensible number.
+
+### The math (server-side, deterministic — not LLM)
+
+A new `computeCostModel()` function, runs alongside the LLM call:
+
 ```
-/workflowai
-├── <WorkflowAIShell>            // dark theme wrapper, sidebar + header + main
-│   ├── <Sidebar>                // logo, nav items, Maria avatar w/ AI score 7.6
-│   ├── <TopBar>                 // breadcrumb, Simulated pill, Run/Export buttons, company tag
-│   └── <Tabs>                   // 4 tabs OR stacked on mobile
-│       ├── Panel 1: <WorkflowCanvas>     // SVG-based, 7 nodes + animated dashed arrows
-│       ├── Panel 2: <RunSimulator>       // 3 invoice cards + total saved
-│       ├── Panel 3: <OversightQueue>     // review queue + AI learning log + Maria stats
-│       └── Panel 4: <ImpactDashboard>    // 4 KPIs + 2 Recharts + gradient banner
-```
-
-### Tech choices (avoiding new deps)
-- **Workflow canvas**: custom SVG (no React Flow). 7 nodes positioned in a grid; SVG `<path>` connectors with `stroke-dasharray` + CSS `@keyframes` for the flowing-dots animation. Diamond shape via rotated div for Node 3. Simpler, zero deps, fits "hackathon demo" scope.
-- **Charts**: Recharts (already in project — `chart.tsx` exists)
-- **Animations**: Tailwind keyframes already configured (fade-in, scale-in) + simple `useState` driven sequencing for "Run Simulation". No framer-motion needed.
-- **Tabs**: existing shadcn `tabs.tsx`
-- **Slider**: existing shadcn `slider.tsx` (used in OversightPanel already)
-
-### Local state model
-```ts
-const [threshold, setThreshold] = useState(0.90);
-const [running, setRunning] = useState(false);
-const [activeNode, setActiveNode] = useState<number | null>(null);  // for run animation
-const [reviewedRun3, setReviewedRun3] = useState(false);            // toggles after Approve
-const [feedbackLog, setFeedbackLog] = useState<string[]>([...]);    // grows on Approve
+employees           = totalEmployeesExact (or midpoint of bucket)
+addressableRoles    = employees × roleAddressabilityFactor[industry]   // e.g. 0.55 for finance, 0.40 for healthcare
+fullyLoadedCost     = avgSalaryByIndustry × 1.30                       // benefits+overhead
+automatableHoursPct = automatableHoursByIndustry[industry]             // e.g. 0.22 = 22% of work week
+weeklyHoursReclaimable = addressableRoles × 40 × automatableHoursPct
+annualHoursReclaimable = weeklyHoursReclaimable × 50
+annualValueAtRisk      = annualHoursReclaimable × (fullyLoadedCost / 2080)
+fiveYearCostOfInaction = annualValueAtRisk × 5 × competitorCompoundFactor  // 1.15
 ```
 
-Derived: each invoice's status is recomputed from `threshold` so dragging the slider live-updates Panel 2 cards and Panel 4 KPIs (auto-approved %, hours saved). Hours saved counter ticks up by ~0.2hr when corrections approved.
+Industry lookup tables (~12 industries + a default) live in `src/lib/cost-model.ts`. All numbers cited from public sources (BLS, McKinsey 2023 Generative AI report) in code comments so they're defensible.
 
-### Hardcoded data
-All numbers from the spec, kept in a `const DATA = {...}` block at the top of the route file for easy tweaking. Three invoice runs as an array.
+### What the report shows now (fewer specifics, more urgency)
 
-### Brand tokens
-Use Tailwind arbitrary values for the exact hexes (`bg-[#0F172A]`, `text-[#4F46E5]`, etc.) inside this route only — does NOT alter the global theme tokens (other pages stay on the existing brand). Inter is already the system default.
+**KEEP (high-level, motivating):**
+- Company name, industry, headcount badge — proves we did our homework
+- Autonomous Workforce Score (the 0–100) — kept as the hook
+- One-paragraph executive summary
 
-### Run Simulation animation sequence
-1. Click button → `running=true`, progress bar (0→100% over ~2.5s)
-2. `activeNode` cycles 1→2→3→(4 or 5)→5→6→7 with ~300ms each, glow ring on active node
-3. Run cards fade-in staggered (existing `animate-fade-in`)
-4. KPI numbers count up from 0 → final via `requestAnimationFrame` over ~800ms
+**REPLACE the "Top Opportunities" / "Risks" / "Next Steps" sections with:**
+1. **The Cost of Inaction** — hero number: `$X.XM annual labor value locked in repeatable work` with breakdown chips: `{employees} employees · {addressableRoles} addressable roles · {weeklyHours}h/wk recoverable`
+2. **5-Year Competitive Gap** — `$Y.YM` if competitors deploy AI first (the compound figure)
+3. **What's hiding in your operations** — 3–4 *teaser* categories, NOT solutions: e.g. "Finance ops: ~12,400 hrs/yr trapped in manual reconciliation" — names the wound, doesn't sell the bandage
+4. **Locked CTA panel** — replaces "Next Steps". Big gradient card: *"Your deployment roadmap is ready. Sign up to unlock: role-by-role automation map, 90-day pilot plan, ROI projections by department."* with primary "Create your account" button → `/signup?from=audit&lead={leadId}`
+
+### LLM prompt rewrite
+
+Slim the OpenAI call down — it now only generates:
+- `score` + `score_rationale` (qualitative)
+- `executive_summary` (2 sentences, urgency-leaning)
+- `pain_categories[]` — 3–4 short labels with *symptom only*, no solution (e.g. `{department: "Finance", symptom: "Manual invoice processing and 3-way matching"}`). Replaces `top_opportunities`.
+
+Drop `risks`, `next_steps`, `top_opportunities` from the schema. Keep `AuditReport` type changes minimal-ish but breaking — update `audit-types.ts`, `audit.functions.ts` (schema + email HTML), and `AuditSplash.tsx` (report card).
 
 ### Files
-**New**: `src/routes/workflowai.tsx`
-**Edit**: `src/components/AppShell.tsx` (add nav link), `src/routes/index.tsx` (optional: link the homepage Agent Builder card to `/workflowai`)
 
-No new deps, no migration, no server function, no auth — public route.
+**Edit:**
+- `src/lib/audit-types.ts` — replace `top_opportunities/risks/next_steps` with `pain_categories`, add `cost_model` block
+- `src/lib/cost-model.ts` *(new)* — industry tables + `computeCostModel(enrichment)` pure function
+- `src/lib/audit.functions.ts` — slim LLM schema, call `computeCostModel`, merge into response, update email HTML
+- `src/components/AuditSplash.tsx` — rebuild `AuditReportCard` around cost numbers + locked CTA
+
+No DB migration (results land in existing `leads.audit` jsonb). No new deps.
+
+### What this fixes
+
+- **Less candy in the lobby:** no more free department-by-department playbook
+- **Real math, not vibes:** numbers come from their actual headcount + industry benchmarks, not LLM guesses
+- **Urgency over advice:** "$X.XM/yr at risk" + "competitors closing the gap" creates the motivation the user is asking for
+- **CTA earns its keep:** the roadmap is the gated reward for signup, not a freebie above the fold
 
