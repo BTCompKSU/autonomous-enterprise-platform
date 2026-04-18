@@ -58,6 +58,10 @@ function Step3() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.analysis, profile.selected_department, allSkills.length]);
 
+  if (!hydrated) {
+    return <LoadingPhase />;
+  }
+
   if (!profile.selected_department || allSkills.length === 0) {
     return (
       <div className="mx-auto max-w-md space-y-4 rounded-2xl border border-[#F5C84C]/40 bg-white p-6 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
