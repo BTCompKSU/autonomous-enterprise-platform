@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Cpu, PlayCircle, LogOut, ChevronDown } from "lucide-react";
+import { PlayCircle, LogOut, ChevronDown } from "lucide-react";
+import logoUrl from "@/assets/upskill-usa-logo.png";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { useState, useRef, useEffect } from "react";
@@ -51,11 +52,8 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-6">
-        <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground">
-            <Cpu className="h-4 w-4 text-warning" />
-          </span>
-          UpSkill <span className="text-warning">USA</span>
+        <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight" aria-label="UpSkill USA — Home">
+          <img src={logoUrl} alt="UpSkill USA" className="h-8 w-auto" />
         </Link>
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {nav.map((n) => {
