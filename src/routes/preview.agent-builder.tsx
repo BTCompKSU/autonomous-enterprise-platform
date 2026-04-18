@@ -1,9 +1,33 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
 import { PreviewBanner, BottomCTA } from "./preview.executive-audit";
-import { Bot, ShieldCheck, Workflow, Zap, Users } from "lucide-react";
+import {
+  Bot,
+  ShieldCheck,
+  Workflow,
+  Zap,
+  Users,
+  ArrowLeft,
+  Briefcase,
+  HeartHandshake,
+  Clock,
+} from "lucide-react";
+import {
+  SAMPLE_TASKS,
+  type SampleTaskSlug,
+  type SampleTask,
+} from "@/lib/sample-tasks";
+
+const SAMPLE_SLUGS = Object.keys(SAMPLE_TASKS) as [SampleTaskSlug, ...SampleTaskSlug[]];
+
+const searchSchema = z.object({
+  task: fallback(z.enum(SAMPLE_SLUGS).optional(), undefined),
+});
 
 export const Route = createFileRoute("/preview/agent-builder")({
+  validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
       { title: "Sample Agent Builder — UpSkill USA" },
@@ -53,16 +77,31 @@ const AGENT = {
 };
 
 function PreviewAgentBuilder() {
+  const { task } = Route.useSearch();
+  const sourceTask =
+    task && (task as SampleTaskSlug) in SAMPLE_TASKS
+      ? SAMPLE_TASKS[task as SampleTaskSlug]
+      : undefined;
+
   return (
     <div className="min-h-screen bg-background">
-      
       <PreviewBanner
-        eyebrow="Sample Agent Builder"
-        title="Every AI agent ships with guardrails."
-        subtitle="Scope, confidence thresholds, and human override — configured before deployment."
+        eyebrow={sourceTask ? "Generated from your audit" : "Sample Agent Builder"}
+        title={
+          sourceTask
+            ? `Deploy: ${sourceTask.label}`
+            : "Every AI agent ships with guardrails."
+        }
+        subtitle={
+          sourceTask
+            ? `${sourceTask.workflow} · ${sourceTask.hoursPerWeek} hrs/week recovered for ${sourceTask.reviewer}`
+            : "Scope, confidence thresholds, and human override — configured before deployment."
+        }
       />
 
       <section className="mx-auto max-w-5xl px-6 pb-16">
+        {sourceTask && <ProvenanceStrip task={sourceTask} />}
+
         <div className="rounded-3xl border bg-card p-8 shadow-2xl sm:p-10">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -187,6 +226,82 @@ function PreviewAgentBuilder() {
           sub="We pre-configure the scope and guardrails for your highest-impact workflow."
         />
       </section>
+    </div>
+  );
+}
+
+function ProvenanceStrip({ task }: { task: SampleTask }) {
+  return (
+    <div className="mb-6 overflow-hidden rounded-2xl border bg-card shadow-sm">
+      {/* Top bar — origin */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-muted/40 px-5 py-3">
+        <div className="flex items-center gap-3 text-sm">
+          <span className="rounded-full bg-brand/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-brand">
+            From your audit
+          </span>
+          <span className="font-medium text-foreground">{task.label}</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="inline-flex items-center gap-1 text-muted-foreground">
+            <Clock className="h-3.5 w-3.5" />
+            {task.hoursPerWeek} hrs/week recovered
+          </span>
+        </div>
+        <Link
+          to="/workflowai"
+          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to audit
+        </Link>
+      </div>
+
+      {/* Dual lens — exec + employee */}
+      <div className="grid gap-px bg-border sm:grid-cols-2">
+        <LensPanel
+          icon={Briefcase}
+          eyebrow="Executive view"
+          tone="brand"
+          headline={`Deploy this recommendation`}
+          body={task.execPitch}
+        />
+        <LensPanel
+          icon={HeartHandshake}
+          eyebrow="Maria's view"
+          tone="success"
+          headline={`Hand this off to AI`}
+          body={task.mariaPitch}
+        />
+      </div>
+    </div>
+  );
+}
+
+function LensPanel({
+  icon: Icon,
+  eyebrow,
+  tone,
+  headline,
+  body,
+}: {
+  icon: typeof Briefcase;
+  eyebrow: string;
+  tone: "brand" | "success";
+  headline: string;
+  body: string;
+}) {
+  const tones = {
+    brand: "bg-brand/5 text-brand",
+    success: "bg-success/5 text-success",
+  };
+  return (
+    <div className="bg-card p-5">
+      <div
+        className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${tones[tone]}`}
+      >
+        <Icon className="h-3 w-3" />
+        {eyebrow}
+      </div>
+      <h4 className="mt-3 text-base font-semibold text-foreground">{headline}</h4>
+      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
     </div>
   );
 }

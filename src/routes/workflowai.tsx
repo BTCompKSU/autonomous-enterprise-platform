@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SAMPLE_TASK_LIST } from "@/lib/sample-tasks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Zap,
@@ -1178,6 +1179,43 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+
+          <div className="mt-4 border-t border-slate-800 pt-3">
+            <div className="mb-2 flex items-center justify-between">
+              <h5 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                Automate bucket · ready to deploy
+              </h5>
+              <span className="text-[10px] text-slate-500">
+                Deep-links to the Agent Builder
+              </span>
+            </div>
+            <ul className="divide-y divide-slate-800/70 rounded-lg border border-slate-800 bg-slate-950/40">
+              {SAMPLE_TASK_LIST.map((t) => (
+                <li
+                  key={t.slug}
+                  className="flex items-center justify-between gap-3 px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-slate-100">
+                      {t.label}
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      {t.hoursPerWeek} hrs/wk recovered · threshold{" "}
+                      {t.confidenceThreshold}%
+                    </div>
+                  </div>
+                  <Link
+                    to="/preview/agent-builder"
+                    search={{ task: t.slug }}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-md bg-blue-500 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-blue-400"
+                  >
+                    Deploy as Emulator
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
