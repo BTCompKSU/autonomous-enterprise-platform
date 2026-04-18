@@ -51,9 +51,9 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-6">
+      <div className="mx-auto flex h-20 max-w-6xl items-center gap-6 px-6">
         <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight" aria-label="UpSkill USA — Home">
-          <img src={logoUrl} alt="UpSkill USA" className="h-8 w-auto" />
+          <img src={logoUrl} alt="UpSkill USA" className="h-14 w-auto" />
         </Link>
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {nav.map((n) => {
