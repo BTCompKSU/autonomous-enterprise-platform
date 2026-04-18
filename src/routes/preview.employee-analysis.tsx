@@ -58,19 +58,19 @@ const MARIA = {
     },
     {
       label: "Vendor relationship management",
-      category: "Own",
+      category: "Author",
       before: 6.0,
       after: 6.0,
     },
     {
       label: "Audit support & judgment calls",
-      category: "Own",
+      category: "Author",
       before: 4.0,
       after: 4.0,
     },
     {
       label: "Team mentorship",
-      category: "Own",
+      category: "Author",
       before: 5.0,
       after: 5.0,
     },
@@ -168,7 +168,7 @@ function PreviewEmployeeAnalysis() {
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                       <div
                         className={`h-full ${
-                          t.category === "Own"
+                          t.category === "Author"
                             ? "bg-primary"
                             : t.category === "Augment"
                               ? "bg-brand"
@@ -251,7 +251,7 @@ function CategoryBadge({ category }: { category: string }) {
   const tones: Record<string, string> = {
     Automate: "bg-success/15 text-success border-success/30",
     Augment: "bg-brand/15 text-brand border-brand/30",
-    Own: "bg-primary/10 text-primary border-primary/20",
+    Author: "bg-primary/10 text-primary border-primary/20",
   };
   return (
     <span

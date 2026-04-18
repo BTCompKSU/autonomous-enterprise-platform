@@ -1074,7 +1074,7 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
   const ownership = [
     { name: "Automate", value: DATA.ownership.automate, color: "#4F46E5" },
     { name: "Augment", value: DATA.ownership.augment, color: "#F59E0B" },
-    { name: "Own", value: DATA.ownership.own, color: "#10B981" },
+    { name: "Author", value: DATA.ownership.own, color: "#10B981" },
   ];
   const autoDonut = [
     { name: "Auto", value: autoRate, color: "#10B981" },
@@ -1176,7 +1176,7 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
                 <div className="mt-0.5 text-[10px] text-slate-400">
                   {o.name === "Automate" && "Fully handled by AI"}
                   {o.name === "Augment" && "AI-assisted, Maria decides"}
-                  {o.name === "Own" && "Maria leads entirely"}
+                  {o.name === "Author" && "Maria leads entirely"}
                 </div>
               </div>
             ))}

@@ -482,7 +482,7 @@ const BUCKET_META: Record<
     dot: "bg-brand",
   },
   OWN: {
-    label: "Own",
+    label: "Author",
     tagline: "Human-led work. AI may help with prep — you drive the outcome.",
     icon: UserCheck,
     tone: "border-primary/40 bg-primary/5",
@@ -518,7 +518,7 @@ function ResultView({
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
         <Sparkles className="h-3.5 w-3.5" />
-        Role Analysis · Automate / Augment / Own
+        Role Analysis · Automate / Augment / Author
       </div>
 
       {/* Header */}
@@ -543,7 +543,7 @@ function ResultView({
               {summary.augment_count} Augment
             </Badge>
             <Badge variant="outline" className={BUCKET_META.OWN.chip}>
-              {summary.own_count} Own
+              {summary.own_count} Author
             </Badge>
           </div>
         </div>
@@ -567,7 +567,7 @@ function ResultView({
           icon={Cog}
           label="Bucket mix"
           value={`${summary.automate_count} · ${summary.augment_count} · ${summary.own_count}`}
-          sub="Automate · Augment · Own"
+          sub="Automate · Augment · Author"
         />
       </div>
 
