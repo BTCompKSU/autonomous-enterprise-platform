@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import {
   Crown,
   Settings,
@@ -37,10 +38,19 @@ const ICONS: Record<DepartmentKey, typeof Crown> = {
 
 function Step1() {
   const navigate = useNavigate();
-  const { profile, update } = useOnboardingProfile();
+  const { profile, update, hydrated } = useOnboardingProfile();
   const [selected, setSelected] = useState<DepartmentKey | "">(
     profile.selected_department,
   );
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    // Small grace period so the entrance animation finishes before tiles
+    // become interactive — prevents accidental clicks on a still-animating UI.
+    const t = setTimeout(() => setReady(true), 600);
+    return () => clearTimeout(t);
+  }, [hydrated]);
 
   const pick = (dept: DepartmentKey) => {
     setSelected(dept);
@@ -58,8 +68,20 @@ function Step1() {
     }
   };
 
+  if (!ready) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
+        <Loader2 className="h-10 w-10 animate-spin text-[#F5C84C]" />
+        <div className="text-sm font-medium uppercase tracking-[0.22em] text-white/70">
+          Loading Step 01
+        </div>
+        <div className="text-xs text-white/50">Preparing your department options…</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 animate-fade-in">
       <div className="text-center sm:text-left">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
           Step 01 — Department
