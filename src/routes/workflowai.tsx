@@ -203,16 +203,16 @@ function WorkflowAIPage() {
           <main className="flex-1 overflow-x-hidden p-4 md:p-6">
             <Tabs defaultValue="builder" className="w-full">
               <TabsList className="bg-slate-800/60 text-slate-400">
-                <TabsTrigger value="builder" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-white">
+                <TabsTrigger value="builder" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Workflow Canvas
                 </TabsTrigger>
-                <TabsTrigger value="runs" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-white">
+                <TabsTrigger value="runs" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Run Simulator
                 </TabsTrigger>
-                <TabsTrigger value="oversight" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-white">
+                <TabsTrigger value="oversight" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Human Oversight
                 </TabsTrigger>
-                <TabsTrigger value="impact" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-white">
+                <TabsTrigger value="impact" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Impact
                 </TabsTrigger>
               </TabsList>
@@ -344,7 +344,7 @@ function TopBar({
           <button
             onClick={onRun}
             disabled={running}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5C84C] px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-[#F5C84C]/20 transition hover:bg-[#E0B43A] disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5C84C] px-3 py-1.5 text-xs font-medium text-[#0B1F3B] shadow-lg shadow-[#F5C84C]/20 transition hover:bg-[#E0B43A] disabled:opacity-60"
           >
             <Play className="h-3.5 w-3.5" />
             {running ? "Running…" : "Run Simulation"}
