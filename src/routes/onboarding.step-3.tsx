@@ -157,13 +157,14 @@ function LoadingPhase() {
 
         <ul className="mx-auto mt-7 max-w-sm space-y-2.5 text-left text-sm text-slate-700">
           {items.map((label, i) => {
-            const visible = i <= step;
             const completed = i < step;
-            if (!visible) return null;
+            const inProgress = i === step;
             return (
               <li
                 key={label}
-                className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-2.5 animate-fade-in"
+                className={`flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-2.5 transition-opacity ${
+                  completed || inProgress ? "opacity-100" : "opacity-50"
+                }`}
               >
                 {completed ? (
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
