@@ -97,13 +97,20 @@ function Index() {
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
             30 seconds. No credit card. A complete audit built on your company's real data.
           </p>
-          <div className="mt-5">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/opportunity"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
             >
               <Sparkles className="h-4 w-4" />
               Get my free audit
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/onboarding/step-1"
+              className="inline-flex items-center gap-2 rounded-full border border-warning bg-warning/10 px-5 py-2.5 text-sm font-semibold text-warning transition hover:bg-warning hover:text-warning-foreground"
+            >
+              Start your profile
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
