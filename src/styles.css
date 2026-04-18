@@ -142,3 +142,69 @@
     font-feature-settings: "ss01", "cv11";
   }
 }
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Force light surfaces so dark themes don't print as black blocks */
+  .bg-background,
+  .bg-card,
+  .bg-popover,
+  .bg-muted,
+  .bg-secondary {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+  .text-foreground,
+  .text-card-foreground,
+  .text-muted-foreground {
+    color: #111111 !important;
+  }
+  /* Preserve accent fills (badges, progress bars, CTAs) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Avoid clipping / hidden overflow that drops content from print flow */
+  .overflow-hidden,
+  .overflow-x-hidden,
+  .overflow-y-hidden {
+    overflow: visible !important;
+  }
+  /* Disable shadows + sticky/fixed which cause blank pages */
+  .shadow,
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+  }
+  .sticky,
+  .fixed {
+    position: static !important;
+  }
+  /* Keep cards together when possible */
+  section,
+  article,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-xl {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Hide elements explicitly marked no-print */
+  .no-print,
+  [data-no-print] {
+    display: none !important;
+  }
+}
