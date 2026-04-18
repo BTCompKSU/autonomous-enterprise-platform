@@ -114,6 +114,14 @@ function WorkflowAIPage() {
   const [progress, setProgress] = useState(0);
   const [activeNode, setActiveNode] = useState<number | null>(null);
   const [reviewedRun3, setReviewedRun3] = useState(false);
+  const [expertMode, setExpertMode] = useState(false);
+  const [knowledge, setKnowledge] = useState<string[]>([
+    "NET-30 default for new vendors; prefer PDF delivery",
+    "Approvals over $10k → CFO; over $50k → CFO + CEO",
+    "Acme Corp invoices always missing PO — pull from latest SOW",
+    "Use Maria's branded invoice template (logo top-left, terms footer)",
+    "Round line totals to 2 decimals; never auto-apply discounts >5%",
+  ]);
   const [feedbackLog, setFeedbackLog] = useState<string[]>([
     "[run_003] po_number correction logged ✓",
     "[run_003] amount correction logged ✓",
