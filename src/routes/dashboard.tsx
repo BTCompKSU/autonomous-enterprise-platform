@@ -5,6 +5,7 @@ import { OversightPanel } from "@/components/judging/OversightPanel";
 import { WorkforceImpactCard } from "@/components/judging/WorkforceImpactCard";
 import { RegionalImpactCard } from "@/components/judging/RegionalImpactCard";
 import { DemoTip } from "@/components/judging/DemoMode";
+import { AuditCTA } from "@/components/AuditCTA";
 
 export const Route = createFileRoute("/dashboard")({
   component: ExecutiveDashboard,
