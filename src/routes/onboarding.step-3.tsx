@@ -284,11 +284,17 @@ function ReportPhase({
           </div>
         </div>
 
-        {/* Bucket counts */}
+      {/* Bucket counts — stack-ranked by count desc */}
         <div className="grid grid-cols-3 gap-2 px-7 py-5 text-center sm:px-9">
-          <BucketTile label="Automate" count={summary.automate_count} tone="navy" />
-          <BucketTile label="Augment" count={summary.augment_count} tone="gold" />
-          <BucketTile label="Own" count={summary.own_count} tone="emerald" />
+          {(
+            [
+              { label: "Automate", count: summary.automate_count, tone: "navy" as const },
+              { label: "Augment", count: summary.augment_count, tone: "gold" as const },
+              { label: "Author", count: summary.own_count, tone: "emerald" as const },
+            ].sort((a, b) => b.count - a.count)
+          ).map((b) => (
+            <BucketTile key={b.label} label={b.label} count={b.count} tone={b.tone} />
+          ))}
         </div>
       </div>
 
