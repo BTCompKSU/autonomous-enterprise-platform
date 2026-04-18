@@ -2,7 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import Firecrawl from "@mendable/firecrawl-js";
 import { supabase } from "@/integrations/supabase/client";
-import type { AuditReport, GenerateAuditResponse } from "@/lib/audit-types";
+import type { AuditReport, GenerateAuditResponse, PainCategory } from "@/lib/audit-types";
+import { computeCostModel, formatNumber, formatUsdShort } from "@/lib/cost-model";
 
 const InputSchema = z.object({
   website: z
@@ -66,15 +67,17 @@ async function enrichCompany(domain: string) {
 
 const AUDIT_SYSTEM_PROMPT = `You are an enterprise AI deployment strategist for UpSkill USA — "The Reliable Autonomous Workforce Platform".
 
-Your job: given enrichment data about a company (industry, size, tech stack, website content), produce a rigorous AI Readiness Audit:
-- An "Autonomous Workforce Score" from 0–100 estimating what % of the company's workflows could realistically run end-to-end with AI agents at high reliability today.
-- 4–6 concrete, department-level AI deployment opportunities with realistic hours-saved-per-week estimates.
-- Risks specific to this company (compliance, data sensitivity, customer trust).
-- 3 next steps the user should take.
+Given enrichment data about a company, produce a SHORT diagnostic that names operational pain — but does NOT prescribe solutions. Your output drives motivation; the actual playbook is gated behind signup.
 
-Be concrete and reference what you know about THIS company (industry, size, products). Avoid generic advice. Avoid hype. No emojis.
+Required outputs:
+- "Autonomous Workforce Score" (0–100): the % of this company's workflows that could realistically run end-to-end with AI agents at high reliability today. Calibrate based on industry, size, and tech stack signals.
+- score_rationale: 1–2 sentences explaining the score, citing specific signals from the data.
+- executive_summary: EXACTLY 2 sentences. Open with the operational reality at this company. Close with the strategic risk of waiting. Do NOT mention specific AI solutions, vendors, or playbook items.
+- pain_categories: 3–4 items. Each has a "department" (e.g. Finance, Customer Operations) and a "symptom" — a one-sentence description of the WORK that is currently manual and repetitive at this company. NAME THE WOUND, NEVER THE BANDAGE. Do not say "could be automated", "AI agents could", or recommend any tool/process.
 
-Return ONLY valid JSON matching the provided schema. No markdown fences.`;
+Tone: serious, executive, defensible. No hype, no emojis, no marketing language. Every claim should sound like it came from a McKinsey diagnostic, not a sales deck.
+
+Return ONLY valid JSON matching the provided schema.`;
 
 const auditJsonSchema = {
   type: "object",
@@ -86,9 +89,7 @@ const auditJsonSchema = {
     "autonomous_workforce_score",
     "score_rationale",
     "executive_summary",
-    "top_opportunities",
-    "risks",
-    "next_steps",
+    "pain_categories",
   ],
   properties: {
     company_name: { type: "string" },
@@ -97,42 +98,33 @@ const auditJsonSchema = {
     autonomous_workforce_score: { type: "number", minimum: 0, maximum: 100 },
     score_rationale: { type: "string" },
     executive_summary: { type: "string" },
-    top_opportunities: {
+    pain_categories: {
       type: "array",
       minItems: 3,
-      maxItems: 6,
+      maxItems: 4,
       items: {
         type: "object",
         additionalProperties: false,
-        required: [
-          "title",
-          "department",
-          "description",
-          "impact",
-          "effort",
-          "estimated_hours_saved_per_week",
-        ],
+        required: ["department", "symptom"],
         properties: {
-          title: { type: "string" },
           department: { type: "string" },
-          description: { type: "string" },
-          impact: { type: "string", enum: ["High", "Medium", "Low"] },
-          effort: { type: "string", enum: ["Low", "Medium", "High"] },
-          estimated_hours_saved_per_week: { type: "number" },
+          symptom: { type: "string" },
         },
       },
     },
-    risks: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 6 },
-    next_steps: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 5 },
   },
 } as const;
+
+type LlmAuditPart = Omit<AuditReport, "cost_model"> & {
+  pain_categories: PainCategory[];
+};
 
 async function runOpenAiAudit(args: {
   domain: string;
   url: string;
   scrape: { markdown: string; metadata: Record<string, unknown> } | null;
   enrichment: unknown;
-}): Promise<AuditReport> {
+}): Promise<LlmAuditPart> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
 
@@ -165,7 +157,7 @@ async function runOpenAiAudit(args: {
         { role: "system", content: AUDIT_SYSTEM_PROMPT },
         {
           role: "user",
-          content: `Generate the AI Readiness Audit for this company. Data:\n\n${JSON.stringify(
+          content: `Generate the AI Readiness diagnostic for this company. Data:\n\n${JSON.stringify(
             userPayload,
             null,
             2,
@@ -185,18 +177,19 @@ async function runOpenAiAudit(args: {
   };
   const content = json.choices?.[0]?.message?.content;
   if (!content) throw new Error("OpenAI returned no content");
-  return JSON.parse(content) as AuditReport;
+  return JSON.parse(content) as LlmAuditPart;
 }
 
 function renderEmailHtml(audit: AuditReport, website: string): string {
-  const opp = audit.top_opportunities
+  const cm = audit.cost_model;
+  const pain = audit.pain_categories
     .map(
-      (o) => `
+      (p, i) => `
       <tr>
         <td style="padding:12px 16px;border-bottom:1px solid #eaeaea;">
-          <div style="font-weight:600;color:#0f172a;">${escapeHtml(o.title)}</div>
-          <div style="font-size:13px;color:#475569;margin-top:4px;">${escapeHtml(o.department)} · Impact: ${o.impact} · Effort: ${o.effort} · ~${o.estimated_hours_saved_per_week} hrs/wk</div>
-          <div style="font-size:14px;color:#1f2937;margin-top:6px;">${escapeHtml(o.description)}</div>
+          <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;font-weight:700;">${escapeHtml(p.department)}</div>
+          <div style="font-size:15px;color:#0f172a;margin-top:4px;">${escapeHtml(p.symptom)}</div>
+          <div style="font-size:13px;color:#475569;margin-top:6px;">~${formatNumber(cm.pain_hours_per_year[i] ?? 0)} hrs/yr trapped in this work</div>
         </td>
       </tr>`,
     )
@@ -204,34 +197,41 @@ function renderEmailHtml(audit: AuditReport, website: string): string {
 
   return `<!doctype html><html><body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;">
   <div style="max-width:640px;margin:0 auto;padding:32px 24px;">
-    <div style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#0e7490;font-weight:700;">UpSkill USA · AI Readiness Audit</div>
+    <div style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#0B1F3B;font-weight:700;">UpSkill USA · AI Readiness Diagnostic</div>
     <h1 style="font-size:28px;line-height:1.2;margin:8px 0 4px;">${escapeHtml(audit.company_name)}</h1>
     <div style="color:#475569;font-size:14px;">${escapeHtml(website)} · ${escapeHtml(audit.industry)} · ${escapeHtml(audit.size_estimate)}</div>
 
-    <div style="margin:28px 0;padding:24px;border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;">
-      <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.12em;color:#64748b;">Autonomous Workforce Score</div>
-      <div style="font-size:56px;font-weight:800;color:#0e7490;line-height:1;margin-top:6px;">${Math.round(audit.autonomous_workforce_score)}<span style="font-size:24px;color:#94a3b8;">/100</span></div>
-      <div style="font-size:14px;color:#334155;margin-top:10px;">${escapeHtml(audit.score_rationale)}</div>
+    <div style="margin:28px 0;padding:24px;border:1px solid #e2e8f0;border-radius:16px;background:#0B1F3B;color:#ffffff;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:#F5C84C;font-weight:700;">Annual Cost of Inaction</div>
+      <div style="font-size:48px;font-weight:800;color:#ffffff;line-height:1;margin-top:6px;">${formatUsdShort(cm.annual_value_at_risk)}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:8px;">in labor value locked in repeatable work, every year</div>
+      <div style="margin-top:16px;display:block;font-size:13px;color:rgba(255,255,255,0.85);">
+        ${formatNumber(cm.employees)} employees · ${formatNumber(cm.addressable_roles)} addressable roles · ${formatNumber(cm.weekly_hours_reclaimable)} hrs/wk recoverable
+      </div>
     </div>
+
+    <div style="margin:0 0 28px;padding:20px;border:1px solid #fde68a;background:#fffbeb;border-radius:12px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:#92400e;font-weight:700;">5-Year Competitive Gap</div>
+      <div style="font-size:32px;font-weight:800;color:#0B1F3B;margin-top:4px;">${formatUsdShort(cm.five_year_cost_of_inaction)}</div>
+      <div style="font-size:13px;color:#475569;margin-top:4px;">if competitors deploy AI before you do.</div>
+    </div>
+
+    <div style="margin:8px 0 6px;font-size:13px;color:#64748b;">Autonomous Workforce Score: <b style="color:#0B1F3B;">${Math.round(audit.autonomous_workforce_score)}/100</b></div>
+    <p style="font-size:14px;line-height:1.6;color:#334155;margin:4px 0 0;">${escapeHtml(audit.score_rationale)}</p>
 
     <h2 style="font-size:18px;margin:28px 0 8px;">Executive Summary</h2>
     <p style="font-size:15px;line-height:1.6;color:#1f2937;">${escapeHtml(audit.executive_summary)}</p>
 
-    <h2 style="font-size:18px;margin:28px 0 8px;">Top AI Deployment Opportunities</h2>
-    <table style="width:100%;border-collapse:collapse;border:1px solid #eaeaea;border-radius:12px;overflow:hidden;">${opp}</table>
+    <h2 style="font-size:18px;margin:28px 0 8px;">What's hiding in your operations</h2>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #eaeaea;border-radius:12px;overflow:hidden;">${pain}</table>
 
-    <h2 style="font-size:18px;margin:28px 0 8px;">Risks to Watch</h2>
-    <ul style="padding-left:20px;color:#1f2937;font-size:14px;line-height:1.6;">
-      ${audit.risks.map((r) => `<li>${escapeHtml(r)}</li>`).join("")}
-    </ul>
+    <div style="margin:28px 0;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0B1F3B,#1e3a5f);color:#ffffff;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:#F5C84C;font-weight:700;">Your roadmap is ready</div>
+      <div style="font-size:20px;font-weight:700;margin-top:6px;line-height:1.3;">Sign up to unlock your role-by-role automation map, 90-day pilot plan, and ROI projections by department.</div>
+    </div>
 
-    <h2 style="font-size:18px;margin:28px 0 8px;">Recommended Next Steps</h2>
-    <ol style="padding-left:20px;color:#1f2937;font-size:14px;line-height:1.6;">
-      ${audit.next_steps.map((r) => `<li>${escapeHtml(r)}</li>`).join("")}
-    </ol>
-
-    <div style="margin-top:32px;padding-top:16px;border-top:1px solid #eaeaea;font-size:12px;color:#64748b;">
-      Generated by UpSkill USA — The Reliable Autonomous Workforce Platform.
+    <div style="margin-top:32px;padding-top:16px;border-top:1px solid #eaeaea;font-size:11px;color:#64748b;line-height:1.5;">
+      Methodology: cost figures derived from your headcount × industry-standard fully-loaded labor cost (BLS 2023) × automatable-work share (McKinsey, 2023). 5-year figure compounded for competitive productivity gap.
     </div>
   </div>
 </body></html>`;
@@ -251,8 +251,6 @@ async function trySendAuditEmail(
   website: string,
   audit: AuditReport,
 ): Promise<boolean> {
-  // Best-effort: only sends if a transactional email server route is wired up later.
-  // We check by calling the standard internal route name; if it 404s, we silently skip.
   try {
     const baseUrl = process.env.LOVABLE_PUBLIC_URL ?? process.env.SUPABASE_URL ?? "";
     if (!baseUrl) return false;
@@ -262,7 +260,7 @@ async function trySendAuditEmail(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         to: email,
-        subject: `Your AI Readiness Audit for ${audit.company_name}`,
+        subject: `Your AI Readiness Diagnostic for ${audit.company_name}`,
         html,
       }),
     });
@@ -280,7 +278,6 @@ export const generateAudit = createServerFn({ method: "POST" })
     try {
       const { url, domain } = normalizeUrl(data.website);
 
-      // 1. Insert lead row as pending via SECURITY DEFINER RPC
       const insert = await supabase.rpc("create_pending_lead", {
         _website: domain,
         _email: email,
@@ -291,16 +288,17 @@ export const generateAudit = createServerFn({ method: "POST" })
       }
       leadId = insert.data as string;
 
-      // 2. Enrich in parallel
       const [scrape, enrichment] = await Promise.all([scrapeCompany(url), enrichCompany(domain)]);
 
-      // 3. Generate audit
-      const audit = await runOpenAiAudit({ domain, url, scrape, enrichment });
+      const llmPart = await runOpenAiAudit({ domain, url, scrape, enrichment });
+      const costModel = computeCostModel(
+        enrichment as Parameters<typeof computeCostModel>[0],
+        llmPart.pain_categories,
+      );
+      const audit: AuditReport = { ...llmPart, cost_model: costModel };
 
-      // 4. Try sending email (best-effort)
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
 
-      // 5. Persist results via SECURITY DEFINER RPC
       await supabase.rpc("finalize_lead", {
         _lead_id: leadId,
         _status: "completed",
