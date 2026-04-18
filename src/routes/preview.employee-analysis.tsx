@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { PreviewBanner, BottomCTA } from "./preview.executive-audit";
 import { Clock, TrendingUp, Sparkles, CheckCircle2 } from "lucide-react";
+import mariaAvatar from "@/assets/maria-avatar.png";
 
 export const Route = createFileRoute("/preview/employee-analysis")({
   head: () => ({
