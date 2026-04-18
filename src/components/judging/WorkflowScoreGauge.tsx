@@ -32,7 +32,7 @@ export function WorkflowScoreGauge({
             cx={size / 2}
             cy={size / 2}
             r={r}
-            stroke="var(--color-brand)"
+            stroke="#3B82F6"
             strokeWidth={stroke}
             strokeLinecap="round"
             fill="none"
