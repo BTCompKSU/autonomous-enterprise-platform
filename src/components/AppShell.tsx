@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { PlayCircle, LogOut, ChevronDown } from "lucide-react";
+import { PlayCircle, LogOut, ChevronDown, Menu, X } from "lucide-react";
 import logoUrl from "@/assets/upskill-usa-logo.png";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
@@ -32,6 +32,7 @@ export function AppHeader() {
   const { pathname } = useLocation();
   const auth = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,6 +42,11 @@ export function AppHeader() {
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
+
+  // Close mobile drawer whenever the route changes
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   const nav =
     auth.role === "admin"
@@ -100,9 +106,11 @@ export function AppHeader() {
                 <span className="grid h-5 w-5 place-items-center rounded-full bg-warning text-[10px] font-bold text-warning-foreground">
                   {(auth.fullName ?? auth.user?.email ?? "?")[0]?.toUpperCase()}
                 </span>
-                <span className="max-w-[140px] truncate">{auth.orgName ?? "Workspace"}</span>
+                <span className="hidden max-w-[140px] truncate sm:inline">
+                  {auth.orgName ?? "Workspace"}
+                </span>
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${auth.role === "admin" ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"}`}
+                  className={`hidden rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase sm:inline ${auth.role === "admin" ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"}`}
                 >
                   {auth.role}
                 </span>
@@ -130,8 +138,61 @@ export function AppHeader() {
               )}
             </div>
           )}
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-card text-foreground hover:bg-accent md:hidden"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile dropdown panel */}
+      {mobileOpen && (
+        <nav
+          id="mobile-nav"
+          className="border-t bg-background/95 px-6 pb-4 pt-2 backdrop-blur md:hidden"
+        >
+          <ul className="flex flex-col gap-1">
+            {nav.map((n) => {
+              const active = pathname === n.to;
+              return (
+                <li key={n.to}>
+                  <Link
+                    to={n.to}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "block rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
+                      active
+                        ? "bg-primary text-warning"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    )}
+                  >
+                    {n.label}
+                  </Link>
+                </li>
+              );
+            })}
+            {!auth.isAuthenticated && (
+              <li>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+                >
+                  Sign in
+                </Link>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }
