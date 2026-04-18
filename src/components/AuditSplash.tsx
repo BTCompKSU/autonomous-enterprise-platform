@@ -102,7 +102,7 @@ export function AuditSplash() {
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-center text-lg text-muted-foreground sm:text-xl">
           Drop in your website. We'll analyze your business, score your Autonomous Workforce
-          readiness, and email you a personalized AI deployment report — in 30 seconds.
+          readiness, and email you a personalized AI deployment report.
         </p>
 
         {/* Flow */}
