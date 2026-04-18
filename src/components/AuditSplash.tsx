@@ -397,6 +397,9 @@ function AuditReportCard({
           <p className="mt-3 text-xs leading-relaxed text-slate-500">{audit.score_rationale}</p>
         </div>
       </div>
+      <div className="px-8 pb-6 sm:px-10">
+        <WorkforceScoreScale score={score} />
+      </div>
 
       {/* Pain categories — name the wound, not the bandage */}
       <div className="border-t border-slate-100 px-8 pb-8 pt-6 sm:px-10 sm:pb-10">

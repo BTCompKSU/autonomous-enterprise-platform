@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
+import { WorkforceScoreScale } from "@/components/WorkforceScoreScale";
 import {
   ArrowRight,
   Sparkles,
@@ -185,25 +186,28 @@ function PreviewExecutiveAudit() {
           </div>
 
           {/* Score + summary */}
-          <div className="grid gap-6 p-8 sm:grid-cols-[auto_1fr] sm:p-10">
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5 text-center">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                Workforce Score
+          <div className="p-8 sm:p-10">
+            <div className="grid gap-6 sm:grid-cols-[auto_1fr]">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5 text-center">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Workforce Score
+                </div>
+                <div className="mt-1 text-5xl font-extrabold leading-none text-[#0B1F3B]">
+                  {SAMPLE.score}
+                  <span className="text-lg text-slate-400">/100</span>
+                </div>
               </div>
-              <div className="mt-1 text-5xl font-extrabold leading-none text-[#0B1F3B]">
-                {SAMPLE.score}
-                <span className="text-lg text-slate-400">/100</span>
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">Executive Summary</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                  {SAMPLE.executive_summary}
+                </p>
+                <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                  {SAMPLE.score_rationale}
+                </p>
               </div>
             </div>
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">Executive Summary</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                {SAMPLE.executive_summary}
-              </p>
-              <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                {SAMPLE.score_rationale}
-              </p>
-            </div>
+            <WorkforceScoreScale score={SAMPLE.score} />
           </div>
 
           {/* Pain categories */}
