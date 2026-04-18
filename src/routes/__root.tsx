@@ -1,6 +1,8 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { DemoModeProvider } from "@/components/judging/DemoMode";
+import { AppHeader } from "@/components/AppShell";
 
 function NotFoundComponent() {
   return (
@@ -29,21 +31,25 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-    ],
-    links: [
+      { title: "UpSkill USA — The Reliable Autonomous Workforce Platform" },
       {
-        rel: "stylesheet",
-        href: appCss,
+        name: "description",
+        content:
+          "From AI Pilots to Reliable Autonomous Operations. Deploy enterprise AI agents with confidence scoring, human oversight, and measurable workforce impact.",
       },
+      { name: "author", content: "UpSkill USA" },
+      {
+        property: "og:title",
+        content: "UpSkill USA — The Reliable Autonomous Workforce Platform",
+      },
+      {
+        property: "og:description",
+        content: "From AI Pilots to Reliable Autonomous Operations.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -65,5 +71,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <DemoModeProvider>
+      <AppHeader />
+      <Outlet />
+    </DemoModeProvider>
+  );
 }
