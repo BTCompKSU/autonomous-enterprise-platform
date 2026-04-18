@@ -5,7 +5,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { AppHeader } from "@/components/AppShell";
 import { HelpCircle, PlayCircle, Sparkles } from "lucide-react";
 
 type FAQItem = {
@@ -212,8 +211,6 @@ export const Route = createFileRoute("/faq")({
 function FAQPage() {
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
-
       {/* Hero */}
       <section className="border-b bg-gradient-to-b from-card/50 to-background">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
