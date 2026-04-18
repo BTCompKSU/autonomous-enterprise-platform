@@ -686,11 +686,11 @@ type NodeDef = {
 const NODES: NodeDef[] = [
   { id: 1, x: 440, y: 30,  w: 220, icon: Mail,        label: "Incoming Invoice",      sub: "Source: Email / Upload",   color: "border-slate-600" },
   { id: 2, x: 430, y: 160, w: 240, icon: Sparkles,    label: "Extract Invoice Data",  sub: "7 fields extracted",       color: "border-[#F5C84C]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
-  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Confidence Check",      sub: "Threshold control",        color: "border-[#F5C84C]", diamond: true },
+  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Double-check threshold", sub: "Comfort control",         color: "border-[#F5C84C]", diamond: true },
   { id: 4, x: 120, y: 470, w: 240, icon: UserCheck,   label: "Maria Review Queue",    sub: "Reviewer: Maria Reyes",    color: "border-[#F59E0B]" },
   { id: 5, x: 430, y: 600, w: 240, icon: CheckCircle2,label: "Approval Step",         sub: "Auto or Manual",           color: "border-[#10B981]" },
   { id: 6, x: 430, y: 730, w: 240, icon: Database,    label: "Export to Finance",     sub: "Destination: ERP_SIM",     color: "border-sky-500" },
-  { id: 7, x: 430, y: 860, w: 240, icon: BookOpen,    label: "Learning Feedback",     sub: "Corrections → model",      color: "border-purple-500" },
+  { id: 7, x: 430, y: 860, w: 240, icon: BookOpen,    label: "What I taught it",      sub: "This week's corrections",  color: "border-purple-500" },
 ];
 
 function WorkflowCanvas({
