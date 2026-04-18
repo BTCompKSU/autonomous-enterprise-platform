@@ -9,8 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SkillModuleRouteImport } from './routes/skill-module'
+import { Route as OpportunityRouteImport } from './routes/opportunity'
+import { Route as EmployeeRouteImport } from './routes/employee'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SkillModuleRoute = SkillModuleRouteImport.update({
+  id: '/skill-module',
+  path: '/skill-module',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpportunityRoute = OpportunityRouteImport.update({
+  id: '/opportunity',
+  path: '/opportunity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmployeeRoute = EmployeeRouteImport.update({
+  id: '/employee',
+  path: '/employee',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +43,78 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/employee': typeof EmployeeRoute
+  '/opportunity': typeof OpportunityRoute
+  '/skill-module': typeof SkillModuleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/employee': typeof EmployeeRoute
+  '/opportunity': typeof OpportunityRoute
+  '/skill-module': typeof SkillModuleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/employee': typeof EmployeeRoute
+  '/opportunity': typeof OpportunityRoute
+  '/skill-module': typeof SkillModuleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/dashboard' | '/employee' | '/opportunity' | '/skill-module'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/dashboard' | '/employee' | '/opportunity' | '/skill-module'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/employee'
+    | '/opportunity'
+    | '/skill-module'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  EmployeeRoute: typeof EmployeeRoute
+  OpportunityRoute: typeof OpportunityRoute
+  SkillModuleRoute: typeof SkillModuleRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/skill-module': {
+      id: '/skill-module'
+      path: '/skill-module'
+      fullPath: '/skill-module'
+      preLoaderRoute: typeof SkillModuleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/opportunity': {
+      id: '/opportunity'
+      path: '/opportunity'
+      fullPath: '/opportunity'
+      preLoaderRoute: typeof OpportunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employee': {
+      id: '/employee'
+      path: '/employee'
+      fullPath: '/employee'
+      preLoaderRoute: typeof EmployeeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +127,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  EmployeeRoute: EmployeeRoute,
+  OpportunityRoute: OpportunityRoute,
+  SkillModuleRoute: SkillModuleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
