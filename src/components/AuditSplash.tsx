@@ -110,10 +110,10 @@ export function AuditSplash() {
         <div className="mx-auto mt-12 max-w-2xl">
           {step === "website" && (
             <form onSubmit={onWebsiteSubmit} className="group relative">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-brand to-primary opacity-30 blur-lg transition group-focus-within:opacity-60" />
-              <div className="relative flex flex-col gap-2 rounded-2xl border bg-card p-2 shadow-2xl sm:flex-row sm:items-center">
-                <div className="flex flex-1 items-center gap-3 px-4">
-                  <Globe className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
+              <div className="relative flex flex-col gap-2 rounded-2xl border border-white/10 bg-white p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:flex-row sm:items-center">
+                <div className="flex flex-1 items-center gap-3 px-5">
+                  <Globe className="h-5 w-5 shrink-0 text-slate-400" />
                   <input
                     autoFocus
                     type="text"
@@ -122,14 +122,14 @@ export function AuditSplash() {
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="yourcompany.com"
-                    className="h-14 w-full bg-transparent text-lg font-medium text-foreground placeholder:text-muted-foreground focus:outline-none"
+                    className="h-16 w-full bg-transparent text-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+                  className="inline-flex h-16 items-center justify-center gap-2 rounded-xl bg-[#0B1F3B] px-7 text-base font-semibold tracking-tight text-white shadow-lg shadow-black/30 transition hover:bg-[#0B1F3B]/90 hover:brightness-110"
                 >
-                  Get Your Free Audit Now
+                  Get Your AI Readiness Audit
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
