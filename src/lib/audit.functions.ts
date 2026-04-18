@@ -290,6 +290,7 @@ async function trySendAuditEmail(
 export const generateAudit = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<GenerateAuditResponse> => {
+    const supabaseAdmin = getServerSupabase();
     let leadId: string | null = null;
     try {
       const { url, domain } = normalizeUrl(data.website);
