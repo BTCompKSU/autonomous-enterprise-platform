@@ -180,6 +180,12 @@ async function runOpenAiAudit(args: {
   return JSON.parse(content) as LlmAuditPart;
 }
 
+// PARITY CONTRACT: this email renderer and the on-screen <AuditReportCard /> in
+// src/components/AuditSplash.tsx render from the same AuditReport object. Every
+// field shown on screen (company_name, industry, size_estimate, score,
+// score_rationale, executive_summary, cost_model.* numbers, each pain_category)
+// must also appear here. If you add/remove a field in one place, mirror it in
+// the other so the email always matches the printed/displayed report.
 function renderEmailHtml(audit: AuditReport, website: string): string {
   const cm = audit.cost_model;
   const pain = audit.pain_categories

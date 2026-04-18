@@ -15,6 +15,7 @@ import {
   Users,
   Clock,
   AlertTriangle,
+  Printer,
 } from "lucide-react";
 import { generateAudit } from "@/lib/audit.functions";
 import type { AuditReport } from "@/lib/audit-types";
@@ -82,10 +83,10 @@ export function AuditSplash() {
   }
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#0B1F3B] text-white">
+    <section className="relative isolate overflow-hidden bg-[#0B1F3B] text-white print:bg-white print:text-slate-900">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 print:hidden"
         style={{
           background:
             "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(255,255,255,0.08), transparent 60%), radial-gradient(ellipse 50% 40% at 85% 110%, rgba(245,200,76,0.10), transparent 65%)",
@@ -93,7 +94,7 @@ export function AuditSplash() {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        className="pointer-events-none absolute inset-0 opacity-[0.06] print:hidden"
         style={{
           backgroundImage:
             "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
@@ -102,27 +103,27 @@ export function AuditSplash() {
         }}
       />
 
-      <div className="relative mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:py-32">
-        <div className="flex justify-center">
+      <div className="relative mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:py-32 print:max-w-none print:p-0 print:py-0">
+        <div className="flex justify-center print:hidden">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
             <Sparkles className="h-3.5 w-3.5" />
             Enterprise AI Readiness Audit
           </span>
         </div>
 
-        <h1 className="mx-auto mt-7 max-w-3xl text-center text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl lg:text-[64px]">
+        <h1 className="mx-auto mt-7 max-w-3xl text-center text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl lg:text-[64px] print:hidden">
           Identify where AI can{" "}
           <span className="text-[#F5C84C]">transform operations</span>{" "}
           across your company.
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg print:hidden">
           Enter your company URL to generate a real-time audit of AI-ready workflows,
           operational gaps, and automation opportunities across your organization.
         </p>
 
-        <div className="mx-auto mt-12 max-w-2xl">
+        <div className="mx-auto mt-12 max-w-2xl print:mt-0 print:max-w-none">
           {step === "website" && (
-            <form onSubmit={onWebsiteSubmit} className="group relative">
+            <form onSubmit={onWebsiteSubmit} className="group relative print:hidden">
               <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
               <div className="relative flex flex-col gap-2 rounded-2xl border border-white/10 bg-white p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:flex-row sm:items-center">
                 <div className="flex flex-1 items-center gap-3 px-5">
@@ -150,7 +151,7 @@ export function AuditSplash() {
           )}
 
           {step === "email" && (
-            <form onSubmit={onEmailSubmit} className="group relative">
+            <form onSubmit={onEmailSubmit} className="group relative print:hidden">
               <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
               <div className="relative rounded-2xl border border-white/10 bg-white p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-8">
                 <div className="mb-5 flex items-center gap-2 text-sm text-slate-500">
@@ -201,7 +202,7 @@ export function AuditSplash() {
           )}
 
           {step === "loading" && (
-            <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+            <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] print:hidden">
               <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#0B1F3B]" />
               <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
                 Analyzing {website}…
@@ -228,7 +229,7 @@ export function AuditSplash() {
         </div>
 
         {step !== "report" && (
-          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3 print:hidden">
             <Trust label="30-second audit" />
             <Trust label="No credit card required" />
             <Trust label="Enterprise-grade security" />
@@ -283,7 +284,11 @@ function AuditReportCard({
   const score = Math.round(audit.autonomous_workforce_score);
   const cm = audit.cost_model;
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+    <div
+      id="audit-printable"
+      className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl print:rounded-none print:border-0 print:shadow-none"
+    >
+      <PrintStyles />
       {/* Header */}
       <div className="border-b border-slate-100 p-8 sm:p-10">
         <div className="flex items-start justify-between gap-4">
@@ -298,13 +303,23 @@ function AuditReportCard({
               {website} · {audit.industry} · {audit.size_estimate}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onReset}
-            className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline"
-          >
-            Run another
-          </button>
+          <div className="flex shrink-0 items-center gap-3 print:hidden">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-[#0B1F3B]/30 hover:text-[#0B1F3B]"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              Print / Save PDF
+            </button>
+            <button
+              type="button"
+              onClick={onReset}
+              className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline"
+            >
+              Run another
+            </button>
+          </div>
         </div>
         {emailSent && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
@@ -438,7 +453,7 @@ function AuditReportCard({
       </div>
 
       {/* Locked CTA */}
-      <div className="relative overflow-hidden border-t border-slate-100 bg-gradient-to-br from-[#0B1F3B] via-[#13294f] to-[#0B1F3B] p-8 sm:p-10">
+      <div className="relative overflow-hidden border-t border-slate-100 bg-gradient-to-br from-[#0B1F3B] via-[#13294f] to-[#0B1F3B] p-8 sm:p-10 print:hidden">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#F5C84C]/20 blur-3xl"
@@ -510,5 +525,48 @@ function LockedItem({ children }: { children: React.ReactNode }) {
       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#F5C84C]" />
       <span>{children}</span>
     </li>
+  );
+}
+
+function PrintStyles() {
+  return (
+    <style>{`
+      @media print {
+        @page { size: letter; margin: 0.5in; }
+        html, body { background: #ffffff !important; }
+        body * { visibility: hidden !important; }
+        #audit-printable, #audit-printable * { visibility: visible !important; }
+        #audit-printable {
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+        }
+        /* Preserve navy + gold backgrounds in print */
+        #audit-printable [class*="bg-[#0B1F3B]"],
+        #audit-printable [class*="from-[#0B1F3B]"],
+        #audit-printable [class*="bg-amber-50"],
+        #audit-printable [class*="from-amber-50"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        #audit-printable * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        /* Avoid awkward breaks inside cards */
+        #audit-printable .rounded-xl,
+        #audit-printable .rounded-2xl,
+        #audit-printable .rounded-3xl {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+      }
+    `}</style>
   );
 }
