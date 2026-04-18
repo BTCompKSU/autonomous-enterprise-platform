@@ -63,56 +63,57 @@ export function AuditSplash() {
   }
 
   return (
-    <section className="relative isolate overflow-hidden">
-      {/* Background */}
+    <section className="relative isolate overflow-hidden bg-[#0B1F3B] text-white">
+      {/* Background — deep navy with soft overlay grid + restrained gold glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklab, var(--color-brand) 25%, transparent), transparent 60%), radial-gradient(ellipse 60% 50% at 80% 110%, color-mix(in oklab, var(--color-primary) 30%, transparent), transparent 60%)",
+            "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(255,255,255,0.08), transparent 60%), radial-gradient(ellipse 50% 40% at 85% 110%, rgba(245,200,76,0.10), transparent 65%)",
         }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.035]"
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage:
-            "linear-gradient(var(--color-foreground) 1px, transparent 1px), linear-gradient(90deg, var(--color-foreground) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
+            "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 80%)",
         }}
       />
 
       <div className="relative mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:py-32">
         {/* Eyebrow */}
         <div className="flex justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-brand">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
             <Sparkles className="h-3.5 w-3.5" />
-            Free AI Readiness Audit
+            Enterprise AI Readiness Audit
           </span>
         </div>
 
         {/* Headline */}
-        <h1 className="mx-auto mt-6 max-w-3xl text-center text-5xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-          See exactly where AI{" "}
-          <span className="bg-gradient-to-r from-brand to-primary bg-clip-text text-transparent">
-            replaces work
+        <h1 className="mx-auto mt-7 max-w-3xl text-center text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl lg:text-[64px]">
+          Identify where AI can{" "}
+          <span className="text-[#F5C84C]">
+            transform operations
           </span>{" "}
-          at your company.
+          across your company.
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-lg text-muted-foreground sm:text-xl">
-          Drop in your website. We'll analyze your business, score your Autonomous Workforce
-          readiness, and email you a personalized AI deployment report.
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
+          Enter your company URL to generate a real-time audit of AI-ready workflows,
+          operational gaps, and automation opportunities across your organization.
         </p>
 
         {/* Flow */}
         <div className="mx-auto mt-12 max-w-2xl">
           {step === "website" && (
             <form onSubmit={onWebsiteSubmit} className="group relative">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-brand to-primary opacity-30 blur-lg transition group-focus-within:opacity-60" />
-              <div className="relative flex flex-col gap-2 rounded-2xl border bg-card p-2 shadow-2xl sm:flex-row sm:items-center">
-                <div className="flex flex-1 items-center gap-3 px-4">
-                  <Globe className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
+              <div className="relative flex flex-col gap-2 rounded-2xl border border-white/10 bg-white p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:flex-row sm:items-center">
+                <div className="flex flex-1 items-center gap-3 px-5">
+                  <Globe className="h-5 w-5 shrink-0 text-slate-400" />
                   <input
                     autoFocus
                     type="text"
@@ -121,14 +122,14 @@ export function AuditSplash() {
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="yourcompany.com"
-                    className="h-14 w-full bg-transparent text-lg font-medium text-foreground placeholder:text-muted-foreground focus:outline-none"
+                    className="h-16 w-full bg-transparent text-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+                  className="inline-flex h-16 items-center justify-center gap-2 rounded-xl bg-[#0B1F3B] px-7 text-base font-semibold tracking-tight text-white shadow-lg shadow-black/30 transition hover:bg-[#0B1F3B]/90 hover:brightness-110"
                 >
-                  Get Your Free Audit Now
+                  Get Your AI Readiness Audit
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
@@ -137,28 +138,28 @@ export function AuditSplash() {
 
           {step === "email" && (
             <form onSubmit={onEmailSubmit} className="group relative">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-brand to-primary opacity-30 blur-lg transition group-focus-within:opacity-60" />
-              <div className="relative rounded-2xl border bg-card p-6 shadow-2xl sm:p-8">
-                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                  Auditing <span className="font-mono font-medium text-foreground">{website}</span>
+              <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
+              <div className="relative rounded-2xl border border-white/10 bg-white p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-8">
+                <div className="mb-5 flex items-center gap-2 text-sm text-slate-500">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  Auditing <span className="font-mono font-medium text-slate-900">{website}</span>
                   <button
                     type="button"
                     onClick={() => setStep("website")}
-                    className="ml-auto text-xs text-muted-foreground underline-offset-2 hover:underline"
+                    className="ml-auto text-xs text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline"
                   >
                     change
                   </button>
                 </div>
-                <label className="text-base font-semibold text-foreground">
+                <label className="text-base font-semibold tracking-tight text-slate-900">
                   Where should we send your report?
                 </label>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Your audit appears on this page and a copy is emailed to you.
+                <p className="mt-1.5 text-sm text-slate-500">
+                  Your audit appears on this page and a copy is delivered to your inbox.
                 </p>
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <div className="flex flex-1 items-center gap-3 rounded-xl border bg-background px-4">
-                    <Mail className="h-5 w-5 shrink-0 text-muted-foreground" />
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white px-5">
+                    <Mail className="h-5 w-5 shrink-0 text-slate-400" />
                     <input
                       autoFocus
                       type="email"
@@ -166,33 +167,33 @@ export function AuditSplash() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@company.com"
-                      className="h-14 w-full bg-transparent text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      className="h-16 w-full bg-transparent text-base font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="inline-flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+                    className="inline-flex h-16 items-center justify-center gap-2 rounded-xl bg-[#0B1F3B] px-7 text-base font-semibold tracking-tight text-white shadow-lg shadow-black/30 transition hover:bg-[#0B1F3B]/90 hover:brightness-110"
                   >
-                    Send My Report
+                    Deliver My Report
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
                 {error && (
                   <div className="mt-3 text-sm text-destructive">{error}</div>
                 )}
-                <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="mt-5 flex items-center gap-2 text-xs text-slate-500">
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  We never sell your email. One audit, no spam.
+                  Enterprise-grade privacy. We never share or sell your information.
                 </div>
               </div>
             </form>
           )}
 
           {step === "loading" && (
-            <div className="rounded-2xl border bg-card p-10 text-center shadow-2xl">
-              <Loader2 className="mx-auto h-10 w-10 animate-spin text-brand" />
-              <h3 className="mt-4 text-xl font-semibold">Analyzing {website}…</h3>
-              <ul className="mx-auto mt-6 max-w-sm space-y-2 text-left text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+              <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#0B1F3B]" />
+              <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">Analyzing {website}…</h3>
+              <ul className="mx-auto mt-6 max-w-sm space-y-2.5 text-left text-sm text-slate-600">
                 <LoadingStep label="Scanning your website" delay={0} />
                 <LoadingStep label="Enriching with company intelligence" delay={1} />
                 <LoadingStep label="Mapping AI deployment opportunities" delay={2} />
@@ -214,10 +215,10 @@ export function AuditSplash() {
 
         {/* Trust bar */}
         {step !== "report" && (
-          <div className="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
             <Trust label="30-second audit" />
             <Trust label="No credit card required" />
-            <Trust label="Built on enterprise-grade AI" />
+            <Trust label="Enterprise-grade security" />
           </div>
         )}
       </div>
@@ -228,12 +229,12 @@ export function AuditSplash() {
 function LoadingStep({ label, delay }: { label: string; delay: number }) {
   return (
     <li
-      className="flex items-center gap-2 opacity-0 [animation-fill-mode:forwards]"
+      className="flex items-center gap-2.5 opacity-0 [animation-fill-mode:forwards]"
       style={{
         animation: `fadeIn 400ms ease-out ${delay * 600}ms forwards`,
       }}
     >
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-brand/40 bg-brand/10 text-[10px] font-bold text-brand">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#0B1F3B]/30 bg-[#0B1F3B]/5 text-[10px] font-bold text-[#0B1F3B]">
         {delay + 1}
       </span>
       {label}
@@ -244,9 +245,9 @@ function LoadingStep({ label, delay }: { label: string; delay: number }) {
 
 function Trust({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 rounded-lg border bg-card/60 px-4 py-2.5 backdrop-blur">
-      <CheckCircle2 className="h-4 w-4 text-brand" />
-      <span className="text-xs font-medium">{label}</span>
+    <div className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+      <CheckCircle2 className="h-4 w-4 text-[#F5C84C]" />
+      <span className="text-xs font-medium tracking-wide text-white/85">{label}</span>
     </div>
   );
 }
