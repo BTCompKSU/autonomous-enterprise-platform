@@ -1073,14 +1073,41 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
     { task: "Approval Routing", before: 12, after: 2 },
   ];
   const ownership = [
-    { name: "Automate", value: DATA.ownership.automate, color: "#4F46E5" },
-    { name: "Augment", value: DATA.ownership.augment, color: "#F59E0B" },
-    { name: "Author", value: DATA.ownership.own, color: "#10B981" },
+    { name: "Automate", value: DATA.ownership.automate, color: "#3B82F6", desc: "Fully handled by AI" },
+    { name: "Augment", value: DATA.ownership.augment, color: "#F59E0B", desc: "AI-assisted, Maria decides" },
+    { name: "Author", value: DATA.ownership.own, color: "#10B981", desc: "Maria leads entirely" },
   ];
   const autoDonut = [
-    { name: "Auto", value: autoRate, color: "#10B981" },
+    { name: "Auto", value: autoRate, color: "#3B82F6" },
     { name: "Review", value: 100 - autoRate, color: "#F59E0B" },
   ];
+  const [activeOwn, setActiveOwn] = useState<number | null>(null);
+
+  const renderOwnLabel = (props: any) => {
+    const { cx, cy, midAngle, outerRadius, index } = props;
+    const RAD = Math.PI / 180;
+    const sin = Math.sin(-RAD * midAngle);
+    const cos = Math.cos(-RAD * midAngle);
+    const sx = cx + outerRadius * cos;
+    const sy = cy + outerRadius * sin;
+    const mx = cx + (outerRadius + 14) * cos;
+    const my = cy + (outerRadius + 14) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 18;
+    const ey = my;
+    const anchor = cos >= 0 ? "start" : "end";
+    const o = ownership[index];
+    return (
+      <g>
+        <polyline points={`${sx},${sy} ${mx},${my} ${ex},${ey}`} stroke="rgba(255,255,255,0.5)" strokeWidth={1} fill="none" />
+        <text x={ex + (cos >= 0 ? 4 : -4)} y={ey - 6} textAnchor={anchor} fill="#ffffff" fontSize={13} fontWeight={700} style={{ textTransform: "uppercase" }}>
+          {o.name}
+        </text>
+        <text x={ex + (cos >= 0 ? 4 : -4)} y={ey + 16} textAnchor={anchor} fill={o.color} fontSize={22} fontWeight={800}>
+          {o.value}%
+        </text>
+      </g>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -1099,10 +1126,11 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
         />
         <KpiCard
           icon={Zap}
-          tone="#4F46E5"
+          tone="#3B82F6"
           big={`${Math.round(animRate)}%`}
           label="Auto-Approved Rate"
           sub={`${100 - Math.round(animRate)}% routed to human review`}
+          subTone="#F59E0B"
           chart={
             <ResponsiveContainer width={56} height={56}>
               <PieChart>
@@ -1124,7 +1152,7 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
         />
         <KpiCard
           icon={Heart}
-          tone="#A855F7"
+          tone="#F59E0B"
           big="0"
           label="Jobs Displaced"
           sub="Maria is augmented, not replaced"
@@ -1136,14 +1164,18 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
           <h4 className="mb-3 text-sm font-semibold">Time Per Invoice: Before vs After AI</h4>
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={beforeAfter}>
+            <BarChart data={beforeAfter} margin={{ top: 20, right: 12, left: 8, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="task" stroke="#94a3b8" fontSize={11} />
-              <YAxis stroke="#94a3b8" fontSize={11} />
+              <YAxis stroke="#94a3b8" fontSize={11} label={{ value: "Minutes", angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 11 }} />
               <RTooltip contentStyle={{ background: "#0F172A", border: "1px solid #334155", borderRadius: 8 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="before" name="Before AI" fill="#64748b" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="after" name="After AI" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="before" name="Before AI" fill="#64748b" radius={[4, 4, 0, 0]}>
+                <LabelList dataKey="before" position="top" fill="#ffffff" fontSize={11} fontWeight={700} />
+              </Bar>
+              <Bar dataKey="after" name="After AI" fill="#3B82F6" radius={[4, 4, 0, 0]}>
+                <LabelList dataKey="after" position="top" fill="#ffffff" fontSize={11} fontWeight={700} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1151,34 +1183,51 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
           <h4 className="mb-3 text-sm font-semibold">Task Ownership Breakdown</h4>
           <div className="relative">
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
-                <Pie data={ownership} dataKey="value" innerRadius={60} outerRadius={90} stroke="none" paddingAngle={2}>
-                  {ownership.map((d) => (
-                    <Cell key={d.name} fill={d.color} />
+                <Pie
+                  data={ownership}
+                  dataKey="value"
+                  innerRadius={66}
+                  outerRadius={102}
+                  stroke="none"
+                  paddingAngle={2}
+                  label={renderOwnLabel}
+                  labelLine={false}
+                  onMouseEnter={(_, idx) => setActiveOwn(idx)}
+                  onMouseLeave={() => setActiveOwn(null)}
+                >
+                  {ownership.map((d, i) => (
+                    <Cell
+                      key={d.name}
+                      fill={d.color}
+                      style={activeOwn === i ? { filter: `drop-shadow(0 0 8px ${d.color})` } : undefined}
+                    />
                   ))}
                 </Pie>
                 <RTooltip contentStyle={{ background: "#0F172A", border: "1px solid #334155", borderRadius: 8 }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[10px] uppercase tracking-wide text-slate-400">Maria's</div>
-              <div className="text-sm font-bold">Role Mix</div>
+              <div className="text-[11px] uppercase tracking-widest text-slate-400">MARIA'S</div>
+              <div className="text-base font-bold text-white">Role Mix</div>
             </div>
           </div>
-          <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
+          <div className="mt-3 grid grid-cols-3 gap-2">
             {ownership.map((o) => (
-              <div key={o.name} className="rounded-lg bg-slate-800/50 p-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full" style={{ background: o.color }} />
-                  <span className="font-semibold">{o.name}</span>
-                  <span className="ml-auto font-mono">{o.value}%</span>
+              <div
+                key={o.name}
+                className="rounded-lg bg-slate-700/40 p-3"
+                style={{ borderLeft: `3px solid ${o.color}` }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="h-4 w-4 rounded-sm" style={{ background: o.color }} />
+                  <span className="text-[15px] font-bold text-white">{o.name}</span>
+                  <span className="ml-auto text-[15px] font-bold" style={{ color: o.color }}>
+                    {o.value}%
+                  </span>
                 </div>
-                <div className="mt-0.5 text-[10px] text-slate-400">
-                  {o.name === "Automate" && "Fully handled by AI"}
-                  {o.name === "Augment" && "AI-assisted, Maria decides"}
-                  {o.name === "Author" && "Maria leads entirely"}
-                </div>
+                <div className="mt-1 text-[12px] text-slate-400">{o.desc}</div>
               </div>
             ))}
           </div>
@@ -1191,13 +1240,14 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
             <Sparkles className="h-5 w-5 text-white" />
           </div>
           <div>
-            <div className="text-xs uppercase tracking-wide text-white/70">
+            <div className="text-[12px] uppercase tracking-wider text-white/70">
               Annual Productivity Value Recovered
             </div>
-            <div className="text-3xl font-bold text-white md:text-4xl">
+            <div className="text-[56px] font-extrabold leading-none text-white">
               ${(DATA.annualValue / 1_000_000).toFixed(1)}M
             </div>
-            <div className="text-xs text-white/80">
+            <div className="mt-2 h-1 w-20 rounded-full bg-[#10B981]" />
+            <div className="mt-2 text-xs text-white/80">
               Based on {DATA.employees} employees · 384 hours/year recovered · Finance operations
             </div>
           </div>
