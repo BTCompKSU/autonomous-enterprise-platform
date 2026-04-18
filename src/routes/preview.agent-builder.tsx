@@ -1,6 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { z } from "zod";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
 import { PreviewBanner, BottomCTA } from "./preview.executive-audit";
 import {
@@ -20,14 +18,16 @@ import {
   type SampleTask,
 } from "@/lib/sample-tasks";
 
-const SAMPLE_SLUGS = Object.keys(SAMPLE_TASKS) as [SampleTaskSlug, ...SampleTaskSlug[]];
-
-const searchSchema = z.object({
-  task: fallback(z.enum(SAMPLE_SLUGS).optional(), undefined),
-});
+type AgentBuilderSearch = { task?: SampleTaskSlug };
 
 export const Route = createFileRoute("/preview/agent-builder")({
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: (search: Record<string, unknown>): AgentBuilderSearch => {
+    const t = search.task;
+    if (typeof t === "string" && t in SAMPLE_TASKS) {
+      return { task: t as SampleTaskSlug };
+    }
+    return {};
+  },
   head: () => ({
     meta: [
       { title: "Sample Agent Builder — UpSkill USA" },
