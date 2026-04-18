@@ -1,72 +1,54 @@
 
 
-## Plan: Pivot the audit from "deployment recommendations" to "cost-of-inaction" math
+## Plan: Fix WorkflowAI canvas + complete Run Simulator and Oversight tabs
 
-The current audit hands out the candy (specific opportunities, descriptions, next steps) before the user has signed up. The user wants it inverted: use the real headcount/industry data we already pull from TheCompaniesAPI to do **concrete dollar math** that creates urgency, then make the call-to-action the only way to see *how* to capture that value.
+The current `/workflowai` page has all 4 tabs but Panel 1's canvas clips node_4, and Panels 2-3 need polish + animation wiring. Single-file route, additive fixes.
 
-### The data we actually have (confirmed from DB)
+### Fix 1 — Workflow Canvas (Panel 1)
 
-From `enrichment.companies_api`:
-- `about.totalEmployeesExact` (e.g. 6410) — the key input
-- `about.totalEmployees` (bucket like "5k-10k") — fallback
-- `about.industry` (e.g. "individual-and-family-services") — drives wage + automation rate
-- `about.yearFounded`, `locations.headquarters.country/state`, `technologies.active`
+- **Wrap SVG in a scroll container** with `overflow-auto` + visible scrollbars; set inner SVG to a fixed `width={1100} height={720}` viewBox so panning works on small viewports.
+- **Reposition node_4 (Maria Review)** to the LEFT of node_3's vertical axis (currently it sits right and gets clipped). New layout:
+  ```
+              [node_1]
+                 │
+              [node_2]
+                 │
+              [node_3 ◇]
+              ╱        ╲
+       [node_4]      (auto path)
+              ╲        ╱
+              [node_5]
+                 │
+              [node_6]
+                 │
+              [node_7]
+  ```
+- **Add "Fit to screen" button** (Maximize2 icon) top-right of canvas — toggles a `fit` state that swaps the wrapper from `overflow-auto` (pan mode) to `w-full h-auto` with `preserveAspectRatio="xMidYMid meet"` (fit mode).
+- **Animated flow dot**: when `running` is true, render a `<circle r=6>` with `<animateMotion>` along each `<path>` in sequence. For invoice_003 the dot routes node_3 → node_4 → node_5; for 001/002 it routes node_3 → node_5 directly. Drive sequencing by stepping through `runIndex` state in the existing `runSimulation()`.
+- **Node pulse**: bind `activeNode` (already in state) to a `ring-2 ring-[#F5C84C] animate-pulse` class on the node card.
 
-We don't have revenue, but headcount × industry-avg fully-loaded labor cost × automatable-task % gives a defensible number.
+### Fix 2 — Run Simulator Tab (Panel 2)
 
-### The math (server-side, deterministic — not LLM)
+- **Confidence rings**: replace flat badges with SVG ring (stroke-dasharray based on confidence, emerald for ≥threshold, amber otherwise). ~80px diameter.
+- **Path-taken row** under each card: small chip sequence (e.g., `Auto → Approval → ERP` or `Human Review → Correction → Approval → ERP`).
+- **Card 3 extras**: corrections chips `[po_number] [amount]` + reviewer badge with UserRound icon "Maria Reyes".
+- **Stagger entrance**: when `running` flips true, add `animate-fade-in` with inline `style={{ animationDelay: `${i*600}ms` }}`. Progress bar at panel top driven by existing `progress` state.
+- **Summary bar** (bottom): "Total Time Recovered This Batch: 58 minutes" + sub-stat "Avg confidence: 88% · 2 of 3 auto-approved" — both derived from `runStatuses` so they react to threshold changes.
 
-A new `computeCostModel()` function, runs alongside the LLM call:
+### Fix 3 — Human Oversight Tab (Panel 3)
 
-```
-employees           = totalEmployeesExact (or midpoint of bucket)
-addressableRoles    = employees × roleAddressabilityFactor[industry]   // e.g. 0.55 for finance, 0.40 for healthcare
-fullyLoadedCost     = avgSalaryByIndustry × 1.30                       // benefits+overhead
-automatableHoursPct = automatableHoursByIndustry[industry]             // e.g. 0.22 = 22% of work week
-weeklyHoursReclaimable = addressableRoles × 40 × automatableHoursPct
-annualHoursReclaimable = weeklyHoursReclaimable × 50
-annualValueAtRisk      = annualHoursReclaimable × (fullyLoadedCost / 2080)
-fiveYearCostOfInaction = annualValueAtRisk × 5 × competitorCompoundFactor  // 1.15
-```
-
-Industry lookup tables (~12 industries + a default) live in `src/lib/cost-model.ts`. All numbers cited from public sources (BLS, McKinsey 2023 Generative AI report) in code comments so they're defensible.
-
-### What the report shows now (fewer specifics, more urgency)
-
-**KEEP (high-level, motivating):**
-- Company name, industry, headcount badge — proves we did our homework
-- Autonomous Workforce Score (the 0–100) — kept as the hook
-- One-paragraph executive summary
-
-**REPLACE the "Top Opportunities" / "Risks" / "Next Steps" sections with:**
-1. **The Cost of Inaction** — hero number: `$X.XM annual labor value locked in repeatable work` with breakdown chips: `{employees} employees · {addressableRoles} addressable roles · {weeklyHours}h/wk recoverable`
-2. **5-Year Competitive Gap** — `$Y.YM` if competitors deploy AI first (the compound figure)
-3. **What's hiding in your operations** — 3–4 *teaser* categories, NOT solutions: e.g. "Finance ops: ~12,400 hrs/yr trapped in manual reconciliation" — names the wound, doesn't sell the bandage
-4. **Locked CTA panel** — replaces "Next Steps". Big gradient card: *"Your deployment roadmap is ready. Sign up to unlock: role-by-role automation map, 90-day pilot plan, ROI projections by department."* with primary "Create your account" button → `/signup?from=audit&lead={leadId}`
-
-### LLM prompt rewrite
-
-Slim the OpenAI call down — it now only generates:
-- `score` + `score_rationale` (qualitative)
-- `executive_summary` (2 sentences, urgency-leaning)
-- `pain_categories[]` — 3–4 short labels with *symptom only*, no solution (e.g. `{department: "Finance", symptom: "Manual invoice processing and 3-way matching"}`). Replaces `top_opportunities`.
-
-Drop `risks`, `next_steps`, `top_opportunities` from the schema. Keep `AuditReport` type changes minimal-ish but breaking — update `audit-types.ts`, `audit.functions.ts` (schema + email HTML), and `AuditSplash.tsx` (report card).
+- **Left column — Review Queue card** for invoice_003:
+  - Header with AlertTriangle icon
+  - Field diff display: original → corrected for `po_number` (PO-2024-8821 → PO-2024-8812) and `amount` ($12,400.00 → $12,450.00), shown as side-by-side amber/emerald chips
+  - Approve/Reject buttons; Approve triggers `setReviewedRun3(true)` → card swaps to emerald with CheckCircle2 + "Reviewed & Approved", appends new entry to `feedbackLog`, and bumps the Panel 4 hours-saved counter by +0.2hr (already wired)
+- **Right column — AI Learning Log**:
+  - Pulsing Brain icon header
+  - Terminal-styled log: `bg-slate-950 font-mono text-xs text-emerald-400` lines
+  - Entries seeded from `feedbackLog` state; each new approval prepends a timestamped line
+  - Subtext: "These corrections improve future extraction accuracy"
+- **Bottom stats row** (Maria's workload): Invoices handled 24 · Auto-resolved 16 (67%) · Required review 8 (33%) · Focus time freed 8 hrs/wk — 4 small stat tiles.
 
 ### Files
 
-**Edit:**
-- `src/lib/audit-types.ts` — replace `top_opportunities/risks/next_steps` with `pain_categories`, add `cost_model` block
-- `src/lib/cost-model.ts` *(new)* — industry tables + `computeCostModel(enrichment)` pure function
-- `src/lib/audit.functions.ts` — slim LLM schema, call `computeCostModel`, merge into response, update email HTML
-- `src/components/AuditSplash.tsx` — rebuild `AuditReportCard` around cost numbers + locked CTA
-
-No DB migration (results land in existing `leads.audit` jsonb). No new deps.
-
-### What this fixes
-
-- **Less candy in the lobby:** no more free department-by-department playbook
-- **Real math, not vibes:** numbers come from their actual headcount + industry benchmarks, not LLM guesses
-- **Urgency over advice:** "$X.XM/yr at risk" + "competitors closing the gap" creates the motivation the user is asking for
-- **CTA earns its keep:** the roadmap is the gated reward for signup, not a freebie above the fold
+**Edit only**: `src/routes/workflowai.tsx` — all changes are local to the existing route. No new components, no new deps, no routing changes.
 
