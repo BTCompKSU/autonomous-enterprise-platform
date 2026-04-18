@@ -284,7 +284,11 @@ function AuditReportCard({
   const score = Math.round(audit.autonomous_workforce_score);
   const cm = audit.cost_model;
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+    <div
+      id="audit-printable"
+      className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl print:rounded-none print:border-0 print:shadow-none"
+    >
+      <PrintStyles />
       {/* Header */}
       <div className="border-b border-slate-100 p-8 sm:p-10">
         <div className="flex items-start justify-between gap-4">
@@ -299,13 +303,23 @@ function AuditReportCard({
               {website} · {audit.industry} · {audit.size_estimate}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onReset}
-            className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline"
-          >
-            Run another
-          </button>
+          <div className="flex shrink-0 items-center gap-3 print:hidden">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-[#0B1F3B]/30 hover:text-[#0B1F3B]"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              Print / Save PDF
+            </button>
+            <button
+              type="button"
+              onClick={onReset}
+              className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline"
+            >
+              Run another
+            </button>
+          </div>
         </div>
         {emailSent && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
