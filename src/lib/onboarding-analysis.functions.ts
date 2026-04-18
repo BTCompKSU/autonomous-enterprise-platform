@@ -3,6 +3,18 @@ import { z } from "zod";
 import type { RoleAnalysis } from "@/lib/assessment-types";
 import { roleAnalysisSchema, SYSTEM_PROMPT } from "@/lib/assessment.functions";
 
+// Gemini's structured-output engine rejects schemas with minItems/maxItems
+// on arrays of complex objects ("too many states for serving"). We strip
+// those constraints here and enforce the 10–20 task target via the prompt.
+const roleAnalysisSchemaLoose = (() => {
+  const clone = JSON.parse(JSON.stringify(roleAnalysisSchema)) as {
+    properties: { tasks: { minItems?: number; maxItems?: number } };
+  };
+  delete clone.properties.tasks.minItems;
+  delete clone.properties.tasks.maxItems;
+  return clone;
+})();
+
 const InputSchema = z.object({
   department: z.string().min(1).max(120),
   skills: z.array(z.string().min(1).max(160)).min(1).max(40),
@@ -39,7 +51,7 @@ async function runOnboardingAnalysis(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-pro",
+      model: "google/gemini-2.5-flash",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: buildUserMessage(department, skills) },
@@ -49,8 +61,8 @@ async function runOnboardingAnalysis(
           type: "function",
           function: {
             name: "submit_role_analysis",
-            description: "Return the structured role-based AUTOMATE/AUGMENT/OWN analysis.",
-            parameters: roleAnalysisSchema,
+            description: "Return the structured role-based AUTOMATE/AUGMENT/OWN analysis. Return between 10 and 20 tasks.",
+            parameters: roleAnalysisSchemaLoose,
           },
         },
       ],
