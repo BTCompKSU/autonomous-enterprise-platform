@@ -1212,13 +1212,6 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
               <div className="text-base font-bold text-white">Role Mix</div>
             </div>
           </div>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[11px] uppercase tracking-widest text-slate-400">MARIA'S</div>
-              <div className="text-base font-bold text-white">Role Mix</div>
-            </div>
-          </div>
           <div className="mt-3 grid grid-cols-3 gap-2">
             {ownership.map((o) => (
               <div
