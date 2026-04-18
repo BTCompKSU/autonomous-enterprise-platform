@@ -20,15 +20,28 @@ function Step2() {
   const [custom, setCustom] = useState<string[]>(profile.custom_tasks);
   const [draft, setDraft] = useState("");
 
-  // Auto-pre-select the department's top 5 skills the first time the user
-  // lands here with an empty task list. Don't clobber later edits.
+  // Keep local state in sync when the profile loads from localStorage
+  // after mount (SSR/hydration timing) or changes elsewhere.
+  useEffect(() => {
+    setSelected(profile.selected_tasks);
+    setCustom(profile.custom_tasks);
+  }, [profile.selected_tasks, profile.custom_tasks]);
+
+  // Pre-select the department's top skills when:
+  //  (a) the user has no saved selections yet, OR
+  //  (b) the saved selections are stale (none of them exist in the current
+  //      department's skill list — e.g. job-categories.ts was updated).
   useEffect(() => {
     if (!dept) return;
-    if (profile.selected_tasks.length > 0 || profile.custom_tasks.length > 0) return;
+    const saved = profile.selected_tasks;
+    const customSaved = profile.custom_tasks;
+    if (customSaved.length > 0) return;
+    const validSaved = saved.filter((s) => dept.skills.includes(s));
+    if (saved.length > 0 && validSaved.length > 0) return;
     setSelected(dept.top_skills);
     update({ selected_tasks: dept.top_skills });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dept?.category]);
+  }, [dept?.category, profile.selected_tasks.join("|")]);
 
   const totalCount = selected.length + custom.length;
 

@@ -44,7 +44,17 @@ function Step1() {
 
   const pick = (dept: DepartmentKey) => {
     setSelected(dept);
-    update({ selected_department: dept });
+    // Reset task selections whenever the department changes so step 2
+    // can pre-select the new department's top skills cleanly.
+    if (dept !== profile.selected_department) {
+      update({
+        selected_department: dept,
+        selected_tasks: [],
+        custom_tasks: [],
+      });
+    } else {
+      update({ selected_department: dept });
+    }
   };
 
   return (
