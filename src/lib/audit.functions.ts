@@ -1,24 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import Firecrawl from "@mendable/firecrawl-js";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { AuditReport, GenerateAuditResponse } from "@/lib/audit-types";
-
-let _serverSupabase: SupabaseClient<Database> | undefined;
-function getServerSupabase(): SupabaseClient<Database> {
-  if (_serverSupabase) return _serverSupabase;
-  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
-  const anonKey =
-    process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !anonKey) {
-    throw new Error("Supabase URL or publishable key missing in server runtime");
-  }
-  _serverSupabase = createClient<Database>(url, anonKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  return _serverSupabase;
-}
 
 const InputSchema = z.object({
   website: z
@@ -292,13 +276,12 @@ export const generateAudit = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<GenerateAuditResponse> => {
     let leadId: string | null = null;
-    const sb = getServerSupabase();
     const email = data.email.trim().toLowerCase();
     try {
       const { url, domain } = normalizeUrl(data.website);
 
       // 1. Insert lead row as pending
-      const insert = await sb
+      const insert = await supabaseAdmin
         .from("leads")
         .insert({
           website: domain,
@@ -323,7 +306,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
 
       // 5. Persist results
-      await sb
+      await supabaseAdmin
         .from("leads")
         .update({
           status: "completed",
@@ -350,7 +333,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("generateAudit failed:", message);
       if (leadId) {
-        await sb
+        await supabaseAdmin
           .from("leads")
           .update({ status: "failed", error: message, updated_at: new Date().toISOString() })
           .eq("id", leadId);
