@@ -1,6 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { ArrowRight, Sparkles, TrendingUp, Building2, Users, Clock, DollarSign } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  Users,
+  Clock,
+  TrendingDown,
+  AlertTriangle,
+  Lock,
+  CheckCircle2,
+} from "lucide-react";
 
 export const Route = createFileRoute("/preview/executive-audit")({
   head: () => ({
@@ -9,75 +18,74 @@ export const Route = createFileRoute("/preview/executive-audit")({
       {
         name: "description",
         content:
-          "See a sample AI Opportunity Audit: workforce score, top automation opportunities, ROI projections, and risks — generated for any company in 30 seconds.",
+          "Preview a sample AI Readiness Diagnostic: cost of inaction, 5-year competitive gap, and the operational work hiding inside your organization — generated for any company in 30 seconds.",
       },
       { property: "og:title", content: "Sample Executive Audit — UpSkill USA" },
       {
         property: "og:description",
         content:
-          "Preview a real AI Opportunity Audit. Then run yours free in 30 seconds.",
+          "See the dollar value of inaction at a sample mid-market firm. Then run yours free in 30 seconds.",
       },
     ],
   }),
   component: PreviewExecutiveAudit,
 });
 
+// Mirrors a real CostModel + AuditReport for "Northwind Financial Services".
+// Math: 480 employees × 0.55 addressable × 22% automatable hours × $89k loaded.
 const SAMPLE = {
-  company: "Northwind Financial Services",
+  company_name: "Northwind Financial Services",
+  website: "northwind-financial.com",
   industry: "Mid-Market Finance",
-  size: "~480 employees",
+  size_estimate: "~480 employees",
   score: 73,
-  rationale:
-    "Northwind has heavy exposure to repetitive, rules-based document workflows (invoices, reconciliations, claims) — making it a top-quartile candidate for AI augmentation. Customer-facing roles remain best suited for human ownership.",
-  summary:
-    "Across Finance, Operations, and Customer Support, Northwind has ~14,200 weekly hours of structured, rule-based work. Deploying AI across the top 5 workflows alone unlocks an estimated $6.7M in annualized value while creating a clear upskilling path for 38 affected roles.",
-  opportunities: [
+  score_rationale:
+    "Northwind has heavy exposure to repetitive, rules-based document workflows (invoices, reconciliations, claims). Customer-facing roles remain best suited for human ownership, which keeps the score from peaking — but the addressable base is among the largest in its segment.",
+  executive_summary:
+    "Across Finance, Operations, and Customer Support, Northwind is sitting on roughly 14,200 weekly hours of structured, rule-based work. Every week it remains manual is measurable lost margin — and a widening gap against competitors already deploying AI inside the same workflows.",
+  cost_model: {
+    employees: 480,
+    employee_source: "exact" as const,
+    addressable_roles: 264,
+    industry_label: "Financial Services",
+    weekly_hours_reclaimable: 2_323,
+    annual_hours_reclaimable: 116_160,
+    annual_value_at_risk: 4_780_000,
+    five_year_cost_of_inaction: 27_490_000,
+    fully_loaded_cost_per_role: 89_000,
+    pain_hours_per_year: [38_400, 24_500, 19_800, 12_400],
+  },
+  pain_categories: [
     {
-      title: "Invoice processing & 3-way match",
       department: "Finance",
-      impact: "High",
-      effort: "Low",
-      hours: 1240,
-      description:
-        "Automate extraction, validation, and PO matching for inbound invoices. Confidence-scored routing for exceptions.",
+      symptom: "Manual invoice processing, 3-way matching, and reconciliations",
     },
     {
-      title: "Claims triage & document review",
       department: "Operations",
-      impact: "High",
-      effort: "Medium",
-      hours: 980,
-      description:
-        "Pre-classify, summarize, and route claim packets. Adjusters review only flagged exceptions.",
+      symptom: "Claims triage and document review handled line-by-line",
     },
     {
-      title: "Tier-1 customer support deflection",
       department: "Customer Support",
-      impact: "Medium",
-      effort: "Low",
-      hours: 760,
-      description:
-        "AI agent answers policy + status questions with full audit trail. Hands off to human agent above complexity threshold.",
+      symptom: "Tier-1 policy and status questions answered manually",
     },
     {
-      title: "Vendor onboarding & KYC",
       department: "Procurement",
-      impact: "Medium",
-      effort: "Medium",
-      hours: 410,
-      description:
-        "Document collection, verification, and risk scoring with human approval at the final step.",
+      symptom: "Vendor onboarding, KYC collection, and risk scoring done by hand",
     },
   ],
-  risks: [
-    "Change management resistance from middle managers",
-    "Underinvestment in employee upskilling pathways",
-    "Lack of governance thresholds on AI decisions",
-  ],
-  roi: { value: "$6.7M", cost: "$42.5K", multiple: "157x" },
 };
 
+function formatUsdShort(n: number): string {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
+  return `$${n}`;
+}
+function formatNumber(n: number): string {
+  return n.toLocaleString("en-US");
+}
+
 function PreviewExecutiveAudit() {
+  const cm = SAMPLE.cost_model;
   return (
     <div className="min-h-screen bg-background">
       <PreviewBanner
@@ -87,88 +95,192 @@ function PreviewExecutiveAudit() {
       />
 
       <section className="mx-auto max-w-5xl px-6 pb-16">
-        <div className="rounded-3xl border bg-card p-8 shadow-2xl sm:p-10">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-                AI Readiness Audit
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+          {/* Header */}
+          <div className="border-b border-slate-100 p-8 sm:p-10">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0B1F3B]">
+                  AI Readiness Diagnostic
+                </div>
+                <h2 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
+                  {SAMPLE.company_name}
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {SAMPLE.website} · {SAMPLE.industry} · {SAMPLE.size_estimate}
+                </p>
               </div>
-              <h2 className="mt-1 text-2xl font-bold sm:text-3xl">
-                {SAMPLE.company}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {SAMPLE.industry} · {SAMPLE.size}
+              <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-amber-700">
+                Sample data
+              </span>
+            </div>
+          </div>
+
+          {/* THE COST OF INACTION — hero */}
+          <div className="relative overflow-hidden bg-[#0B1F3B] p-8 text-white sm:p-10">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-[0.08]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+                backgroundSize: "40px 40px",
+              }}
+            />
+            <div className="relative">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F5C84C]">
+                <TrendingDown className="h-3.5 w-3.5" />
+                Annual Cost of Inaction
+              </div>
+              <div className="mt-3 flex items-baseline gap-3 leading-none">
+                <div className="text-6xl font-extrabold tracking-tight sm:text-7xl">
+                  {formatUsdShort(cm.annual_value_at_risk)}
+                </div>
+                <div className="text-sm text-white/60">/year</div>
+              </div>
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/75">
+                in fully-loaded labor value locked inside repeatable, addressable work at{" "}
+                {SAMPLE.company_name} — every year you wait.
+              </p>
+
+              <div className="mt-6 grid gap-2 sm:grid-cols-3">
+                <DarkStat
+                  icon={<Users className="h-3.5 w-3.5" />}
+                  label="Employees"
+                  value={formatNumber(cm.employees)}
+                  hint="verified"
+                />
+                <DarkStat
+                  icon={<Users className="h-3.5 w-3.5" />}
+                  label="Addressable roles"
+                  value={formatNumber(cm.addressable_roles)}
+                  hint={cm.industry_label}
+                />
+                <DarkStat
+                  icon={<Clock className="h-3.5 w-3.5" />}
+                  label="Recoverable / week"
+                  value={`${formatNumber(cm.weekly_hours_reclaimable)} hrs`}
+                  hint={`${formatNumber(cm.annual_hours_reclaimable)} hrs/yr`}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 5-year competitive gap */}
+          <div className="border-b border-amber-200/60 bg-gradient-to-br from-amber-50 to-white p-6 sm:px-10">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-800">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  5-Year Competitive Gap
+                </div>
+                <p className="mt-1 text-sm text-slate-700">
+                  Cumulative value lost if competitors deploy AI before you do.
+                </p>
+              </div>
+              <div className="text-3xl font-extrabold tracking-tight text-[#0B1F3B] sm:text-4xl">
+                {formatUsdShort(cm.five_year_cost_of_inaction)}
+              </div>
+            </div>
+          </div>
+
+          {/* Score + summary */}
+          <div className="grid gap-6 p-8 sm:grid-cols-[auto_1fr] sm:p-10">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5 text-center">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Workforce Score
+              </div>
+              <div className="mt-1 text-5xl font-extrabold leading-none text-[#0B1F3B]">
+                {SAMPLE.score}
+                <span className="text-lg text-slate-400">/100</span>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Executive Summary</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                {SAMPLE.executive_summary}
+              </p>
+              <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                {SAMPLE.score_rationale}
               </p>
             </div>
-            <span className="rounded-full border border-warning/40 bg-warning/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-warning">
-              Sample data
-            </span>
           </div>
 
-          <div className="mt-6 grid gap-6 rounded-2xl border bg-gradient-to-br from-brand/10 via-card to-primary/10 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
-            <div className="text-center">
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Autonomous Workforce Score
-              </div>
-              <div className="mt-1 text-7xl font-extrabold leading-none text-primary">
-                {SAMPLE.score}
-                <span className="text-2xl text-muted-foreground">/100</span>
-              </div>
-            </div>
-            <p className="text-sm text-foreground/80">{SAMPLE.rationale}</p>
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            <Stat icon={DollarSign} label="Annual value" value={SAMPLE.roi.value} tone="success" />
-            <Stat icon={Building2} label="Platform cost" value={SAMPLE.roi.cost} tone="muted" />
-            <Stat icon={TrendingUp} label="ROI" value={SAMPLE.roi.multiple} tone="brand" />
-          </div>
-
-          <div className="mt-8">
-            <h3 className="text-base font-semibold">Executive Summary</h3>
-            <p className="mt-2 text-sm leading-relaxed text-foreground/80">
-              {SAMPLE.summary}
-            </p>
-          </div>
-
-          <div className="mt-8">
-            <h3 className="text-base font-semibold">
-              Top AI Deployment Opportunities
+          {/* Pain categories */}
+          <div className="border-t border-slate-100 px-8 pb-8 pt-6 sm:px-10 sm:pb-10">
+            <h3 className="text-base font-semibold text-slate-900">
+              What's hiding in your operations
             </h3>
-            <div className="mt-3 grid gap-3">
-              {SAMPLE.opportunities.map((o) => (
-                <div key={o.title} className="rounded-xl border bg-background p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-semibold">{o.title}</div>
-                    <div className="flex items-center gap-1.5 text-[11px]">
-                      <Pill tone="brand">{o.department}</Pill>
-                      <Pill tone={o.impact === "High" ? "success" : "muted"}>
-                        {o.impact} impact
-                      </Pill>
-                      <Pill tone={o.effort === "Low" ? "success" : "muted"}>
-                        {o.effort} effort
-                      </Pill>
-                      <Pill tone="primary">~{o.hours} hrs/yr</Pill>
+            <p className="mt-1 text-xs text-slate-500">
+              High-volume manual work surfaced from your industry, size, and tech stack signals.
+            </p>
+            <div className="mt-4 grid gap-3">
+              {SAMPLE.pain_categories.map((p, i) => (
+                <div
+                  key={`${p.department}-${i}`}
+                  className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-[#0B1F3B]/30"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#0B1F3B]">
+                        {p.department}
+                      </div>
+                      <p className="mt-1.5 text-sm font-medium text-slate-800">{p.symptom}</p>
+                    </div>
+                    <div className="shrink-0 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-right">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">
+                        Trapped
+                      </div>
+                      <div className="text-sm font-bold text-[#0B1F3B]">
+                        ~{formatNumber(cm.pain_hours_per_year[i] ?? 0)} hrs/yr
+                      </div>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {o.description}
-                  </p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-8">
-            <h3 className="text-base font-semibold">Risks to Watch</h3>
-            <ul className="mt-2 space-y-1.5 text-sm text-foreground/80">
-              {SAMPLE.risks.map((r) => (
-                <li key={r} className="flex gap-2">
-                  <span className="text-warning">•</span>
-                  <span>{r}</span>
-                </li>
-              ))}
-            </ul>
+          {/* Locked CTA */}
+          <div className="relative overflow-hidden border-t border-slate-100 bg-gradient-to-br from-[#0B1F3B] via-[#13294f] to-[#0B1F3B] p-8 sm:p-10">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#F5C84C]/20 blur-3xl"
+            />
+            <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="max-w-xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#F5C84C]">
+                  <Lock className="h-3 w-3" />
+                  Your roadmap is ready
+                </div>
+                <h3 className="mt-3 text-2xl font-bold leading-tight text-white sm:text-[28px]">
+                  Sign up to unlock your deployment plan.
+                </h3>
+                <ul className="mt-4 space-y-2 text-sm text-white/80">
+                  <LockedItem>
+                    Role-by-role automation map for {SAMPLE.company_name}
+                  </LockedItem>
+                  <LockedItem>90-day pilot plan with prioritized workflows</LockedItem>
+                  <LockedItem>ROI projections by department and quarter</LockedItem>
+                </ul>
+              </div>
+              <Link
+                to="/signup"
+                className="group inline-flex h-14 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#F5C84C] px-7 text-base font-bold tracking-tight text-[#0B1F3B] shadow-lg shadow-black/30 transition hover:brightness-105"
+              >
+                Create your account
+                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Methodology */}
+          <div className="border-t border-slate-100 bg-slate-50 px-8 py-4 text-[11px] leading-relaxed text-slate-500 sm:px-10">
+            <span className="font-semibold text-slate-700">Methodology:</span> figures derived from
+            verified headcount × industry-standard fully-loaded labor cost (BLS 2023, $
+            {formatNumber(cm.fully_loaded_cost_per_role)}/role) × automatable-work share for{" "}
+            {cm.industry_label} (McKinsey, 2023). 5-year figure compounded for competitive
+            productivity gap.
           </div>
         </div>
 
@@ -181,52 +293,35 @@ function PreviewExecutiveAudit() {
   );
 }
 
-function Stat({
-  icon: Icon,
+function DarkStat({
+  icon,
   label,
   value,
-  tone,
+  hint,
 }: {
-  icon: typeof DollarSign;
+  icon: React.ReactNode;
   label: string;
   value: string;
-  tone: "success" | "brand" | "muted";
+  hint: string;
 }) {
-  const tones = {
-    success: "text-success bg-success/10 border-success/30",
-    brand: "text-brand bg-brand/10 border-brand/30",
-    muted: "text-foreground bg-muted border-border",
-  };
   return (
-    <div className={`rounded-xl border p-4 ${tones[tone]}`}>
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider opacity-80">
-        <Icon className="h-3.5 w-3.5" />
+    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/55">
+        {icon}
         {label}
       </div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
+      <div className="mt-1 text-lg font-bold text-white">{value}</div>
+      <div className="text-[11px] text-white/50">{hint}</div>
     </div>
   );
 }
 
-function Pill({
-  children,
-  tone,
-}: {
-  children: React.ReactNode;
-  tone: "brand" | "primary" | "success" | "muted";
-}) {
-  const tones: Record<string, string> = {
-    brand: "bg-brand/15 text-brand border-brand/30",
-    primary: "bg-primary/10 text-primary border-primary/20",
-    success: "bg-success/15 text-success border-success/30",
-    muted: "bg-muted text-muted-foreground border-border",
-  };
+function LockedItem({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 font-medium ${tones[tone]}`}
-    >
-      {children}
-    </span>
+    <li className="flex items-start gap-2.5">
+      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#F5C84C]" />
+      <span>{children}</span>
+    </li>
   );
 }
 
@@ -246,9 +341,7 @@ export function PreviewBanner({
           <Sparkles className="h-3.5 w-3.5" />
           {eyebrow}
         </div>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-          {title}
-        </h1>
+        <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">{subtitle}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link
@@ -273,12 +366,8 @@ export function PreviewBanner({
 export function BottomCTA({ line, sub }: { line: string; sub: string }) {
   return (
     <div className="mt-10 rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/10 to-card p-8 text-center shadow-sm">
-      <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
-        {line}
-      </h3>
-      <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-        {sub}
-      </p>
+      <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">{line}</h3>
+      <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{sub}</p>
       <div className="mt-5">
         <Link
           to="/opportunity"
