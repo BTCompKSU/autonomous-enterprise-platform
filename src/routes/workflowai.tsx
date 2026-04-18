@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SAMPLE_TASK_LIST } from "@/lib/sample-tasks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Zap,
