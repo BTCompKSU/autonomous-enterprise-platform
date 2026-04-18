@@ -368,7 +368,7 @@ export function BottomCTA({ line, sub }: { line: string; sub: string }) {
       <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{sub}</p>
       <div className="mt-5">
         <Link
-          to="/opportunity"
+          to="/"
           className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand/90"
         >
           <Sparkles className="h-4 w-4" />
