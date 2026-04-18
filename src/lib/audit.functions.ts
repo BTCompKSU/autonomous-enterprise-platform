@@ -1,8 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import Firecrawl from "@mendable/firecrawl-js";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import type { AuditReport, GenerateAuditResponse } from "@/lib/audit-types";
+
+function getServerSupabase() {
+  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.SUPABASE_PUBLISHABLE_KEY ??
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) {
+    throw new Error("Missing Supabase server environment variables.");
+  }
+  return createClient<Database>(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
 const InputSchema = z.object({
   website: z
@@ -275,6 +290,7 @@ async function trySendAuditEmail(
 export const generateAudit = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<GenerateAuditResponse> => {
+    const supabaseAdmin = getServerSupabase();
     let leadId: string | null = null;
     try {
       const { url, domain } = normalizeUrl(data.website);
