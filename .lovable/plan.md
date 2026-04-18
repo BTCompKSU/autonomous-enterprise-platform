@@ -1,42 +1,36 @@
 
 
-## Plan: Apply landing-page theme to onboarding
+## Plan: Print + Download for the on-screen audit, plus email parity verification
 
-Re-skin the onboarding shell + all 3 steps to match the AuditSplash hero language: deep navy `#0B1F3B` background, gold `#F5C84C` accents, white floating cards with deep shadows, gold uppercase eyebrow chips, and tight-tracked semibold headings.
+### Email parity — verified ✅
+Both the on-screen report (`AuditReportCard` in `AuditSplash.tsx`) and the email (`renderEmailHtml` in `audit.functions.ts`) render from the **same `AuditReport` object** returned by `generateAudit`. Every number (`annual_value_at_risk`, `five_year_cost_of_inaction`, `weekly_hours_reclaimable`, per-pain-category `pain_hours_per_year[i]`, score) and every text field (`company_name`, `industry`, `size_estimate`, `executive_summary`, `score_rationale`, each pain `department` + `symptom`) appears in both. Differences are visual-only:
+- Email omits the `WorkforceScoreScale` SVG (renders the score as a single line)
+- Email shows the 3 stats inline as one line instead of 3 cards
+- Otherwise: identical sections, identical order, identical methodology footer, identical locked-CTA copy
 
-### Theme tokens (used inline, matching landing page)
+No data drift exists. I'll add a small comment in `audit.functions.ts` flagging this contract so future edits keep parity.
 
-- Background: `#0B1F3B` (deep navy) with radial-glow + grid overlays
-- Accent: `#F5C84C` (gold) for chips, progress, active state, primary CTA highlights
-- Card surface: white, `rounded-2xl`, `shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]`, `border-white/10`
-- Headings: `font-semibold tracking-[-0.015em]` (not `font-extrabold`)
-- Primary button: `bg-[#0B1F3B] text-white` (on white cards) or `bg-[#F5C84C] text-[#0B1F3B]` (on navy)
+### Print / download
 
-### File changes
+Add a **Print / Save as PDF** button to the report card. Browser-native printing is the best fit here — zero new dependencies, works on every device, and "Save as PDF" is built into every modern browser's print dialog. No server round-trip, no PDF library bloat.
 
-1. **`src/routes/onboarding.tsx`** (shell)
-   - Wrap whole page in navy bg with the same radial-glow + grid overlays from `AuditSplash`
-   - Header: transparent over navy, white text, gold logo chip (`bg-[#F5C84C] text-[#0B1F3B]`), white "Skip" link with hover
-   - Progress bar: filled segments use `#F5C84C`, empty use `white/15`; step label in gold uppercase tracked
+**Changes to `src/components/AuditSplash.tsx`:**
 
-2. **`src/routes/onboarding.step-1.tsx`** (Department picker)
-   - Heading in white, semibold + tight tracking
-   - Subhead in `white/70`
-   - Department cards: white surface with shadow; **active** state = gold ring + gold check badge; icons in navy (or gold when active)
-   - Continue button: gold bg, navy text when enabled; disabled = `white/10`
+1. Add a `Printer` icon button in the report header (next to "Run another"), label "Print / Save PDF", calls `window.print()`.
+2. Add an `id="audit-printable"` on the report card root so we can scope print CSS to it.
+3. Inject a scoped `<style media="print">` block inside `AuditReportCard` that:
+   - Hides everything outside `#audit-printable` (`body > *:not(...) { display: none }` via a `print:hidden` strategy on the splash chrome — chip, headline, subhead, trust badges, loading/email forms — using a `data-print="hide"` attribute or just Tailwind's `print:hidden` utility on those wrappers).
+   - Forces the report card to full width, removes shadows/rounded corners, and switches the dark navy hero sections to print-safe versions (keep navy bg with `print-color-adjust: exact` so the gold accent and dark hero survive the print).
+   - Hides the "Run another" button and the Print button itself during print.
+   - Sets `@page { margin: 0.5in; size: letter; }`.
 
-3. **`src/routes/onboarding.step-2.tsx`** (Tasks/skills)
-   - Same heading + subhead treatment
-   - Skill chips/checkboxes: white card surface, gold border + gold fill on selected; "AI-suggested" pre-selected items keep gold styling
-   - Back/Continue: ghost-on-navy + gold primary
+4. Layout tweaks for print:
+   - The hero "Cost of Inaction" navy block needs `-webkit-print-color-adjust: exact; print-color-adjust: exact;` to retain the navy + gold; otherwise browsers strip backgrounds.
+   - Avoid page-break inside each pain-category card (`break-inside: avoid`).
 
-4. **`src/routes/onboarding.step-3.tsx`** (Analyze + report)
-   - Loading phase: white card on navy, navy spinner, gold step pips (matches AuditSplash loading state exactly)
-   - Result phase: white report card with shadow; KPI tiles use navy headers with gold accent numbers; bucket pills (`Automate/Augment/Own`) get a 3-color system anchored around navy/gold/emerald; "Enter WorkflowAI" CTA = gold pill button
+**No new files, no new dependencies, no server changes.** All print logic is contained in `AuditSplash.tsx`.
 
-### Notes
-
-- All color values are inline literals matching the landing page (`#0B1F3B`, `#F5C84C`) — same approach the landing page uses, no new CSS variables introduced. This keeps the rest of the app (dashboard, admin, etc.) on the existing light theme.
-- No font swap needed; the landing page uses the same default font stack but with `font-semibold` + tight tracking instead of `font-extrabold`. I'll align onboarding to match.
-- Animations (`animate-fade-in`, `animate-scale-in`) preserved.
+### Non-goals
+- Not generating a server-side PDF (would need a Worker-incompatible library like puppeteer/sharp — see runtime constraints).
+- Not changing the email template (it already matches).
 
