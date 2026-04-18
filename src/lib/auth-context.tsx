@@ -68,13 +68,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
-      // Defer profile fetch to avoid deadlock with auth state callback
-      setTimeout(() => {
-        void loadProfile(s?.user.id ?? null).finally(() => setLoading(false));
-        void router.invalidate();
-      }, 0);
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      setSession((prev) => {
+        const prevUid = prev?.user.id ?? null;
+        const nextUid = s?.user.id ?? null;
+        // Only invalidate the router when the actual identity changes
+        // (sign-in / sign-out / user switch). Skip TOKEN_REFRESHED and other
+        // background events — they would otherwise remount the current route
+        // and wipe in-progress local state (e.g. the freshly-generated audit
+        // on the home page).
+        const identityChanged = prevUid !== nextUid;
+        // Defer profile fetch to avoid deadlock with auth state callback
+        setTimeout(() => {
+          void loadProfile(nextUid).finally(() => setLoading(false));
+          if (identityChanged || event === "SIGNED_IN" || event === "SIGNED_OUT") {
+            void router.invalidate();
+          }
+        }, 0);
+        return s;
+      });
     });
 
     void supabase.auth.getSession().then(({ data }) => {
