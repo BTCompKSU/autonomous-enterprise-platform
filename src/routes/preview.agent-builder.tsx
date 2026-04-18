@@ -78,7 +78,10 @@ const AGENT = {
 
 function PreviewAgentBuilder() {
   const { task } = Route.useSearch();
-  const sourceTask = task ? SAMPLE_TASKS[task] : undefined;
+  const sourceTask =
+    task && (task as SampleTaskSlug) in SAMPLE_TASKS
+      ? SAMPLE_TASKS[task as SampleTaskSlug]
+      : undefined;
 
   return (
     <div className="min-h-screen bg-background">
