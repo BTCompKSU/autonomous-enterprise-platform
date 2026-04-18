@@ -280,21 +280,16 @@ export const generateAudit = createServerFn({ method: "POST" })
     try {
       const { url, domain } = normalizeUrl(data.website);
 
-      // 1. Insert lead row as pending
-      const insert = await supabaseAdmin
-        .from("leads")
-        .insert({
-          website: domain,
-          email,
-          status: "pending",
-        })
-        .select("id")
-        .single();
+      // 1. Insert lead row as pending via SECURITY DEFINER RPC
+      const insert = await supabase.rpc("create_pending_lead", {
+        _website: domain,
+        _email: email,
+      });
 
       if (insert.error || !insert.data) {
         throw new Error(`Failed to create lead: ${insert.error?.message ?? "unknown error"}`);
       }
-      leadId = insert.data.id as string;
+      leadId = insert.data as string;
 
       // 2. Enrich in parallel
       const [scrape, enrichment] = await Promise.all([scrapeCompany(url), enrichCompany(domain)]);
