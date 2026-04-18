@@ -229,12 +229,12 @@ export function AuditSplash() {
 function LoadingStep({ label, delay }: { label: string; delay: number }) {
   return (
     <li
-      className="flex items-center gap-2 opacity-0 [animation-fill-mode:forwards]"
+      className="flex items-center gap-2.5 opacity-0 [animation-fill-mode:forwards]"
       style={{
         animation: `fadeIn 400ms ease-out ${delay * 600}ms forwards`,
       }}
     >
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-brand/40 bg-brand/10 text-[10px] font-bold text-brand">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#0B1F3B]/30 bg-[#0B1F3B]/5 text-[10px] font-bold text-[#0B1F3B]">
         {delay + 1}
       </span>
       {label}
@@ -245,9 +245,9 @@ function LoadingStep({ label, delay }: { label: string; delay: number }) {
 
 function Trust({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 rounded-lg border bg-card/60 px-4 py-2.5 backdrop-blur">
-      <CheckCircle2 className="h-4 w-4 text-brand" />
-      <span className="text-xs font-medium">{label}</span>
+    <div className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+      <CheckCircle2 className="h-4 w-4 text-[#F5C84C]" />
+      <span className="text-xs font-medium tracking-wide text-white/85">{label}</span>
     </div>
   );
 }
