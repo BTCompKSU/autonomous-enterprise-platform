@@ -268,7 +268,7 @@ function SideNav() {
     <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900/60 md:flex">
       <div className="flex items-center gap-2 border-b border-slate-800 px-5 py-4">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#F5C84C]">
-          <Zap className="h-4 w-4 text-white" />
+          <Zap className="h-4 w-4 text-[#0B1F3B]" />
         </span>
         <div className="text-sm font-semibold tracking-tight">
           Workflow<span className="text-[#F5C84C]">AI</span>
