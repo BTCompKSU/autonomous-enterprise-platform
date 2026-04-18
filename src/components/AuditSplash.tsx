@@ -138,28 +138,28 @@ export function AuditSplash() {
 
           {step === "email" && (
             <form onSubmit={onEmailSubmit} className="group relative">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-brand to-primary opacity-30 blur-lg transition group-focus-within:opacity-60" />
-              <div className="relative rounded-2xl border bg-card p-6 shadow-2xl sm:p-8">
-                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                  Auditing <span className="font-mono font-medium text-foreground">{website}</span>
+              <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
+              <div className="relative rounded-2xl border border-white/10 bg-white p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-8">
+                <div className="mb-5 flex items-center gap-2 text-sm text-slate-500">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  Auditing <span className="font-mono font-medium text-slate-900">{website}</span>
                   <button
                     type="button"
                     onClick={() => setStep("website")}
-                    className="ml-auto text-xs text-muted-foreground underline-offset-2 hover:underline"
+                    className="ml-auto text-xs text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline"
                   >
                     change
                   </button>
                 </div>
-                <label className="text-base font-semibold text-foreground">
+                <label className="text-base font-semibold tracking-tight text-slate-900">
                   Where should we send your report?
                 </label>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Your audit appears on this page and a copy is emailed to you.
+                <p className="mt-1.5 text-sm text-slate-500">
+                  Your audit appears on this page and a copy is delivered to your inbox.
                 </p>
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <div className="flex flex-1 items-center gap-3 rounded-xl border bg-background px-4">
-                    <Mail className="h-5 w-5 shrink-0 text-muted-foreground" />
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white px-5">
+                    <Mail className="h-5 w-5 shrink-0 text-slate-400" />
                     <input
                       autoFocus
                       type="email"
@@ -167,23 +167,23 @@ export function AuditSplash() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@company.com"
-                      className="h-14 w-full bg-transparent text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      className="h-16 w-full bg-transparent text-base font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="inline-flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+                    className="inline-flex h-16 items-center justify-center gap-2 rounded-xl bg-[#0B1F3B] px-7 text-base font-semibold tracking-tight text-white shadow-lg shadow-black/30 transition hover:bg-[#0B1F3B]/90 hover:brightness-110"
                   >
-                    Send My Report
+                    Deliver My Report
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
                 {error && (
                   <div className="mt-3 text-sm text-destructive">{error}</div>
                 )}
-                <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="mt-5 flex items-center gap-2 text-xs text-slate-500">
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  We never sell your email. One audit, no spam.
+                  Enterprise-grade privacy. We never share or sell your information.
                 </div>
               </div>
             </form>
