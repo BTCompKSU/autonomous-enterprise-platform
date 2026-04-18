@@ -8,7 +8,7 @@ const InputSchema = z.object({
   answers: z.record(z.string(), AnswerValueSchema),
 });
 
-const SYSTEM_PROMPT = `You are an expert organizational designer and AI transformation consultant with deep knowledge of corporate structures, workforce automation, and human-AI collaboration frameworks.
+export const SYSTEM_PROMPT = `You are an expert organizational designer and AI transformation consultant with deep knowledge of corporate structures, workforce automation, and human-AI collaboration frameworks.
 
 ## YOUR MISSION
 
@@ -136,7 +136,7 @@ function buildUserMessage(answers: Record<string, unknown>): string {
     .join("\n");
 }
 
-const roleAnalysisSchema = {
+export const roleAnalysisSchema = {
   type: "object",
   additionalProperties: false,
   required: ["role", "department", "total_tasks_analyzed", "summary", "tasks"],
@@ -204,7 +204,7 @@ const roleAnalysisSchema = {
   },
 } as const;
 
-async function runAnalysis(answers: Record<string, unknown>): Promise<RoleAnalysis> {
+export async function runAnalysis(answers: Record<string, unknown>): Promise<RoleAnalysis> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 

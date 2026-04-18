@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import type { DepartmentKey } from "./job-categories";
+import type { RoleAnalysis } from "./assessment-types";
 
 const KEY = "upskill.onboarding.profile.v1";
 
@@ -7,12 +8,14 @@ export interface OnboardingProfile {
   selected_department: DepartmentKey | "";
   selected_tasks: string[];
   custom_tasks: string[];
+  analysis: RoleAnalysis | null;
 }
 
 const EMPTY: OnboardingProfile = {
   selected_department: "",
   selected_tasks: [],
   custom_tasks: [],
+  analysis: null,
 };
 
 function read(): OnboardingProfile {
