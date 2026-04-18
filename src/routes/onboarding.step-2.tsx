@@ -27,21 +27,23 @@ function Step2() {
     setCustom(profile.custom_tasks);
   }, [profile.selected_tasks, profile.custom_tasks]);
 
-  // Pre-select the department's top skills when:
-  //  (a) the user has no saved selections yet, OR
-  //  (b) the saved selections are stale (none of them exist in the current
-  //      department's skill list — e.g. job-categories.ts was updated).
+  // Pre-select the department's top skills when the active top_skills schema
+  // doesn't match what was last auto-applied. This handles three cases:
+  //  (a) fresh visit (no signature stored)
+  //  (b) department changed (step 1 clears selections + signature)
+  //  (c) job-categories.ts top_skills was updated since the user last saved —
+  //      we re-apply the new defaults so the chips reflect the current schema.
   useEffect(() => {
     if (!dept) return;
-    const saved = profile.selected_tasks;
-    const customSaved = profile.custom_tasks;
-    if (customSaved.length > 0) return;
-    const validSaved = saved.filter((s) => dept.skills.includes(s));
-    if (saved.length > 0 && validSaved.length > 0) return;
+    const currentSig = `${dept.category}::${dept.top_skills.join("|")}`;
+    if (profile.top_skills_signature === currentSig) return;
     setSelected(dept.top_skills);
-    update({ selected_tasks: dept.top_skills });
+    update({
+      selected_tasks: dept.top_skills,
+      top_skills_signature: currentSig,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dept?.category, profile.selected_tasks.join("|")]);
+  }, [dept?.category, profile.top_skills_signature]);
 
   const totalCount = selected.length + custom.length;
 
