@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppHeader } from "@/components/AppShell";
+
 import { PreviewBanner, BottomCTA } from "./preview.executive-audit";
 import { Clock, TrendingUp, Sparkles, CheckCircle2 } from "lucide-react";
 
@@ -88,7 +88,7 @@ function PreviewEmployeeAnalysis() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      
       <PreviewBanner
         eyebrow="Sample Employee Analysis"
         title="Meet Maria. This is her week, transformed by AI."

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AppHeader } from "@/components/AppShell";
+
 import { ArrowRight, Sparkles, TrendingUp, Building2, Users, Clock, DollarSign } from "lucide-react";
 
 export const Route = createFileRoute("/preview/executive-audit")({
@@ -80,8 +80,6 @@ const SAMPLE = {
 function PreviewExecutiveAudit() {
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
-
       <PreviewBanner
         eyebrow="Sample Executive Audit"
         title="This is what executives see in 30 seconds."

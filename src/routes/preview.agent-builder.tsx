@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppHeader } from "@/components/AppShell";
+
 import { PreviewBanner, BottomCTA } from "./preview.executive-audit";
 import { Bot, ShieldCheck, Workflow, Zap, Users } from "lucide-react";
 
@@ -55,7 +55,7 @@ const AGENT = {
 function PreviewAgentBuilder() {
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      
       <PreviewBanner
         eyebrow="Sample Agent Builder"
         title="Every AI agent ships with guardrails."
