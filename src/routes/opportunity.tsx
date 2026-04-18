@@ -69,6 +69,12 @@ function OpportunityMap() {
           You're 2 departments away.
         </p>
       </div>
+
+      <AuditCTA
+        className="mt-10"
+        headline="See your own opportunity landscape"
+        subline="Get a department-by-department breakdown of where AI can deliver value in your business — free."
+      />
     </main>
   );
 }
