@@ -80,8 +80,6 @@ const SAMPLE = {
 function PreviewExecutiveAudit() {
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
-
       <PreviewBanner
         eyebrow="Sample Executive Audit"
         title="This is what executives see in 30 seconds."
