@@ -453,7 +453,7 @@ function AuditReportCard({
       </div>
 
       {/* Locked CTA */}
-      <div className="relative overflow-hidden border-t border-slate-100 bg-gradient-to-br from-[#0B1F3B] via-[#13294f] to-[#0B1F3B] p-8 sm:p-10">
+      <div className="relative overflow-hidden border-t border-slate-100 bg-gradient-to-br from-[#0B1F3B] via-[#13294f] to-[#0B1F3B] p-8 sm:p-10 print:hidden">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#F5C84C]/20 blur-3xl"
@@ -525,5 +525,48 @@ function LockedItem({ children }: { children: React.ReactNode }) {
       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#F5C84C]" />
       <span>{children}</span>
     </li>
+  );
+}
+
+function PrintStyles() {
+  return (
+    <style>{`
+      @media print {
+        @page { size: letter; margin: 0.5in; }
+        html, body { background: #ffffff !important; }
+        body * { visibility: hidden !important; }
+        #audit-printable, #audit-printable * { visibility: visible !important; }
+        #audit-printable {
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+        }
+        /* Preserve navy + gold backgrounds in print */
+        #audit-printable [class*="bg-[#0B1F3B]"],
+        #audit-printable [class*="from-[#0B1F3B]"],
+        #audit-printable [class*="bg-amber-50"],
+        #audit-printable [class*="from-amber-50"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        #audit-printable * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        /* Avoid awkward breaks inside cards */
+        #audit-printable .rounded-xl,
+        #audit-printable .rounded-2xl,
+        #audit-printable .rounded-3xl {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+      }
+    `}</style>
   );
 }
