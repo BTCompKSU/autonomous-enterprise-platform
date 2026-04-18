@@ -1,4 +1,5 @@
 import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { RouterContext } from "@/router";
 import appCss from "../styles.css?url";
@@ -86,11 +87,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const { queryClient } = Route.useRouteContext();
   return (
-    <DemoModeProvider>
-      <AppHeader />
-      <Outlet />
-      <Toaster richColors position="top-center" />
-    </DemoModeProvider>
+    <QueryClientProvider client={queryClient}>
+      <DemoModeProvider>
+        <AppHeader />
+        <Outlet />
+        <Toaster richColors position="top-center" />
+      </DemoModeProvider>
+    </QueryClientProvider>
   );
 }
