@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WhyNowStrip } from "@/components/judging/WhyNowStrip";
-import { ArchitectureFooter } from "@/components/judging/ArchitectureFooter";
 import { AuditSplash } from "@/components/AuditSplash";
 
 export const Route = createFileRoute("/")({
