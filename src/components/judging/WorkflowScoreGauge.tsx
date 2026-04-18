@@ -46,7 +46,7 @@ export function WorkflowScoreGauge({
           <div
             className={cn(
               "text-[10px] font-semibold uppercase tracking-wider",
-              above ? "text-success" : "text-muted-foreground",
+              above ? "text-[#3B82F6]" : "text-muted-foreground",
             )}
           >
             {above ? "Autonomous" : "Assisted"}
