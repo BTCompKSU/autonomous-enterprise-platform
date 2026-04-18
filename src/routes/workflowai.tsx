@@ -183,7 +183,7 @@ function WorkflowAIPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F172A] font-sans text-slate-100 antialiased">
+    <div className="min-h-screen bg-[#0B1F3B] font-sans text-slate-100 antialiased">
       <style>{`
         @keyframes flowdash { to { stroke-dashoffset: -20; } }
         .flow-line { stroke-dasharray: 6 4; animation: flowdash 1.2s linear infinite; }
@@ -203,16 +203,16 @@ function WorkflowAIPage() {
           <main className="flex-1 overflow-x-hidden p-4 md:p-6">
             <Tabs defaultValue="builder" className="w-full">
               <TabsList className="bg-slate-800/60 text-slate-400">
-                <TabsTrigger value="builder" className="data-[state=active]:bg-[#4F46E5] data-[state=active]:text-white">
+                <TabsTrigger value="builder" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Workflow Canvas
                 </TabsTrigger>
-                <TabsTrigger value="runs" className="data-[state=active]:bg-[#4F46E5] data-[state=active]:text-white">
+                <TabsTrigger value="runs" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Run Simulator
                 </TabsTrigger>
-                <TabsTrigger value="oversight" className="data-[state=active]:bg-[#4F46E5] data-[state=active]:text-white">
+                <TabsTrigger value="oversight" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Human Oversight
                 </TabsTrigger>
-                <TabsTrigger value="impact" className="data-[state=active]:bg-[#4F46E5] data-[state=active]:text-white">
+                <TabsTrigger value="impact" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
                   Impact
                 </TabsTrigger>
               </TabsList>
@@ -245,7 +245,7 @@ function WorkflowAIPage() {
             </Tabs>
 
             <footer className="mt-10 flex items-center justify-center gap-2 border-t border-slate-800 py-6 text-xs text-slate-500">
-              <Sparkles className="h-3.5 w-3.5 text-[#4F46E5]" />
+              <Sparkles className="h-3.5 w-3.5 text-[#F5C84C]" />
               Powered by AI · WorkflowAI Demo
             </footer>
           </main>
@@ -267,11 +267,11 @@ function SideNav() {
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900/60 md:flex">
       <div className="flex items-center gap-2 border-b border-slate-800 px-5 py-4">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#4F46E5]">
-          <Zap className="h-4 w-4 text-white" />
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#F5C84C]">
+          <Zap className="h-4 w-4 text-[#0B1F3B]" />
         </span>
         <div className="text-sm font-semibold tracking-tight">
-          Workflow<span className="text-[#4F46E5]">AI</span>
+          Workflow<span className="text-[#F5C84C]">AI</span>
         </div>
       </div>
       <nav className="flex-1 p-3">
@@ -280,7 +280,7 @@ function SideNav() {
             key={it.label}
             className={`mb-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
               it.active
-                ? "bg-[#4F46E5]/15 text-white ring-1 ring-[#4F46E5]/40"
+                ? "bg-[#F5C84C]/15 text-white ring-1 ring-[#F5C84C]/40"
                 : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
             }`}
           >
@@ -291,7 +291,7 @@ function SideNav() {
       </nav>
       <div className="border-t border-slate-800 p-3">
         <div className="flex items-center gap-3 rounded-lg bg-slate-800/40 p-2.5">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#4F46E5] to-[#10B981] text-sm font-bold">
+          <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#F5C84C] to-[#10B981] text-sm font-bold">
             MR
           </div>
           <div className="min-w-0 flex-1">
@@ -344,7 +344,7 @@ function TopBar({
           <button
             onClick={onRun}
             disabled={running}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#4F46E5] px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-[#4F46E5]/20 transition hover:bg-[#4338CA] disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5C84C] px-3 py-1.5 text-xs font-medium text-[#0B1F3B] shadow-lg shadow-[#F5C84C]/20 transition hover:bg-[#E0B43A] disabled:opacity-60"
           >
             <Play className="h-3.5 w-3.5" />
             {running ? "Running…" : "Run Simulation"}
@@ -354,7 +354,7 @@ function TopBar({
       {running && (
         <div className="h-0.5 w-full bg-slate-800">
           <div
-            className="h-full bg-gradient-to-r from-[#4F46E5] to-[#10B981] transition-all"
+            className="h-full bg-gradient-to-r from-[#F5C84C] to-[#10B981] transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -380,8 +380,8 @@ type NodeDef = {
 // Layout: vertical center axis ~x=550. node_4 sits LEFT of axis.
 const NODES: NodeDef[] = [
   { id: 1, x: 440, y: 30,  w: 220, icon: Mail,        label: "Incoming Invoice",      sub: "Source: Email / Upload",   color: "border-slate-600" },
-  { id: 2, x: 430, y: 160, w: 240, icon: Sparkles,    label: "Extract Invoice Data",  sub: "7 fields extracted",       color: "border-[#4F46E5]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
-  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Confidence Check",      sub: "Threshold control",        color: "border-[#4F46E5]", diamond: true },
+  { id: 2, x: 430, y: 160, w: 240, icon: Sparkles,    label: "Extract Invoice Data",  sub: "7 fields extracted",       color: "border-[#F5C84C]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
+  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Confidence Check",      sub: "Threshold control",        color: "border-[#F5C84C]", diamond: true },
   { id: 4, x: 120, y: 470, w: 240, icon: UserCheck,   label: "Maria Review Queue",    sub: "Reviewer: Maria Reyes",    color: "border-[#F59E0B]" },
   { id: 5, x: 430, y: 600, w: 240, icon: CheckCircle2,label: "Approval Step",         sub: "Auto or Manual",           color: "border-[#10B981]" },
   { id: 6, x: 430, y: 730, w: 240, icon: Database,    label: "Export to Finance",     sub: "Destination: ERP_SIM",     color: "border-sky-500" },
@@ -406,7 +406,7 @@ function WorkflowCanvas({
   // Connectors as SVG paths — also used to animate the flow dot.
   const connectors = [
     { from: 1, to: 2, color: "#475569" },
-    { from: 2, to: 3, color: "#4F46E5" },
+    { from: 2, to: 3, color: "#F5C84C" },
     { from: 3, to: 4, color: "#F59E0B", label: "confidence < threshold" },
     { from: 3, to: 5, color: "#10B981", label: "confidence ≥ threshold" },
     { from: 4, to: 5, color: "#10B981" },
@@ -513,7 +513,7 @@ function WorkflowCanvas({
       <div className="space-y-4">
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
           <div className="flex items-center gap-2">
-            <Gauge className="h-4 w-4 text-[#4F46E5]" />
+            <Gauge className="h-4 w-4 text-[#F5C84C]" />
             <h3 className="text-sm font-semibold">Threshold Config</h3>
           </div>
           <p className="mt-1 text-[11px] text-slate-400">
@@ -521,7 +521,7 @@ function WorkflowCanvas({
           </p>
           <div className="mt-4 flex items-end justify-between">
             <span className="text-[10px] text-slate-500">0.70</span>
-            <span className="text-2xl font-bold text-[#4F46E5]">
+            <span className="text-2xl font-bold text-[#F5C84C]">
               {(threshold * 100).toFixed(0)}%
             </span>
             <span className="text-[10px] text-slate-500">1.00</span>
@@ -543,7 +543,7 @@ function WorkflowCanvas({
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
           <h4 className="text-xs font-semibold text-slate-300">Legend</h4>
           <ul className="mt-2 space-y-1.5 text-[11px] text-slate-400">
-            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#4F46E5]" /> AI step</li>
+            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#F5C84C]" /> AI step</li>
             <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#F59E0B]" /> Human review</li>
             <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#10B981]" /> Auto-approved</li>
             <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-purple-500" /> Feedback loop</li>
@@ -671,7 +671,7 @@ function NodeCard({
               {n.pills.map((p) => (
                 <span
                   key={p}
-                  className="rounded bg-[#4F46E5]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#A5B4FC]"
+                  className="rounded bg-[#F5C84C]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#F5C84C]"
                 >
                   {p}
                 </span>
@@ -711,7 +711,7 @@ function RunSimulator({
     <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 md:p-6">
       {running && (
         <div className="mb-4 h-1 w-full overflow-hidden rounded-full bg-slate-800">
-          <div className="h-full animate-[slide-in-right_2.4s_linear] bg-gradient-to-r from-[#4F46E5] via-[#F5C84C] to-[#10B981]" />
+          <div className="h-full animate-[slide-in-right_2.4s_linear] bg-gradient-to-r from-[#F5C84C] via-[#F5C84C] to-[#10B981]" />
         </div>
       )}
       <div className="mb-4 flex items-center justify-between">
@@ -988,9 +988,9 @@ function OversightQueue({
         {/* Feedback Log */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
           <div className="mb-3 flex items-center gap-2">
-            <Brain className="h-4 w-4 animate-pulse text-[#4F46E5]" />
+            <Brain className="h-4 w-4 animate-pulse text-[#F5C84C]" />
             <h3 className="text-sm font-semibold">AI Learning Log</h3>
-            <span className="ml-auto rounded-full bg-[#4F46E5]/15 px-2 py-0.5 text-[10px] font-semibold text-[#A5B4FC]">
+            <span className="ml-auto rounded-full bg-[#F5C84C]/15 px-2 py-0.5 text-[10px] font-semibold text-[#F5C84C]">
               Feedback Learned
             </span>
           </div>
@@ -1014,7 +1014,7 @@ function OversightQueue({
           <MiniStat label="Invoices this week" value="24" />
           <MiniStat label="Auto-resolved" value="16" sub="67%" tone="#10B981" />
           <MiniStat label="Required review" value="8" sub="33%" tone="#F59E0B" />
-          <MiniStat label="Focus time freed" value="8 hrs" sub="per week" tone="#4F46E5" />
+          <MiniStat label="Focus time freed" value="8 hrs" sub="per week" tone="#F5C84C" />
         </div>
       </div>
     </div>
@@ -1169,7 +1169,7 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="task" stroke="#94a3b8" fontSize={11} />
               <YAxis stroke="#94a3b8" fontSize={11} label={{ value: "Minutes", angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 11 }} />
-              <RTooltip contentStyle={{ background: "#0F172A", border: "1px solid #334155", borderRadius: 8 }} />
+              <RTooltip contentStyle={{ background: "#0B1F3B", border: "1px solid #334155", borderRadius: 8 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar dataKey="before" name="Before AI" fill="#64748b" radius={[4, 4, 0, 0]}>
                 <LabelList dataKey="before" position="top" fill="#ffffff" fontSize={11} fontWeight={700} />
@@ -1271,7 +1271,7 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#4F46E5] via-[#6366F1] to-[#A855F7] p-6 shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F5C84C] via-[#E0B43A] to-[#A855F7] p-6 shadow-xl">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15">
             <Sparkles className="h-5 w-5 text-white" />
