@@ -129,7 +129,7 @@ function Index() {
             <div key={t} className="rounded-2xl border bg-card p-6 shadow-sm">
               <div className="text-xs font-mono text-brand">0{i + 1}</div>
               <h3 className="mt-2 text-base font-semibold">{t}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{p_pillar_text(t)}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{b}</p>
             </div>
           ))}
         </div>
@@ -147,6 +147,3 @@ function Index() {
   );
 }
 
-function p_pillar_text(_t: string) {
-  return "";
-}
