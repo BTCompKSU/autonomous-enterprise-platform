@@ -211,54 +211,71 @@ function WorkflowAIPage() {
             progress={progress}
             onRun={runSimulation}
             onExport={exportJSON}
+            expertMode={expertMode}
+            setExpertMode={setExpertMode}
           />
           <main className="flex-1 overflow-x-hidden p-4 md:p-6">
-            <Tabs defaultValue="builder" className="w-full">
-              <TabsList className="bg-slate-800/60 text-slate-400">
-                <TabsTrigger value="builder" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Workflow Canvas
-                </TabsTrigger>
-                <TabsTrigger value="runs" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Run Simulator
-                </TabsTrigger>
-                <TabsTrigger value="oversight" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Human Oversight
-                </TabsTrigger>
-                <TabsTrigger value="impact" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Impact
-                </TabsTrigger>
-              </TabsList>
+            {!expertMode ? (
+              <MySkillTab
+                threshold={threshold}
+                setThreshold={setThreshold}
+                knowledge={knowledge}
+                setKnowledge={setKnowledge}
+                runs={runStatuses}
+                running={running}
+                onRun={runSimulation}
+              />
+            ) : (
+              <Tabs defaultValue="builder" className="w-full">
+                <TabsList className="bg-slate-800/60 text-slate-400">
+                  <TabsTrigger value="builder" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Workflow Canvas
+                  </TabsTrigger>
+                  <TabsTrigger value="runs" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Run Simulator
+                  </TabsTrigger>
+                  <TabsTrigger value="oversight" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Human Oversight
+                  </TabsTrigger>
+                  <TabsTrigger value="impact" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Impact
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="builder" className="mt-4">
-                <WorkflowCanvas
-                  activeNode={activeNode}
-                  threshold={threshold}
-                  setThreshold={setThreshold}
-                  running={running}
-                />
-              </TabsContent>
-              <TabsContent value="runs" className="mt-4">
-                <RunSimulator runs={runStatuses} totalSaved={totalSaved} running={running} />
-              </TabsContent>
-              <TabsContent value="oversight" className="mt-4">
-                <OversightQueue
-                  run3={runStatuses[2]}
-                  reviewed={reviewedRun3}
-                  onApprove={approveCorrections}
-                  feedbackLog={feedbackLog}
-                />
-              </TabsContent>
-              <TabsContent value="impact" className="mt-4">
-                <ImpactDashboard
-                  hoursWeek={liveHoursWeek}
-                  autoRate={liveAutoRate}
-                />
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="builder" className="mt-4">
+                  <WorkflowCanvas
+                    activeNode={activeNode}
+                    threshold={threshold}
+                    setThreshold={setThreshold}
+                    running={running}
+                  />
+                </TabsContent>
+                <TabsContent value="runs" className="mt-4">
+                  <RunSimulator runs={runStatuses} totalSaved={totalSaved} running={running} />
+                </TabsContent>
+                <TabsContent value="oversight" className="mt-4">
+                  <OversightQueue
+                    run3={runStatuses[2]}
+                    reviewed={reviewedRun3}
+                    onApprove={approveCorrections}
+                    feedbackLog={feedbackLog}
+                  />
+                </TabsContent>
+                <TabsContent value="impact" className="mt-4">
+                  <ImpactDashboard
+                    hoursWeek={liveHoursWeek}
+                    autoRate={liveAutoRate}
+                  />
+                </TabsContent>
+              </Tabs>
+            )}
 
-            <footer className="mt-10 flex items-center justify-center gap-2 border-t border-slate-800 py-6 text-xs text-slate-500">
-              <Sparkles className="h-3.5 w-3.5 text-[#F5C84C]" />
-              Powered by AI · WorkflowAI Demo
+            <footer className="mt-10 flex flex-col items-center justify-center gap-1 border-t border-slate-800 py-6 text-xs text-slate-500">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-[#F5C84C]" />
+                Powered by AI · Emulation Station
+              </div>
+              <div className="text-[10px] italic text-slate-600">Your skills, amplified.</div>
             </footer>
           </main>
         </div>
