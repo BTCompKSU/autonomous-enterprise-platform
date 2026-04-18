@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, ArrowRight } from "lucide-react";
 import { WorkflowScoreGauge } from "@/components/judging/WorkflowScoreGauge";
 import { DemoTip } from "@/components/judging/DemoMode";
+import { AuditCTA } from "@/components/AuditCTA";
 
 export const Route = createFileRoute("/opportunity")({
   component: OpportunityMap,
