@@ -246,26 +246,44 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+const RESEND_GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+const AUDIT_FROM_ADDRESS = "UpSkill USA <info@websites4everyone.com>";
+
 async function trySendAuditEmail(
   email: string,
   website: string,
   audit: AuditReport,
 ): Promise<boolean> {
   try {
-    const baseUrl = process.env.LOVABLE_PUBLIC_URL ?? process.env.SUPABASE_URL ?? "";
-    if (!baseUrl) return false;
+    const lovableApiKey = process.env.LOVABLE_API_KEY;
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (!lovableApiKey || !resendApiKey) {
+      console.error("Audit email skipped: missing LOVABLE_API_KEY or RESEND_API_KEY");
+      return false;
+    }
     const html = renderEmailHtml(audit, website);
-    const res = await fetch(`${baseUrl.replace(/\/+$/, "")}/lovable/email/transactional/send`, {
+    const res = await fetch(`${RESEND_GATEWAY_URL}/emails`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${lovableApiKey}`,
+        "X-Connection-Api-Key": resendApiKey,
+      },
       body: JSON.stringify({
-        to: email,
+        from: AUDIT_FROM_ADDRESS,
+        to: [email],
         subject: `Your AI Readiness Diagnostic for ${audit.company_name}`,
         html,
       }),
     });
-    return res.ok;
-  } catch {
+    if (!res.ok) {
+      const body = await res.text();
+      console.error(`Resend send failed [${res.status}]: ${body}`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Resend send threw:", err);
     return false;
   }
 }
