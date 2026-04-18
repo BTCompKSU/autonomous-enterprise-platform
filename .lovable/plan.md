@@ -1,47 +1,42 @@
 
 
-## Plan: Step 3 = real AI analysis + employee-style report
+## Plan: Apply landing-page theme to onboarding
 
-Step 3 is currently a fake animation that auto-redirects to `/workflowai`. I'll turn it into a real analysis page: it calls the AI with the user's department + selected skills, renders a personalized report styled like `preview.employee-analysis.tsx`, then offers a CTA into `/workflowai`.
+Re-skin the onboarding shell + all 3 steps to match the AuditSplash hero language: deep navy `#0B1F3B` background, gold `#F5C84C` accents, white floating cards with deep shadows, gold uppercase eyebrow chips, and tight-tracked semibold headings.
 
-### Backend: new public server function
+### Theme tokens (used inline, matching landing page)
 
-The existing `submitAssessment` requires auth and writes to the DB. Since onboarding is unauthenticated, I'll add a sibling server function `analyzeOnboarding` (no auth, no persistence) that:
+- Background: `#0B1F3B` (deep navy) with radial-glow + grid overlays
+- Accent: `#F5C84C` (gold) for chips, progress, active state, primary CTA highlights
+- Card surface: white, `rounded-2xl`, `shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]`, `border-white/10`
+- Headings: `font-semibold tracking-[-0.015em]` (not `font-extrabold`)
+- Primary button: `bg-[#0B1F3B] text-white` (on white cards) or `bg-[#F5C84C] text-[#0B1F3B]` (on navy)
 
-- Reuses the same `SYSTEM_PROMPT`, `roleAnalysisSchema`, and `runAnalysis()` logic from `src/lib/assessment.functions.ts` (extracted to avoid duplication).
-- Builds the user message from `{ department, skills }` instead of free-form answers — explicitly tells the model "the employee has confirmed these skills as their day-to-day work" so the generated tasks anchor to them.
-- Returns the same `RoleAnalysis` shape (`tasks` with bucket/hours/confidence/etc.).
+### File changes
 
-File: **`src/lib/onboarding-analysis.functions.ts`** — new file with `analyzeOnboarding` server fn. Refactor `assessment.functions.ts` to export `runAnalysis` + the schema so both call sites share it.
+1. **`src/routes/onboarding.tsx`** (shell)
+   - Wrap whole page in navy bg with the same radial-glow + grid overlays from `AuditSplash`
+   - Header: transparent over navy, white text, gold logo chip (`bg-[#F5C84C] text-[#0B1F3B]`), white "Skip" link with hover
+   - Progress bar: filled segments use `#F5C84C`, empty use `white/15`; step label in gold uppercase tracked
 
-### Frontend: rewrite Step 3
+2. **`src/routes/onboarding.step-1.tsx`** (Department picker)
+   - Heading in white, semibold + tight tracking
+   - Subhead in `white/70`
+   - Department cards: white surface with shadow; **active** state = gold ring + gold check badge; icons in navy (or gold when active)
+   - Continue button: gold bg, navy text when enabled; disabled = `white/10`
 
-**`src/routes/onboarding.step-3.tsx`** becomes two phases:
+3. **`src/routes/onboarding.step-2.tsx`** (Tasks/skills)
+   - Same heading + subhead treatment
+   - Skill chips/checkboxes: white card surface, gold border + gold fill on selected; "AI-suggested" pre-selected items keep gold styling
+   - Back/Continue: ghost-on-navy + gold primary
 
-1. **Loading phase** (~3–8s while AI runs): keep the existing animated ring + checklist + rotating facts. Kick off the server call on mount via `useMutation` (TanStack Query is already in the project). On error: show a friendly message + Retry button.
-
-2. **Result phase** (when AI returns): render an employee-analysis-style report:
-   - Header: department + N skills analyzed + "Hours saved/month" + "FTE equivalent" + readiness band (derived from automate %).
-   - Three KPI tiles: `Automate / Augment / Own` counts (mirrors the preview report's `BigStat`).
-   - Task-by-task breakdown list — same visual treatment as `preview.employee-analysis.tsx`: bucket pill, task name, "Xh → Yh" mono numbers, colored progress bar showing % time saved. Pull `monthly_hours_saved` and `avg_minutes_per_instance × instances_per_month` to derive before/after.
-   - "Recommended AI tools" section: dedupe `tools_suggested` across tasks, show top ~6.
-   - CTA at bottom: **"Enter WorkflowAI →"** → `Link to="/workflowai"`. Keep a secondary "← Back to tasks" link.
-
-3. **Persist the analysis** to localStorage (extend `OnboardingProfile` with optional `analysis: RoleAnalysis | null`) so refreshing Step 3 doesn't re-bill the AI, and so `/workflowai` can later read the user's actual data.
-
-### Files
-
-| File | Change |
-|---|---|
-| `src/lib/assessment.functions.ts` | Export `runAnalysis` + `roleAnalysisSchema` + `SYSTEM_PROMPT` for reuse. |
-| `src/lib/onboarding-analysis.functions.ts` | **New.** Public `analyzeOnboarding({ department, skills })` server fn. |
-| `src/lib/onboarding-store.ts` | Add `analysis?: RoleAnalysis \| null` to profile + EMPTY. |
-| `src/routes/onboarding.step-3.tsx` | Rewrite: real AI call → loading → report → CTA. |
-| `src/routes/onboarding.tsx` | Update header description from "4-step" → "3-step". |
+4. **`src/routes/onboarding.step-3.tsx`** (Analyze + report)
+   - Loading phase: white card on navy, navy spinner, gold step pips (matches AuditSplash loading state exactly)
+   - Result phase: white report card with shadow; KPI tiles use navy headers with gold accent numbers; bucket pills (`Automate/Augment/Own`) get a 3-color system anchored around navy/gold/emerald; "Enter WorkflowAI" CTA = gold pill button
 
 ### Notes
 
-- Uses `google/gemini-2.5-pro` (already configured in `runAnalysis`) — no new secrets needed; `LOVABLE_API_KEY` is set.
-- Keeps the auto-redirect behavior off — the user explicitly clicks "Enter WorkflowAI" after seeing their report (the report IS the payoff of the onboarding).
-- No DB writes from onboarding — analysis lives only in localStorage. Hooking it into `/workflowai`'s sidebar/data is still out of scope (flagged earlier).
+- All color values are inline literals matching the landing page (`#0B1F3B`, `#F5C84C`) — same approach the landing page uses, no new CSS variables introduced. This keeps the rest of the app (dashboard, admin, etc.) on the existing light theme.
+- No font swap needed; the landing page uses the same default font stack but with `font-semibold` + tight tracking instead of `font-extrabold`. I'll align onboarding to match.
+- Animations (`animate-fade-in`, `animate-scale-in`) preserved.
 
