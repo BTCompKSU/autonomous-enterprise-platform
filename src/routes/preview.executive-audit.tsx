@@ -349,7 +349,7 @@ export function PreviewBanner({
         <p className="mt-2 max-w-2xl text-muted-foreground">{subtitle}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link
-            to="/opportunity"
+            to="/"
             className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
           >
             Get my free audit
