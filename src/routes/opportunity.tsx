@@ -56,7 +56,7 @@ function OpportunityMap() {
                 to="/skill-module"
                 className="mt-4 inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground transition hover:bg-accent"
               >
-                Explore agents <ArrowRight className="h-3 w-3" />
+                Explore emulators <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
           ))}

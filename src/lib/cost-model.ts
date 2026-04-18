@@ -18,7 +18,7 @@ type IndustryProfile = {
   label: string;
   /** Avg annual wage (BLS mean, knowledge-worker roles) */
   avgWage: number;
-  /** Share of headcount whose work is meaningfully addressable by AI agents today */
+  /** Share of headcount whose work is meaningfully addressable by AI emulators today */
   addressabilityFactor: number;
   /** Share of those roles' hours that AI can realistically take over (McKinsey) */
   automatableHoursPct: number;

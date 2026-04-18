@@ -28,7 +28,7 @@ const PREVIEWS = [
     to: "/preview/agent-builder" as const,
     icon: Bot,
     eyebrow: "For ops & IT",
-    title: "Agent Builder",
+    title: "Emulator Builder",
     body: "Confidence thresholds, scope, and human override — built in.",
     cta: "Tour the builder",
   },
@@ -51,7 +51,7 @@ function Index() {
             Three views. One free audit unlocks all of them.
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-            Tour the executive, employee, and agent experiences — built from
+            Tour the executive, employee, and emulator experiences — built from
             real audit data. Then run your own in 30 seconds.
           </p>
         </div>
@@ -96,7 +96,7 @@ function Index() {
           </h3>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
             30 seconds. No credit card. A complete audit with executive,
-            employee, and agent views — built on your company's real data.
+            employee, and emulator views — built on your company's real data.
           </p>
           <div className="mt-5">
             <Link
@@ -122,7 +122,7 @@ function Index() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["Where to deploy", "Opportunity mapping across every department."],
-            ["What AI should do", "Task-level automation clarity, not vague agents."],
+            ["What AI should do", "Task-level automation clarity, not vague emulators."],
             ["How to deploy safely", "Confidence scoring + human-in-the-loop."],
             ["How to transition workers", "Upskilling pathways with measurable ROI."],
           ].map(([t, b], i) => (

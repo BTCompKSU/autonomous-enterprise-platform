@@ -4,7 +4,7 @@ export function ArchitectureFooter() {
   const rows = [
     ["Frontend", "React + TanStack Start (Lovable)"],
     ["Backend", "Lovable Cloud (Supabase under the hood)"],
-    ["AI Layer", "Modular agent orchestration (conceptual)"],
+    ["AI Layer", "Modular emulator orchestration (conceptual)"],
     ["Data", "Workflow + task-level modeling"],
   ];
   return (

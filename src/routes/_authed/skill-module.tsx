@@ -14,10 +14,10 @@ export const Route = createFileRoute("/_authed/skill-module")({
 });
 
 const tasks = [
-  { id: 1, name: "Invoice classification", confidence: 98, owner: "AI Agent" },
-  { id: 2, name: "PO matching (3-way)", confidence: 94, owner: "AI Agent" },
+  { id: 1, name: "Invoice classification", confidence: 98, owner: "AI Emulator" },
+  { id: 2, name: "PO matching (3-way)", confidence: 94, owner: "AI Emulator" },
   { id: 3, name: "Vendor risk scoring", confidence: 72, owner: "Maria (Reviewer)" },
-  { id: 4, name: "Approval routing", confidence: 96, owner: "AI Agent" },
+  { id: 4, name: "Approval routing", confidence: 96, owner: "AI Emulator" },
   { id: 5, name: "Exception handling", confidence: 64, owner: "Maria (Reviewer)" },
 ];
 
@@ -46,13 +46,13 @@ function SkillModule() {
     <main className="mx-auto max-w-6xl px-6 py-12">
       <header>
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-          Agent Builder
+          Emulator Builder
         </span>
         <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
           Finance · Accounts Payable Skill
         </h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          A composable, deployable agent unit. Every task carries a confidence score; low-confidence
+          A composable, deployable emulator unit. Every task carries a confidence score; low-confidence
           work is automatically routed to a human.
         </p>
       </header>
@@ -65,7 +65,7 @@ function SkillModule() {
           <div>
             <h2 className="text-xl font-semibold">Builder access required</h2>
             <p className="mt-1 max-w-lg text-sm text-muted-foreground">
-              Your admin hasn't granted you Agent Builder access yet. Request access and they'll be
+              Your admin hasn't granted you Emulator Builder access yet. Request access and they'll be
               notified.
             </p>
           </div>
@@ -78,7 +78,7 @@ function SkillModule() {
         </div>
       ) : (
         <>
-          <DemoTip label="Production-ready agent flow with confidence checks" className="mt-10">
+          <DemoTip label="Production-ready emulator flow with confidence checks" className="mt-10">
             <AgentDeploymentBuilder />
           </DemoTip>
 
@@ -114,8 +114,8 @@ function SkillModule() {
 
       <AuditCTA
         className="mt-10"
-        headline="Build agents for your business"
-        subline="Get a free audit that maps deployable AI agents to your real workflows — with confidence scores."
+        headline="Build emulators for your business"
+        subline="Get a free audit that maps deployable AI emulators to your real workflows — with confidence scores."
       />
     </main>
   );

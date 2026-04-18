@@ -131,7 +131,7 @@ const QUESTIONS: Question[] = [
     id: "goal",
     type: "short_text",
     section: "Goals",
-    prompt: "If an AI agent could take one thing off your plate this quarter, what would it be?",
+    prompt: "If an AI emulator could take one thing off your plate this quarter, what would it be?",
     placeholder: "e.g. Drafting first-pass responses to inbound RFPs.",
     maxLength: 500,
   },
@@ -613,7 +613,7 @@ function ResultView({
           <RefreshCw className="mr-2 h-4 w-4" /> Retake assessment
         </Button>
         <Button asChild className="bg-brand hover:bg-brand/90 text-brand-foreground">
-          <Link to="/skill-module">Open Agent Builder</Link>
+          <Link to="/skill-module">Open Emulator Builder</Link>
         </Button>
       </div>
     </div>

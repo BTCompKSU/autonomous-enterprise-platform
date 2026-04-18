@@ -30,7 +30,7 @@ function ExecutiveDashboard() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Kpi icon={Zap} label="Productivity unlocked" value="$7.5M" sub="annualized" />
             <Kpi icon={Clock} label="Capacity gained" value="8,400 hrs/mo" sub="vs. last quarter" />
-            <Kpi icon={TrendingUp} label="Reliability uptrend" value="+4.2% / wk" sub="agent learning" />
+            <Kpi icon={TrendingUp} label="Reliability uptrend" value="+4.2% / wk" sub="emulator learning" />
             <Kpi icon={Zap} label="Tasks auto-handled" value="312K" sub="last 30 days" />
             <Kpi icon={Clock} label="Avg. task latency" value="1.8s" sub="end-to-end" />
             <Kpi icon={TrendingUp} label="Pilots → production" value="9 / 12" sub="vs. industry 18%" />

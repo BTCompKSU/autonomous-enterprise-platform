@@ -8,7 +8,7 @@ export const Route = createFileRoute("/demo")({
       {
         name: "description",
         content:
-          "Watch the UpSkill USA demo: opportunity mapping, executive audit, employee analysis, and agent builder in action.",
+          "Watch the UpSkill USA demo: opportunity mapping, executive audit, employee analysis, and emulator builder in action.",
       },
       { property: "og:title", content: "Product Demo — UpSkill USA" },
       {
@@ -36,7 +36,7 @@ function DemoPage() {
         </h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
           A walkthrough of the four pillars: opportunity mapping, executive audit, employee
-          analysis, and the agent builder.
+          analysis, and the emulator builder.
         </p>
 
         <div className="mt-8 overflow-hidden rounded-2xl border bg-card shadow-sm">

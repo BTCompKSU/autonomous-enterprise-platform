@@ -74,9 +74,9 @@ function GovernancePage() {
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
           Admin · Governance
         </span>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">Agent governance</h1>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">Emulator governance</h1>
         <p className="text-muted-foreground">
-          Pause individual agents and set the minimum confidence threshold for autonomous action.
+          Pause individual emulators and set the minimum confidence threshold for autonomous action.
         </p>
       </header>
 

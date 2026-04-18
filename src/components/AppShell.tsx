@@ -8,7 +8,7 @@ const marketingNav = [
   { to: "/opportunity", label: "Opportunity" },
   { to: "/preview/executive-audit", label: "Executives" },
   { to: "/preview/employee-analysis", label: "Employees" },
-  { to: "/preview/agent-builder", label: "Agents" },
+  { to: "/preview/agent-builder", label: "Emulators" },
   { to: "/faq", label: "FAQ" },
 ] as const;
 
@@ -16,7 +16,7 @@ const adminNav = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/employee", label: "Employee View" },
   { to: "/assessment", label: "Assessment" },
-  { to: "/skill-module", label: "Agent Builder" },
+  { to: "/skill-module", label: "Emulator Builder" },
   { to: "/admin/employees", label: "Team" },
   { to: "/admin/governance", label: "Governance" },
 ] as const;
