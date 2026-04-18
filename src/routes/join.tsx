@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { redeemInviteCode } from "@/lib/org.functions";
 import { toast } from "sonner";
@@ -11,12 +11,21 @@ export const Route = createFileRoute("/join")({
 
 function JoinPage() {
   const auth = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // If the user is already in an org, send them to their dashboard.
+  useEffect(() => {
+    if (auth.loading) return;
+    if (auth.isAuthenticated && auth.orgId) {
+      navigate({ to: auth.role === "admin" ? "/dashboard" : "/employee" });
+    }
+  }, [auth.loading, auth.isAuthenticated, auth.orgId, auth.role, navigate]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
