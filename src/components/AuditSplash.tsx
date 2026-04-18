@@ -121,7 +121,7 @@ export function AuditSplash() {
           operational gaps, and automation opportunities across your organization.
         </p>
 
-        <div className="mx-auto mt-12 max-w-2xl">
+        <div className="mx-auto mt-12 max-w-2xl print:mt-0 print:max-w-none">
           {step === "website" && (
             <form onSubmit={onWebsiteSubmit} className="group relative">
               <div className="absolute -inset-1 rounded-2xl bg-[#F5C84C]/20 opacity-40 blur-xl transition group-focus-within:opacity-70" />
