@@ -1,8 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import Firecrawl from "@mendable/firecrawl-js";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import type { AuditReport, GenerateAuditResponse } from "@/lib/audit-types";
+
+let _serverSupabase: SupabaseClient<Database> | undefined;
+function getServerSupabase(): SupabaseClient<Database> {
+  if (_serverSupabase) return _serverSupabase;
+  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+  const anonKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !anonKey) {
+    throw new Error("Supabase URL or publishable key missing in server runtime");
+  }
+  _serverSupabase = createClient<Database>(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  return _serverSupabase;
+}
 
 const InputSchema = z.object({
   website: z
