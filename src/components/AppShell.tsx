@@ -67,7 +67,7 @@ export function AppHeader() {
                 className={cn(
                   "px-3 py-1.5 text-sm font-bold transition-colors",
                   active
-                    ? "bg-primary text-brand"
+                    ? "bg-primary text-warning"
                     : "rounded-full text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -99,12 +99,12 @@ export function AppHeader() {
                 onClick={() => setMenuOpen((v) => !v)}
                 className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent"
               >
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-brand text-[10px] font-bold text-brand-foreground">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-warning text-[10px] font-bold text-warning-foreground">
                   {(auth.fullName ?? auth.user?.email ?? "?")[0]?.toUpperCase()}
                 </span>
                 <span className="max-w-[140px] truncate">{auth.orgName ?? "Workspace"}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${auth.role === "admin" ? "bg-brand/20 text-brand" : "bg-muted text-muted-foreground"}`}
+                  className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${auth.role === "admin" ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"}`}
                 >
                   {auth.role}
                 </span>
