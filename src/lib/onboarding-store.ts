@@ -71,7 +71,7 @@ export function useOnboardingProfile() {
     setProfile(EMPTY);
   }, []);
 
-  return { profile, update, reset };
+  return { profile, update, reset, hydrated };
 }
 
 export function getOnboardingProfile(): OnboardingProfile {
