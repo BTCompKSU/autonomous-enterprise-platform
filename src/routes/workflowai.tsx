@@ -1102,7 +1102,7 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
         <text x={ex + (cos >= 0 ? 4 : -4)} y={ey - 6} textAnchor={anchor} fill="#ffffff" fontSize={13} fontWeight={700} style={{ textTransform: "uppercase" }}>
           {o.name}
         </text>
-        <text x={ex + (cos >= 0 ? 4 : -4)} y={ey + 16} textAnchor={anchor} fill={o.color} fontSize={22} fontWeight={800}>
+        <text x={ex + (cos >= 0 ? 4 : -4)} y={ey + 16} textAnchor={anchor} fill="#ffffff" fontSize={22} fontWeight={800}>
           {o.value}%
         </text>
       </g>
