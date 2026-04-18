@@ -104,7 +104,7 @@ function Step2() {
         </p>
       </div>
 
-      {!dept && (
+      {hydrated && !dept && (
         <div className="rounded-2xl border border-[#F5C84C]/40 bg-[#F5C84C]/10 p-5 text-sm text-white">
           Pick a department first.{" "}
           <Link
