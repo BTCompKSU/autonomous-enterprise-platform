@@ -253,7 +253,7 @@ function escapeHtml(s: string): string {
 }
 
 const RESEND_GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const AUDIT_FROM_ADDRESS = "UpSkill USA <support@vibe-greeting.com>";
+const AUDIT_FROM_ADDRESS = "UpSkill USA <support@vibegreeting.com>";
 
 async function trySendAuditEmail(
   email: string,
