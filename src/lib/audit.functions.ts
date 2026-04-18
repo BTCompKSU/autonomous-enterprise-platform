@@ -127,7 +127,7 @@ const auditJsonSchema = {
   },
 } as const;
 
-async function generateAudit(args: {
+async function runOpenAiAudit(args: {
   domain: string;
   url: string;
   scrape: { markdown: string; metadata: Record<string, unknown> } | null;
@@ -299,7 +299,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const [scrape, enrichment] = await Promise.all([scrapeCompany(url), enrichCompany(domain)]);
 
       // 3. Generate audit
-      const audit = await generateAudit({ domain, url, scrape, enrichment });
+      const audit = await runOpenAiAudit({ domain, url, scrape, enrichment });
 
       // 4. Try sending email (best-effort)
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
@@ -309,8 +309,13 @@ export const generateAudit = createServerFn({ method: "POST" })
         .from("leads")
         .update({
           status: "completed",
-          enrichment: { scrape_metadata: scrape?.metadata ?? null, companies_api: enrichment },
-          audit: audit as unknown as Record<string, unknown>,
+          enrichment: JSON.parse(
+            JSON.stringify({
+              scrape_metadata: scrape?.metadata ?? null,
+              companies_api: enrichment,
+            }),
+          ),
+          audit: JSON.parse(JSON.stringify(audit)),
           updated_at: new Date().toISOString(),
         })
         .eq("id", leadId);
