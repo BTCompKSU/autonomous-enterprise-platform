@@ -51,6 +51,7 @@ function Step1() {
         selected_department: dept,
         selected_tasks: [],
         custom_tasks: [],
+        top_skills_signature: "",
       });
     } else {
       update({ selected_department: dept });
