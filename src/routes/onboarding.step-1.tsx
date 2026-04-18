@@ -11,6 +11,7 @@ import {
   Users,
   Scale,
   Check,
+  ArrowRight,
 } from "lucide-react";
 import {
   ENTERPRISE_JOB_CATEGORIES,
@@ -47,12 +48,15 @@ function Step1() {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+    <div className="space-y-10">
+      <div className="text-center sm:text-left">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
+          Step 01 — Department
+        </span>
+        <h1 className="mt-5 text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl">
           Where do you sit in the org?
         </h1>
-        <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70">
           This helps us match your tasks to the right AI workflows.
         </p>
       </div>
@@ -66,26 +70,24 @@ function Step1() {
               key={c.category}
               type="button"
               onClick={() => pick(c.category)}
-              className={`group relative flex h-full min-h-[140px] flex-col items-center justify-center rounded-xl border p-5 text-center transition-all duration-200 hover:scale-[1.02] ${
+              className={`group relative flex h-full min-h-[148px] flex-col items-center justify-center rounded-2xl border p-5 text-center transition-all duration-200 hover:scale-[1.02] ${
                 active
-                  ? "border-warning bg-warning/10 shadow-[0_0_0_3px_color-mix(in_oklab,var(--warning)_25%,transparent)]"
-                  : "border-border bg-card hover:border-warning/60 hover:bg-accent/40"
+                  ? "border-[#F5C84C] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] ring-2 ring-[#F5C84C]"
+                  : "border-white/10 bg-white shadow-[0_12px_40px_-15px_rgba(0,0,0,0.45)] hover:border-[#F5C84C]/60"
               }`}
             >
               {active && (
-                <span className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full bg-warning text-warning-foreground animate-scale-in">
-                  <Check className="h-3 w-3" />
+                <span className="absolute right-2.5 top-2.5 grid h-5 w-5 place-items-center rounded-full bg-[#F5C84C] text-[#0B1F3B] animate-scale-in">
+                  <Check className="h-3 w-3" strokeWidth={3} />
                 </span>
               )}
               <Icon
-                className={`h-8 w-8 ${
-                  active ? "text-warning" : "text-brand"
-                }`}
+                className={`h-8 w-8 ${active ? "text-[#F5C84C]" : "text-[#0B1F3B]"}`}
               />
-              <div className="mt-3 text-base font-bold text-foreground">
+              <div className="mt-3 text-base font-semibold tracking-tight text-slate-900">
                 {c.category}
               </div>
-              <div className="mt-1 text-[12px] italic text-muted-foreground">
+              <div className="mt-1 text-[12px] italic text-slate-500">
                 {c.focus}
               </div>
             </button>
@@ -96,7 +98,7 @@ function Step1() {
       <div className="flex flex-col-reverse items-stretch justify-end gap-3 pt-4 sm:flex-row sm:items-center">
         <Link
           to="/workflowai"
-          className="text-center text-sm text-muted-foreground transition hover:text-foreground"
+          className="text-center text-sm text-white/60 transition hover:text-white"
         >
           Skip for now →
         </Link>
@@ -104,13 +106,14 @@ function Step1() {
           type="button"
           disabled={!selected}
           onClick={() => navigate({ to: "/onboarding/step-2" })}
-          className={`rounded-lg px-6 py-3 text-sm font-bold transition-all ${
+          className={`inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold tracking-tight transition-all ${
             selected
-              ? "bg-warning text-warning-foreground shadow hover:bg-warning/90 animate-scale-in"
-              : "cursor-not-allowed bg-muted text-muted-foreground"
+              ? "bg-[#F5C84C] text-[#0B1F3B] shadow-lg shadow-black/30 hover:brightness-110 animate-scale-in"
+              : "cursor-not-allowed bg-white/10 text-white/40"
           }`}
         >
-          Continue →
+          Continue
+          <ArrowRight className="h-4 w-4" />
         </button>
       </div>
     </div>

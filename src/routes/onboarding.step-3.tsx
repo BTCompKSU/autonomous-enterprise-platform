@@ -50,7 +50,6 @@ function Step3() {
     },
   });
 
-  // Kick off analysis on mount if we don't already have one cached
   useEffect(() => {
     if (profile.analysis) return;
     if (!profile.selected_department || allSkills.length === 0) return;
@@ -59,16 +58,15 @@ function Step3() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.analysis, profile.selected_department, allSkills.length]);
 
-  // Missing prerequisites
   if (!profile.selected_department || allSkills.length === 0) {
     return (
-      <div className="mx-auto max-w-md space-y-4 rounded-xl border border-warning/40 bg-warning/10 p-6 text-center">
-        <p className="text-sm">
+      <div className="mx-auto max-w-md space-y-4 rounded-2xl border border-[#F5C84C]/40 bg-white p-6 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+        <p className="text-sm text-slate-700">
           We need your department and at least one task before we can analyze.
         </p>
         <Link
           to="/onboarding/step-1"
-          className="inline-block rounded-lg bg-warning px-4 py-2 text-sm font-bold text-warning-foreground"
+          className="inline-block rounded-xl bg-[#F5C84C] px-4 py-2 text-sm font-semibold text-[#0B1F3B]"
         >
           Start over
         </Link>
@@ -80,16 +78,18 @@ function Step3() {
 
   if (mutation.isError && !analysis) {
     return (
-      <div className="mx-auto max-w-lg space-y-4 rounded-xl border border-destructive/40 bg-destructive/10 p-8 text-center">
-        <AlertCircle className="mx-auto h-10 w-10 text-destructive" />
-        <h2 className="text-2xl font-bold">Analysis hit a snag</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="mx-auto max-w-lg space-y-4 rounded-2xl border border-white/10 bg-white p-8 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+        <AlertCircle className="mx-auto h-10 w-10 text-rose-500" />
+        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+          Analysis hit a snag
+        </h2>
+        <p className="text-sm text-slate-600">
           {mutation.error instanceof Error ? mutation.error.message : "Unknown error"}
         </p>
         <button
           type="button"
           onClick={() => mutation.mutate()}
-          className="inline-flex items-center gap-2 rounded-lg bg-warning px-5 py-2.5 text-sm font-bold text-warning-foreground transition hover:bg-warning/90"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#0B1F3B] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
         >
           <RotateCw className="h-4 w-4" />
           Retry
@@ -109,7 +109,6 @@ function Step3() {
       skillsCount={allSkills.length}
       onRegenerate={() => {
         update({ analysis: null });
-        // Force a re-run by invalidating router (clearing cached analysis triggers effect)
         mutation.reset();
         router.invalidate();
       }}
@@ -141,62 +140,42 @@ function LoadingPhase() {
     return () => clearInterval(t);
   }, []);
 
-  const ringPct = Math.min(95, (step / items.length) * 100);
-
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <div className="relative grid h-32 w-32 place-items-center">
-        <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className="text-muted" />
-          <circle
-            cx="50"
-            cy="50"
-            r="44"
-            stroke="currentColor"
-            strokeWidth="6"
-            fill="none"
-            strokeDasharray={2 * Math.PI * 44}
-            strokeDashoffset={2 * Math.PI * 44 * (1 - ringPct / 100)}
-            strokeLinecap="round"
-            className="text-warning transition-all duration-700"
-          />
-        </svg>
-        <div className="grid h-16 w-16 place-items-center rounded-full bg-warning text-warning-foreground animate-pulse">
-          <Sparkles className="h-7 w-7" />
-        </div>
+    <div className="mx-auto max-w-2xl">
+      <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+        <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#0B1F3B]" />
+        <h3 className="mt-5 text-2xl font-semibold tracking-tight text-slate-900">
+          Building your AI opportunity report…
+        </h3>
+        <p className="mt-2 text-sm text-slate-500">
+          This usually takes 5–15 seconds.
+        </p>
+
+        <ul className="mx-auto mt-7 max-w-sm space-y-2.5 text-left text-sm text-slate-700">
+          {items.map((label, i) => {
+            const visible = i <= step;
+            const completed = i < step;
+            if (!visible) return null;
+            return (
+              <li
+                key={label}
+                className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-2.5 animate-fade-in"
+              >
+                {completed ? (
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                ) : (
+                  <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-[#0B1F3B]" />
+                )}
+                <span>{label}</span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-
-      <h2 className="mt-8 text-3xl font-extrabold tracking-tight sm:text-4xl">
-        Building your AI opportunity report…
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        This usually takes 5–15 seconds.
-      </p>
-
-      <ul className="mt-6 w-full max-w-md space-y-2 text-left">
-        {items.map((label, i) => {
-          const visible = i <= step;
-          const completed = i < step;
-          if (!visible) return null;
-          return (
-            <li
-              key={label}
-              className="flex items-start gap-3 rounded-lg border bg-card px-4 py-2.5 text-sm animate-fade-in"
-            >
-              {completed ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-              ) : (
-                <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-warning" />
-              )}
-              <span className="text-foreground">{label}</span>
-            </li>
-          );
-        })}
-      </ul>
 
       <div
         key={factIdx}
-        className="mt-8 max-w-md rounded-lg border-l-4 border-warning bg-card px-4 py-3 text-left text-sm italic text-foreground animate-fade-in"
+        className="mx-auto mt-6 max-w-md rounded-xl border-l-4 border-[#F5C84C] bg-white/5 px-4 py-3 text-left text-sm italic text-white/85 backdrop-blur-sm animate-fade-in"
       >
         {FACTS[factIdx]}
       </div>
@@ -222,7 +201,13 @@ function ReportPhase({
   const automatePct = total > 0 ? Math.round((summary.automate_count / total) * 100) : 0;
 
   const band =
-    automatePct >= 60 ? "Advanced" : automatePct >= 40 ? "Proficient" : automatePct >= 20 ? "Developing" : "Emerging";
+    automatePct >= 60
+      ? "Advanced"
+      : automatePct >= 40
+        ? "Proficient"
+        : automatePct >= 20
+          ? "Developing"
+          : "Emerging";
 
   const tools = useMemo(() => {
     const counts = new Map<string, number>();
@@ -238,71 +223,84 @@ function ReportPhase({
   }, [tasks]);
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       {/* Header card */}
-      <div className="rounded-3xl border bg-card p-6 shadow-2xl sm:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-warning">
-              Your AI Opportunity Report
+      <div className="overflow-hidden rounded-3xl border border-white/10 bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+        <div className="border-b border-slate-100 p-7 sm:p-9">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0B1F3B]">
+                Your AI Opportunity Report
+              </div>
+              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+                {department}
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {skillsCount} skills analyzed · {tasks.length} tasks generated · readiness band:{" "}
+                <span className="font-semibold text-[#0B1F3B]">{band}</span>
+              </p>
             </div>
-            <h2 className="mt-1 text-2xl font-bold sm:text-3xl">
-              {department}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {skillsCount} skills analyzed · {tasks.length} tasks generated · readiness band:{" "}
-              <span className="font-semibold text-foreground">{band}</span>
-            </p>
+            <button
+              type="button"
+              onClick={onRegenerate}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 transition hover:border-[#F5C84C] hover:text-slate-900"
+            >
+              <RotateCw className="h-3 w-3" />
+              Regenerate
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onRegenerate}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-warning hover:text-foreground"
-          >
-            <RotateCw className="h-3 w-3" />
-            Regenerate
-          </button>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <BigStat
-            icon={Clock}
-            label="Hours saved / month"
-            value={summary.estimated_monthly_hours_saved.toFixed(0)}
-            sub="From AI deployment"
-            tone="success"
+        {/* KPI row — navy hero */}
+        <div className="relative overflow-hidden bg-[#0B1F3B] p-7 text-white sm:p-9">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.08]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
           />
-          <BigStat
-            icon={TrendingUp}
-            label="FTE equivalent"
-            value={summary.estimated_fte_equivalent_saved.toFixed(2)}
-            sub="Per month"
-            tone="brand"
-          />
-          <BigStat
-            icon={Sparkles}
-            label="Automation potential"
-            value={`${automatePct}%`}
-            sub={`${summary.automate_count} of ${total} tasks`}
-            tone="primary"
-          />
+          <div className="relative grid gap-4 sm:grid-cols-3">
+            <BigStat
+              icon={Clock}
+              label="Hours saved / month"
+              value={summary.estimated_monthly_hours_saved.toFixed(0)}
+              sub="From AI deployment"
+            />
+            <BigStat
+              icon={TrendingUp}
+              label="FTE equivalent"
+              value={summary.estimated_fte_equivalent_saved.toFixed(2)}
+              sub="Per month"
+            />
+            <BigStat
+              icon={Sparkles}
+              label="Automation potential"
+              value={`${automatePct}%`}
+              sub={`${summary.automate_count} of ${total} tasks`}
+            />
+          </div>
         </div>
 
         {/* Bucket counts */}
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
-          <BucketTile label="Automate" count={summary.automate_count} tone="brand" />
-          <BucketTile label="Augment" count={summary.augment_count} tone="success" />
-          <BucketTile label="Own" count={summary.own_count} tone="warning" />
+        <div className="grid grid-cols-3 gap-2 px-7 py-5 text-center sm:px-9">
+          <BucketTile label="Automate" count={summary.automate_count} tone="navy" />
+          <BucketTile label="Augment" count={summary.augment_count} tone="gold" />
+          <BucketTile label="Own" count={summary.own_count} tone="emerald" />
         </div>
       </div>
 
       {/* Task breakdown */}
-      <div className="rounded-3xl border bg-card p-6 shadow-xl sm:p-8">
-        <h3 className="text-base font-semibold">Task-by-task breakdown</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-white/10 bg-white p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-9">
+        <h3 className="text-base font-semibold tracking-tight text-slate-900">
+          Task-by-task breakdown
+        </h3>
+        <p className="mt-1 text-sm text-slate-500">
           Hours per month, before vs. after AI deployment.
         </p>
-        <div className="mt-4 space-y-2">
+        <div className="mt-5 space-y-2">
           {tasks.map((t) => (
             <TaskRow key={t.task_id} task={t} />
           ))}
@@ -311,18 +309,20 @@ function ReportPhase({
 
       {/* Recommended tools */}
       {tools.length > 0 && (
-        <div className="rounded-3xl border bg-card p-6 shadow-xl sm:p-8">
+        <div className="rounded-2xl border border-white/10 bg-white p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-9">
           <div className="flex items-center gap-2">
-            <Wrench className="h-4 w-4 text-warning" />
-            <h3 className="text-base font-semibold">Recommended AI tools</h3>
+            <Wrench className="h-4 w-4 text-[#F5C84C]" />
+            <h3 className="text-base font-semibold tracking-tight text-slate-900">
+              Recommended AI tools
+            </h3>
           </div>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {tools.map((name) => (
               <li
                 key={name}
-                className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm"
+                className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-sm text-slate-800"
               >
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                 <span className="font-medium">{name}</span>
               </li>
             ))}
@@ -334,13 +334,13 @@ function ReportPhase({
       <div className="flex flex-col-reverse items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center">
         <Link
           to="/onboarding/step-2"
-          className="text-center text-sm text-muted-foreground transition hover:text-foreground"
+          className="text-center text-sm text-white/60 transition hover:text-white"
         >
           ← Back to tasks
         </Link>
         <Link
           to="/workflowai"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-warning px-8 py-4 text-base font-bold text-warning-foreground shadow-lg transition hover:bg-warning/90"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#F5C84C] px-8 py-4 text-base font-semibold tracking-tight text-[#0B1F3B] shadow-lg shadow-black/30 transition hover:brightness-110"
         >
           Enter WorkflowAI
           <ArrowRight className="h-4 w-4" />
@@ -355,30 +355,34 @@ function TaskRow({ task }: { task: RoleTask }) {
   const afterHours = Math.max(0, beforeHours - task.monthly_hours_saved);
   const pctRemaining = beforeHours > 0 ? Math.max(4, (afterHours / beforeHours) * 100) : 4;
 
-  const toneByBucket: Record<RoleTask["bucket"], string> = {
-    AUTOMATE: "bg-brand",
-    AUGMENT: "bg-success",
-    OWN: "bg-warning",
+  const barByBucket: Record<RoleTask["bucket"], string> = {
+    AUTOMATE: "bg-[#0B1F3B]",
+    AUGMENT: "bg-[#F5C84C]",
+    OWN: "bg-emerald-500",
   };
 
   return (
-    <div className="rounded-xl border bg-background p-3">
+    <div className="rounded-xl border border-slate-200 bg-white p-3.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <BucketBadge bucket={task.bucket} />
-          <span className="text-sm font-medium">{task.task_name}</span>
+          <span className="text-sm font-medium text-slate-900">{task.task_name}</span>
         </div>
-        <div className="font-mono text-xs text-muted-foreground">
+        <div className="font-mono text-xs text-slate-500">
           {beforeHours.toFixed(1)}h →{" "}
-          <span className="font-semibold text-foreground">{afterHours.toFixed(1)}h</span>
+          <span className="font-semibold text-slate-900">{afterHours.toFixed(1)}h</span>
         </div>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-        <div className={`h-full ${toneByBucket[task.bucket]}`} style={{ width: `${pctRemaining}%` }} />
+      <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={`h-full ${barByBucket[task.bucket]}`}
+          style={{ width: `${pctRemaining}%` }}
+        />
       </div>
       {task.ai_action && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">AI does:</span> {task.ai_action}
+        <p className="mt-2 text-xs text-slate-500">
+          <span className="font-semibold text-slate-700">AI does:</span>{" "}
+          {task.ai_action}
         </p>
       )}
     </div>
@@ -387,9 +391,9 @@ function TaskRow({ task }: { task: RoleTask }) {
 
 function BucketBadge({ bucket }: { bucket: RoleTask["bucket"] }) {
   const tones: Record<RoleTask["bucket"], string> = {
-    AUTOMATE: "bg-brand/15 text-brand border-brand/30",
-    AUGMENT: "bg-success/15 text-success border-success/30",
-    OWN: "bg-warning/15 text-warning border-warning/30",
+    AUTOMATE: "bg-[#0B1F3B]/10 text-[#0B1F3B] border-[#0B1F3B]/20",
+    AUGMENT: "bg-[#F5C84C]/15 text-[#7c5e10] border-[#F5C84C]/40",
+    OWN: "bg-emerald-50 text-emerald-700 border-emerald-200",
   };
   return (
     <span
@@ -400,16 +404,35 @@ function BucketBadge({ bucket }: { bucket: RoleTask["bucket"] }) {
   );
 }
 
-function BucketTile({ label, count, tone }: { label: string; count: number; tone: "brand" | "success" | "warning" }) {
+function BucketTile({
+  label,
+  count,
+  tone,
+}: {
+  label: string;
+  count: number;
+  tone: "navy" | "gold" | "emerald";
+}) {
   const tones = {
-    brand: "border-brand/30 bg-brand/10 text-brand",
-    success: "border-success/30 bg-success/10 text-success",
-    warning: "border-warning/30 bg-warning/10 text-warning",
+    navy: "border-[#0B1F3B]/15 bg-[#0B1F3B]/5",
+    gold: "border-[#F5C84C]/40 bg-[#F5C84C]/10",
+    emerald: "border-emerald-200 bg-emerald-50",
+  };
+  const labelTone = {
+    navy: "text-[#0B1F3B]",
+    gold: "text-[#7c5e10]",
+    emerald: "text-emerald-700",
   };
   return (
-    <div className={`rounded-lg border px-3 py-2 ${tones[tone]}`}>
-      <div className="text-[10px] font-semibold uppercase tracking-wider opacity-80">{label}</div>
-      <div className="text-xl font-bold text-foreground">{count}</div>
+    <div className={`rounded-xl border px-3 py-2.5 ${tones[tone]}`}>
+      <div
+        className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone[tone]}`}
+      >
+        {label}
+      </div>
+      <div className="mt-0.5 text-2xl font-semibold tracking-tight text-slate-900">
+        {count}
+      </div>
     </div>
   );
 }
@@ -419,27 +442,22 @@ function BigStat({
   label,
   value,
   sub,
-  tone,
 }: {
   icon: typeof Clock;
   label: string;
   value: string;
   sub: string;
-  tone: "success" | "brand" | "primary";
 }) {
-  const tones = {
-    success: "border-success/30 bg-success/10",
-    brand: "border-brand/30 bg-brand/10",
-    primary: "border-primary/30 bg-primary/10",
-  };
   return (
-    <div className={`rounded-xl border p-4 ${tones[tone]}`}>
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F5C84C]">
         <Icon className="h-3.5 w-3.5" />
         {label}
       </div>
-      <div className="mt-1 text-3xl font-bold">{value}</div>
-      <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+      <div className="mt-1.5 text-3xl font-semibold tracking-tight text-white">
+        {value}
+      </div>
+      <div className="mt-1 text-xs text-white/60">{sub}</div>
     </div>
   );
 }

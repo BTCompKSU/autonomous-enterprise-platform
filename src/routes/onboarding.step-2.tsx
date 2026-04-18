@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowRight } from "lucide-react";
 import { getDepartment } from "@/lib/job-categories";
 import { useOnboardingProfile } from "@/lib/onboarding-store";
 
@@ -75,21 +75,27 @@ function Step2() {
   const canContinue = totalCount >= 3;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+    <div className="space-y-10">
+      <div className="text-center sm:text-left">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
+          Step 02 — Tasks
+        </span>
+        <h1 className="mt-5 text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl">
           What fills your calendar?
         </h1>
-        <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70">
           Select everything that sounds like your job. Be honest — this is where
           the AI magic starts.
         </p>
       </div>
 
       {!dept && (
-        <div className="rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm">
+        <div className="rounded-2xl border border-[#F5C84C]/40 bg-[#F5C84C]/10 p-5 text-sm text-white">
           Pick a department first.{" "}
-          <Link to="/onboarding/step-1" className="font-semibold text-warning underline">
+          <Link
+            to="/onboarding/step-1"
+            className="font-semibold text-[#F5C84C] underline"
+          >
             Go back
           </Link>
         </div>
@@ -97,53 +103,56 @@ function Step2() {
 
       {dept && (
         <>
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {dept.category} · {dept.skills.length} skills
+          <div className="rounded-2xl border border-white/10 bg-white p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] sm:p-7">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                {dept.category} · {dept.skills.length} skills
+              </div>
+              <div className="text-sm font-semibold text-[#0B1F3B]">
+                <span className="text-[#F5C84C]">●</span> {totalCount}{" "}
+                {totalCount === 1 ? "task" : "tasks"} selected
+              </div>
             </div>
-            <div className="text-sm font-bold text-warning">
-              {totalCount} {totalCount === 1 ? "task" : "tasks"} selected
-            </div>
-          </div>
 
-          <div className="flex flex-wrap gap-2">
-            {dept.skills.map((s) => {
-              const active = selected.includes(s);
-              return (
-                <button
+            <div className="mt-5 flex flex-wrap gap-2">
+              {dept.skills.map((s) => {
+                const active = selected.includes(s);
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => toggle(s)}
+                    className={`rounded-full border px-4 py-2 text-sm transition-all duration-150 ${
+                      active
+                        ? "border-[#F5C84C] bg-[#F5C84C] font-semibold text-[#0B1F3B] shadow-sm animate-scale-in"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-[#F5C84C]/60 hover:bg-[#F5C84C]/5"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+              {custom.map((s) => (
+                <span
                   key={s}
-                  type="button"
-                  onClick={() => toggle(s)}
-                  className={`rounded-full border px-4 py-2 text-sm transition-all duration-150 ${
-                    active
-                      ? "border-warning bg-warning font-bold text-warning-foreground animate-scale-in"
-                      : "border-border bg-card text-foreground hover:border-warning/60 hover:bg-accent/40"
-                  }`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#F5C84C] bg-[#F5C84C] px-4 py-2 text-sm font-semibold text-[#0B1F3B] animate-scale-in"
                 >
                   {s}
-                </button>
-              );
-            })}
-            {custom.map((s) => (
-              <span
-                key={s}
-                className="inline-flex items-center gap-1.5 rounded-full border border-warning bg-warning px-4 py-2 text-sm font-bold text-warning-foreground animate-scale-in"
-              >
-                {s}
-                <button
-                  type="button"
-                  onClick={() => removeCustom(s)}
-                  className="grid h-4 w-4 place-items-center rounded-full bg-warning-foreground/20 hover:bg-warning-foreground/40"
-                  aria-label={`Remove ${s}`}
-                >
-                  <X className="h-2.5 w-2.5" />
-                </button>
-              </span>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() => removeCustom(s)}
+                    className="grid h-4 w-4 place-items-center rounded-full bg-[#0B1F3B]/15 hover:bg-[#0B1F3B]/30"
+                    aria-label={`Remove ${s}`}
+                  >
+                    <X className="h-2.5 w-2.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="rounded-xl border bg-card p-4">
-            <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <div className="rounded-2xl border border-white/10 bg-white p-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+            <label className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               Don't see your tasks? Add your own:
             </label>
             <div className="mt-2 flex gap-2">
@@ -152,13 +161,13 @@ function Step2() {
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={onKey}
                 placeholder="Type a task and press Enter…"
-                className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-warning focus:outline-none focus:ring-2 focus:ring-warning/30"
+                className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#F5C84C] focus:outline-none focus:ring-2 focus:ring-[#F5C84C]/30"
               />
               <button
                 type="button"
                 onClick={addCustom}
                 disabled={!draft.trim()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-warning px-4 py-2.5 text-sm font-bold text-warning-foreground transition hover:bg-warning/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0B1F3B] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Plus className="h-4 w-4" />
                 Add
@@ -166,16 +175,16 @@ function Step2() {
             </div>
           </div>
 
-          <div className="text-sm font-medium text-muted-foreground">
+          <div className="text-center text-sm font-medium text-white/70 sm:text-left">
             {encouragement}
           </div>
         </>
       )}
 
-      <div className="flex flex-col-reverse items-stretch justify-between gap-3 pt-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col-reverse items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center">
         <Link
           to="/onboarding/step-1"
-          className="text-center text-sm text-muted-foreground transition hover:text-foreground"
+          className="text-center text-sm text-white/60 transition hover:text-white"
         >
           ← Back
         </Link>
@@ -183,13 +192,14 @@ function Step2() {
           type="button"
           disabled={!canContinue}
           onClick={() => navigate({ to: "/onboarding/step-3" })}
-          className={`rounded-lg px-6 py-3 text-sm font-bold transition-all ${
+          className={`inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold tracking-tight transition-all ${
             canContinue
-              ? "bg-warning text-warning-foreground shadow hover:bg-warning/90 animate-scale-in"
-              : "cursor-not-allowed bg-muted text-muted-foreground"
+              ? "bg-[#F5C84C] text-[#0B1F3B] shadow-lg shadow-black/30 hover:brightness-110 animate-scale-in"
+              : "cursor-not-allowed bg-white/10 text-white/40"
           }`}
         >
-          Analyze My Role →
+          Analyze My Role
+          <ArrowRight className="h-4 w-4" />
         </button>
       </div>
     </div>
