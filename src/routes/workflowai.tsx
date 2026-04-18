@@ -51,17 +51,17 @@ import {
 export const Route = createFileRoute("/workflowai")({
   head: () => ({
     meta: [
-      { title: "WorkflowAI — Emulator Builder Demo" },
+      { title: "Emulation Station — Customize Your Skill" },
       {
         name: "description",
         content:
-          "Build, simulate, and govern AI workflows with human-in-the-loop review. Demo: Invoice Processing for Meridian Financial Group.",
+          "Train an off-the-shelf AI skill with your own knowledge. Maria's workbench for Invoice Generation — adjust comfort, add knowledge, review what AI handles for you.",
       },
-      { property: "og:title", content: "WorkflowAI — Emulator Builder Demo" },
+      { property: "og:title", content: "Emulation Station — Customize Your Skill" },
       {
         property: "og:description",
         content:
-          "Visual emulator builder with confidence-based human review. Watch invoices flow through extract → check → approve → export.",
+          "Your skills, amplified. Customize an AI skill with your own proprietary blend of knowledge.",
       },
     ],
   }),
