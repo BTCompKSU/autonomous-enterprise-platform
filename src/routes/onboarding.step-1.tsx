@@ -68,8 +68,20 @@ function Step1() {
     }
   };
 
+  if (!ready) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
+        <Loader2 className="h-10 w-10 animate-spin text-[#F5C84C]" />
+        <div className="text-sm font-medium uppercase tracking-[0.22em] text-white/70">
+          Loading Step 01
+        </div>
+        <div className="text-xs text-white/50">Preparing your department options…</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 animate-fade-in">
       <div className="text-center sm:text-left">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
           Step 01 — Department
