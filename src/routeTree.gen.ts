@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkflowaiRouteImport } from './routes/workflowai'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as OpportunityRouteImport } from './routes/opportunity'
 import { Route as LoginRouteImport } from './routes/login'
@@ -28,6 +29,11 @@ import { Route as AuthedAdminDashboardRouteImport } from './routes/_authed/_admi
 import { Route as AuthedAdminAdminGovernanceRouteImport } from './routes/_authed/_admin/admin.governance'
 import { Route as AuthedAdminAdminEmployeesRouteImport } from './routes/_authed/_admin/admin.employees'
 
+const WorkflowaiRoute = WorkflowaiRouteImport.update({
+  id: '/workflowai',
+  path: '/workflowai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/workflowai': typeof WorkflowaiRoute
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/workflowai': typeof WorkflowaiRoute
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/workflowai': typeof WorkflowaiRoute
   '/_authed/_admin': typeof AuthedAdminRouteWithChildren
   '/_authed/assessment': typeof AuthedAssessmentRoute
   '/_authed/employee': typeof AuthedEmployeeRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/opportunity'
     | '/signup'
+    | '/workflowai'
     | '/assessment'
     | '/employee'
     | '/skill-module'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/opportunity'
     | '/signup'
+    | '/workflowai'
     | '/assessment'
     | '/employee'
     | '/skill-module'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/opportunity'
     | '/signup'
+    | '/workflowai'
     | '/_authed/_admin'
     | '/_authed/assessment'
     | '/_authed/employee'
@@ -244,6 +256,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OpportunityRoute: typeof OpportunityRoute
   SignupRoute: typeof SignupRoute
+  WorkflowaiRoute: typeof WorkflowaiRoute
   PreviewAgentBuilderRoute: typeof PreviewAgentBuilderRoute
   PreviewEmployeeAnalysisRoute: typeof PreviewEmployeeAnalysisRoute
   PreviewExecutiveAuditRoute: typeof PreviewExecutiveAuditRoute
@@ -251,6 +264,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/workflowai': {
+      id: '/workflowai'
+      path: '/workflowai'
+      fullPath: '/workflowai'
+      preLoaderRoute: typeof WorkflowaiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -422,6 +442,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OpportunityRoute: OpportunityRoute,
   SignupRoute: SignupRoute,
+  WorkflowaiRoute: WorkflowaiRoute,
   PreviewAgentBuilderRoute: PreviewAgentBuilderRoute,
   PreviewEmployeeAnalysisRoute: PreviewEmployeeAnalysisRoute,
   PreviewExecutiveAuditRoute: PreviewExecutiveAuditRoute,
