@@ -8,7 +8,7 @@ export const Route = createFileRoute("/onboarding")({
       {
         name: "description",
         content:
-          "A 4-step onboarding that maps your role to AI opportunities — automate the rote, augment the nuanced, author the new.",
+          "A 3-step onboarding that maps your role to AI opportunities — automate the rote, augment the nuanced, author the new.",
       },
     ],
   }),

@@ -1,7 +1,20 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  RotateCw,
+  Sparkles,
+  TrendingUp,
+  Wrench,
+} from "lucide-react";
 import { useOnboardingProfile } from "@/lib/onboarding-store";
+import { analyzeOnboarding } from "@/lib/onboarding-analysis.functions";
+import type { RoleAnalysis, RoleTask } from "@/lib/assessment-types";
 
 export const Route = createFileRoute("/onboarding/step-3")({
   component: Step3,
@@ -14,60 +27,127 @@ const FACTS = [
 ];
 
 function Step3() {
-  const navigate = useNavigate();
-  const { profile } = useOnboardingProfile();
+  const router = useRouter();
+  const { profile, update } = useOnboardingProfile();
+  const allSkills = useMemo(
+    () => [...profile.selected_tasks, ...profile.custom_tasks],
+    [profile.selected_tasks, profile.custom_tasks],
+  );
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const res = await analyzeOnboarding({
+        data: {
+          department: profile.selected_department || "Unspecified",
+          skills: allSkills,
+        },
+      });
+      if (!res.ok) throw new Error(res.error);
+      return res.analysis;
+    },
+    onSuccess: (analysis) => {
+      update({ analysis });
+    },
+  });
+
+  // Kick off analysis on mount if we don't already have one cached
+  useEffect(() => {
+    if (profile.analysis) return;
+    if (!profile.selected_department || allSkills.length === 0) return;
+    if (mutation.isPending || mutation.isSuccess || mutation.isError) return;
+    mutation.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.analysis, profile.selected_department, allSkills.length]);
+
+  // Missing prerequisites
+  if (!profile.selected_department || allSkills.length === 0) {
+    return (
+      <div className="mx-auto max-w-md space-y-4 rounded-xl border border-warning/40 bg-warning/10 p-6 text-center">
+        <p className="text-sm">
+          We need your department and at least one task before we can analyze.
+        </p>
+        <Link
+          to="/onboarding/step-1"
+          className="inline-block rounded-lg bg-warning px-4 py-2 text-sm font-bold text-warning-foreground"
+        >
+          Start over
+        </Link>
+      </div>
+    );
+  }
+
+  const analysis = profile.analysis ?? mutation.data ?? null;
+
+  if (mutation.isError && !analysis) {
+    return (
+      <div className="mx-auto max-w-lg space-y-4 rounded-xl border border-destructive/40 bg-destructive/10 p-8 text-center">
+        <AlertCircle className="mx-auto h-10 w-10 text-destructive" />
+        <h2 className="text-2xl font-bold">Analysis hit a snag</h2>
+        <p className="text-sm text-muted-foreground">
+          {mutation.error instanceof Error ? mutation.error.message : "Unknown error"}
+        </p>
+        <button
+          type="button"
+          onClick={() => mutation.mutate()}
+          className="inline-flex items-center gap-2 rounded-lg bg-warning px-5 py-2.5 text-sm font-bold text-warning-foreground transition hover:bg-warning/90"
+        >
+          <RotateCw className="h-4 w-4" />
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!analysis) {
+    return <LoadingPhase />;
+  }
+
+  return (
+    <ReportPhase
+      analysis={analysis}
+      department={profile.selected_department || analysis.department}
+      skillsCount={allSkills.length}
+      onRegenerate={() => {
+        update({ analysis: null });
+        // Force a re-run by invalidating router (clearing cached analysis triggers effect)
+        mutation.reset();
+        router.invalidate();
+      }}
+    />
+  );
+}
+
+// ===== Loading phase =====
+
+function LoadingPhase() {
   const [step, setStep] = useState(0);
   const [factIdx, setFactIdx] = useState(0);
-  const [done, setDone] = useState(false);
-
-  const taskCount = profile.selected_tasks.length + profile.custom_tasks.length;
 
   const items = [
-    { label: `Department mapped: ${profile.selected_department || "your team"}`, kind: "static" as const },
-    { label: `Analyzing ${taskCount} tasks across Automate / Augment / Author buckets…`, kind: "dynamic" as const },
-    { label: "Calculating your AI opportunity score…", kind: "dynamic" as const },
-    { label: "Generating workflow recommendations…", kind: "dynamic" as const },
+    "Mapping your department to industry benchmarks…",
+    "Generating role-specific tasks from your skills…",
+    "Classifying tasks across Automate / Augment / Own…",
+    "Calculating monthly hours saved…",
   ];
 
-  // Reveal items every 600ms
   useEffect(() => {
-    if (step >= items.length) {
-      const t = setTimeout(() => setDone(true), 400);
-      return () => clearTimeout(t);
-    }
-    const t = setTimeout(() => setStep((s) => s + 1), 600);
+    if (step >= items.length) return;
+    const t = setTimeout(() => setStep((s) => Math.min(s + 1, items.length)), 1400);
     return () => clearTimeout(t);
   }, [step, items.length]);
 
-  // Rotate facts every 1.5s
   useEffect(() => {
-    const t = setInterval(() => setFactIdx((i) => (i + 1) % FACTS.length), 1500);
+    const t = setInterval(() => setFactIdx((i) => (i + 1) % FACTS.length), 2200);
     return () => clearInterval(t);
   }, []);
 
-  // Auto-redirect 1.5s after done
-  useEffect(() => {
-    if (!done) return;
-    const t = setTimeout(() => navigate({ to: "/workflowai" }), 1500);
-    return () => clearTimeout(t);
-  }, [done, navigate]);
-
-  const ringPct = Math.min(100, (step / items.length) * 100);
+  const ringPct = Math.min(95, (step / items.length) * 100);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      {/* Animated ring */}
       <div className="relative grid h-32 w-32 place-items-center">
         <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-          <circle
-            cx="50"
-            cy="50"
-            r="44"
-            stroke="currentColor"
-            strokeWidth="6"
-            fill="none"
-            className="text-muted"
-          />
+          <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className="text-muted" />
           <circle
             cx="50"
             cy="50"
@@ -78,65 +158,288 @@ function Step3() {
             strokeDasharray={2 * Math.PI * 44}
             strokeDashoffset={2 * Math.PI * 44 * (1 - ringPct / 100)}
             strokeLinecap="round"
-            className="text-warning transition-all duration-500"
+            className="text-warning transition-all duration-700"
           />
         </svg>
-        <div
-          className={`grid h-16 w-16 place-items-center rounded-full bg-warning text-warning-foreground ${
-            done ? "animate-scale-in" : "animate-pulse"
-          }`}
-        >
-          {done ? <Check className="h-8 w-8" /> : <Sparkles className="h-7 w-7" />}
+        <div className="grid h-16 w-16 place-items-center rounded-full bg-warning text-warning-foreground animate-pulse">
+          <Sparkles className="h-7 w-7" />
         </div>
       </div>
 
       <h2 className="mt-8 text-3xl font-extrabold tracking-tight sm:text-4xl">
-        {done
-          ? `Your profile is ready!`
-          : "Building your AI opportunity profile…"}
+        Building your AI opportunity report…
       </h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        This usually takes 5–15 seconds.
+      </p>
 
-      {/* Checklist */}
       <ul className="mt-6 w-full max-w-md space-y-2 text-left">
-        {items.map((it, i) => {
-          const visible = i < step || done;
-          const completed = done || i < step - 1 || it.kind === "static";
+        {items.map((label, i) => {
+          const visible = i <= step;
+          const completed = i < step;
           if (!visible) return null;
           return (
             <li
-              key={it.label}
+              key={label}
               className="flex items-start gap-3 rounded-lg border bg-card px-4 py-2.5 text-sm animate-fade-in"
             >
               {completed ? (
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
               ) : (
                 <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-warning" />
               )}
-              <span className="text-foreground">{it.label}</span>
+              <span className="text-foreground">{label}</span>
             </li>
           );
         })}
       </ul>
 
-      {/* Rotating fact */}
-      {!done && (
-        <div
-          key={factIdx}
-          className="mt-8 max-w-md rounded-lg border-l-4 border-warning bg-card px-4 py-3 text-left text-sm italic text-foreground animate-fade-in"
-        >
-          {FACTS[factIdx]}
+      <div
+        key={factIdx}
+        className="mt-8 max-w-md rounded-lg border-l-4 border-warning bg-card px-4 py-3 text-left text-sm italic text-foreground animate-fade-in"
+      >
+        {FACTS[factIdx]}
+      </div>
+    </div>
+  );
+}
+
+// ===== Report phase =====
+
+function ReportPhase({
+  analysis,
+  department,
+  skillsCount,
+  onRegenerate,
+}: {
+  analysis: RoleAnalysis;
+  department: string;
+  skillsCount: number;
+  onRegenerate: () => void;
+}) {
+  const { summary, tasks } = analysis;
+  const total = summary.automate_count + summary.augment_count + summary.own_count;
+  const automatePct = total > 0 ? Math.round((summary.automate_count / total) * 100) : 0;
+
+  const band =
+    automatePct >= 60 ? "Advanced" : automatePct >= 40 ? "Proficient" : automatePct >= 20 ? "Developing" : "Emerging";
+
+  const tools = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const t of tasks) {
+      for (const tool of t.tools_suggested ?? []) {
+        counts.set(tool, (counts.get(tool) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name]) => name);
+  }, [tasks]);
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      {/* Header card */}
+      <div className="rounded-3xl border bg-card p-6 shadow-2xl sm:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-warning">
+              Your AI Opportunity Report
+            </div>
+            <h2 className="mt-1 text-2xl font-bold sm:text-3xl">
+              {department}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {skillsCount} skills analyzed · {tasks.length} tasks generated · readiness band:{" "}
+              <span className="font-semibold text-foreground">{band}</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-warning hover:text-foreground"
+          >
+            <RotateCw className="h-3 w-3" />
+            Regenerate
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <BigStat
+            icon={Clock}
+            label="Hours saved / month"
+            value={summary.estimated_monthly_hours_saved.toFixed(0)}
+            sub="From AI deployment"
+            tone="success"
+          />
+          <BigStat
+            icon={TrendingUp}
+            label="FTE equivalent"
+            value={summary.estimated_fte_equivalent_saved.toFixed(2)}
+            sub="Per month"
+            tone="brand"
+          />
+          <BigStat
+            icon={Sparkles}
+            label="Automation potential"
+            value={`${automatePct}%`}
+            sub={`${summary.automate_count} of ${total} tasks`}
+            tone="primary"
+          />
+        </div>
+
+        {/* Bucket counts */}
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+          <BucketTile label="Automate" count={summary.automate_count} tone="brand" />
+          <BucketTile label="Augment" count={summary.augment_count} tone="success" />
+          <BucketTile label="Own" count={summary.own_count} tone="warning" />
+        </div>
+      </div>
+
+      {/* Task breakdown */}
+      <div className="rounded-3xl border bg-card p-6 shadow-xl sm:p-8">
+        <h3 className="text-base font-semibold">Task-by-task breakdown</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Hours per month, before vs. after AI deployment.
+        </p>
+        <div className="mt-4 space-y-2">
+          {tasks.map((t) => (
+            <TaskRow key={t.task_id} task={t} />
+          ))}
+        </div>
+      </div>
+
+      {/* Recommended tools */}
+      {tools.length > 0 && (
+        <div className="rounded-3xl border bg-card p-6 shadow-xl sm:p-8">
+          <div className="flex items-center gap-2">
+            <Wrench className="h-4 w-4 text-warning" />
+            <h3 className="text-base font-semibold">Recommended AI tools</h3>
+          </div>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            {tools.map((name) => (
+              <li
+                key={name}
+                className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm"
+              >
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                <span className="font-medium">{name}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
-      {/* CTA when done */}
-      {done && (
+      {/* CTA */}
+      <div className="flex flex-col-reverse items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center">
+        <Link
+          to="/onboarding/step-2"
+          className="text-center text-sm text-muted-foreground transition hover:text-foreground"
+        >
+          ← Back to tasks
+        </Link>
         <Link
           to="/workflowai"
-          className="mt-8 rounded-lg bg-warning px-8 py-4 text-base font-bold text-warning-foreground shadow-lg transition hover:bg-warning/90 animate-scale-in"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-warning px-8 py-4 text-base font-bold text-warning-foreground shadow-lg transition hover:bg-warning/90"
         >
-          See My AI Opportunity →
+          Enter WorkflowAI
+          <ArrowRight className="h-4 w-4" />
         </Link>
+      </div>
+    </div>
+  );
+}
+
+function TaskRow({ task }: { task: RoleTask }) {
+  const beforeHours = (task.avg_minutes_per_instance * task.instances_per_month) / 60;
+  const afterHours = Math.max(0, beforeHours - task.monthly_hours_saved);
+  const pctRemaining = beforeHours > 0 ? Math.max(4, (afterHours / beforeHours) * 100) : 4;
+
+  const toneByBucket: Record<RoleTask["bucket"], string> = {
+    AUTOMATE: "bg-brand",
+    AUGMENT: "bg-success",
+    OWN: "bg-warning",
+  };
+
+  return (
+    <div className="rounded-xl border bg-background p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <BucketBadge bucket={task.bucket} />
+          <span className="text-sm font-medium">{task.task_name}</span>
+        </div>
+        <div className="font-mono text-xs text-muted-foreground">
+          {beforeHours.toFixed(1)}h →{" "}
+          <span className="font-semibold text-foreground">{afterHours.toFixed(1)}h</span>
+        </div>
+      </div>
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+        <div className={`h-full ${toneByBucket[task.bucket]}`} style={{ width: `${pctRemaining}%` }} />
+      </div>
+      {task.ai_action && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">AI does:</span> {task.ai_action}
+        </p>
       )}
+    </div>
+  );
+}
+
+function BucketBadge({ bucket }: { bucket: RoleTask["bucket"] }) {
+  const tones: Record<RoleTask["bucket"], string> = {
+    AUTOMATE: "bg-brand/15 text-brand border-brand/30",
+    AUGMENT: "bg-success/15 text-success border-success/30",
+    OWN: "bg-warning/15 text-warning border-warning/30",
+  };
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tones[bucket]}`}
+    >
+      {bucket}
+    </span>
+  );
+}
+
+function BucketTile({ label, count, tone }: { label: string; count: number; tone: "brand" | "success" | "warning" }) {
+  const tones = {
+    brand: "border-brand/30 bg-brand/10 text-brand",
+    success: "border-success/30 bg-success/10 text-success",
+    warning: "border-warning/30 bg-warning/10 text-warning",
+  };
+  return (
+    <div className={`rounded-lg border px-3 py-2 ${tones[tone]}`}>
+      <div className="text-[10px] font-semibold uppercase tracking-wider opacity-80">{label}</div>
+      <div className="text-xl font-bold text-foreground">{count}</div>
+    </div>
+  );
+}
+
+function BigStat({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  icon: typeof Clock;
+  label: string;
+  value: string;
+  sub: string;
+  tone: "success" | "brand" | "primary";
+}) {
+  const tones = {
+    success: "border-success/30 bg-success/10",
+    brand: "border-brand/30 bg-brand/10",
+    primary: "border-primary/30 bg-primary/10",
+  };
+  return (
+    <div className={`rounded-xl border p-4 ${tones[tone]}`}>
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+      </div>
+      <div className="mt-1 text-3xl font-bold">{value}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
     </div>
   );
 }
