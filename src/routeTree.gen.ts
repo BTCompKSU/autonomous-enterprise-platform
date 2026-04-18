@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as OpportunityRouteImport } from './routes/opportunity'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
@@ -42,6 +43,11 @@ const LoginRoute = LoginRouteImport.update({
 const JoinRoute = JoinRouteImport.update({
   id: '/join',
   path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -98,6 +104,7 @@ const AuthedAdminAdminEmployeesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
+  '/faq': typeof FaqRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
+  '/faq': typeof FaqRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
   '/demo': typeof DemoRoute
+  '/faq': typeof FaqRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/demo'
+    | '/faq'
     | '/join'
     | '/login'
     | '/opportunity'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/demo'
+    | '/faq'
     | '/join'
     | '/login'
     | '/opportunity'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authed'
     | '/demo'
+    | '/faq'
     | '/join'
     | '/login'
     | '/opportunity'
@@ -191,6 +203,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
   DemoRoute: typeof DemoRoute
+  FaqRoute: typeof FaqRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
   OpportunityRoute: typeof OpportunityRoute
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/join'
       fullPath: '/join'
       preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -337,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
   DemoRoute: DemoRoute,
+  FaqRoute: FaqRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
   OpportunityRoute: OpportunityRoute,
