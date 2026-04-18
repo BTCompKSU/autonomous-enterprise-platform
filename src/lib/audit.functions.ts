@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import Firecrawl from "@mendable/firecrawl-js";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabase } from "@/integrations/supabase/client";
 import type { AuditReport, GenerateAuditResponse } from "@/lib/audit-types";
 
 const InputSchema = z.object({
@@ -280,21 +280,16 @@ export const generateAudit = createServerFn({ method: "POST" })
     try {
       const { url, domain } = normalizeUrl(data.website);
 
-      // 1. Insert lead row as pending
-      const insert = await supabaseAdmin
-        .from("leads")
-        .insert({
-          website: domain,
-          email,
-          status: "pending",
-        })
-        .select("id")
-        .single();
+      // 1. Insert lead row as pending via SECURITY DEFINER RPC
+      const insert = await supabase.rpc("create_pending_lead", {
+        _website: domain,
+        _email: email,
+      });
 
       if (insert.error || !insert.data) {
         throw new Error(`Failed to create lead: ${insert.error?.message ?? "unknown error"}`);
       }
-      leadId = insert.data.id as string;
+      leadId = insert.data as string;
 
       // 2. Enrich in parallel
       const [scrape, enrichment] = await Promise.all([scrapeCompany(url), enrichCompany(domain)]);
@@ -305,21 +300,19 @@ export const generateAudit = createServerFn({ method: "POST" })
       // 4. Try sending email (best-effort)
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
 
-      // 5. Persist results
-      await supabaseAdmin
-        .from("leads")
-        .update({
-          status: "completed",
-          enrichment: JSON.parse(
-            JSON.stringify({
-              scrape_metadata: scrape?.metadata ?? null,
-              companies_api: enrichment,
-            }),
-          ),
-          audit: JSON.parse(JSON.stringify(audit)),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", leadId);
+      // 5. Persist results via SECURITY DEFINER RPC
+      await supabase.rpc("finalize_lead", {
+        _lead_id: leadId,
+        _status: "completed",
+        _audit: JSON.parse(JSON.stringify(audit)),
+        _enrichment: JSON.parse(
+          JSON.stringify({
+            scrape_metadata: scrape?.metadata ?? null,
+            companies_api: enrichment,
+          }),
+        ),
+        _error: null as unknown as string,
+      });
 
       return {
         ok: true,
@@ -333,10 +326,13 @@ export const generateAudit = createServerFn({ method: "POST" })
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("generateAudit failed:", message);
       if (leadId) {
-        await supabaseAdmin
-          .from("leads")
-          .update({ status: "failed", error: message, updated_at: new Date().toISOString() })
-          .eq("id", leadId);
+        await supabase.rpc("finalize_lead", {
+          _lead_id: leadId,
+          _status: "failed",
+          _audit: null,
+          _enrichment: null,
+          _error: message,
+        });
       }
       return { ok: false, error: message };
     }
