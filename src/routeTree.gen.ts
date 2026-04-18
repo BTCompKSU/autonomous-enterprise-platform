@@ -10,6 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkflowaiRouteImport } from './routes/workflowai'
+import { Route as Step4RouteImport } from './routes/step-4'
+import { Route as Step3RouteImport } from './routes/step-3'
+import { Route as Step2RouteImport } from './routes/step-2'
+import { Route as Step1RouteImport } from './routes/step-1'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as OpportunityRouteImport } from './routes/opportunity'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -38,6 +42,26 @@ import { Route as AuthedAdminAdminEmployeesRouteImport } from './routes/_authed/
 const WorkflowaiRoute = WorkflowaiRouteImport.update({
   id: '/workflowai',
   path: '/workflowai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Step4Route = Step4RouteImport.update({
+  id: '/step-4',
+  path: '/step-4',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Step3Route = Step3RouteImport.update({
+  id: '/step-3',
+  path: '/step-3',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Step2Route = Step2RouteImport.update({
+  id: '/step-2',
+  path: '/step-2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Step1Route = Step1RouteImport.update({
+  id: '/step-1',
+  path: '/step-1',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -170,6 +194,10 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/step-1': typeof Step1Route
+  '/step-2': typeof Step2Route
+  '/step-3': typeof Step3Route
+  '/step-4': typeof Step4Route
   '/workflowai': typeof WorkflowaiRoute
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
@@ -194,6 +222,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/step-1': typeof Step1Route
+  '/step-2': typeof Step2Route
+  '/step-3': typeof Step3Route
+  '/step-4': typeof Step4Route
   '/workflowai': typeof WorkflowaiRoute
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
@@ -221,6 +253,10 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRouteWithChildren
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/step-1': typeof Step1Route
+  '/step-2': typeof Step2Route
+  '/step-3': typeof Step3Route
+  '/step-4': typeof Step4Route
   '/workflowai': typeof WorkflowaiRoute
   '/_authed/_admin': typeof AuthedAdminRouteWithChildren
   '/_authed/assessment': typeof AuthedAssessmentRoute
@@ -249,6 +285,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/opportunity'
     | '/signup'
+    | '/step-1'
+    | '/step-2'
+    | '/step-3'
+    | '/step-4'
     | '/workflowai'
     | '/assessment'
     | '/employee'
@@ -273,6 +313,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/opportunity'
     | '/signup'
+    | '/step-1'
+    | '/step-2'
+    | '/step-3'
+    | '/step-4'
     | '/workflowai'
     | '/assessment'
     | '/employee'
@@ -299,6 +343,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/opportunity'
     | '/signup'
+    | '/step-1'
+    | '/step-2'
+    | '/step-3'
+    | '/step-4'
     | '/workflowai'
     | '/_authed/_admin'
     | '/_authed/assessment'
@@ -327,6 +375,10 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRouteWithChildren
   OpportunityRoute: typeof OpportunityRoute
   SignupRoute: typeof SignupRoute
+  Step1Route: typeof Step1Route
+  Step2Route: typeof Step2Route
+  Step3Route: typeof Step3Route
+  Step4Route: typeof Step4Route
   WorkflowaiRoute: typeof WorkflowaiRoute
   PreviewAgentBuilderRoute: typeof PreviewAgentBuilderRoute
   PreviewEmployeeAnalysisRoute: typeof PreviewEmployeeAnalysisRoute
@@ -340,6 +392,34 @@ declare module '@tanstack/react-router' {
       path: '/workflowai'
       fullPath: '/workflowai'
       preLoaderRoute: typeof WorkflowaiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/step-4': {
+      id: '/step-4'
+      path: '/step-4'
+      fullPath: '/step-4'
+      preLoaderRoute: typeof Step4RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/step-3': {
+      id: '/step-3'
+      path: '/step-3'
+      fullPath: '/step-3'
+      preLoaderRoute: typeof Step3RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/step-2': {
+      id: '/step-2'
+      path: '/step-2'
+      fullPath: '/step-2'
+      preLoaderRoute: typeof Step2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/step-1': {
+      id: '/step-1'
+      path: '/step-1'
+      fullPath: '/step-1'
+      preLoaderRoute: typeof Step1RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -576,6 +656,10 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRouteWithChildren,
   OpportunityRoute: OpportunityRoute,
   SignupRoute: SignupRoute,
+  Step1Route: Step1Route,
+  Step2Route: Step2Route,
+  Step3Route: Step3Route,
+  Step4Route: Step4Route,
   WorkflowaiRoute: WorkflowaiRoute,
   PreviewAgentBuilderRoute: PreviewAgentBuilderRoute,
   PreviewEmployeeAnalysisRoute: PreviewEmployeeAnalysisRoute,
