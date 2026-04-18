@@ -1,8 +1,23 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, CheckCircle2, Loader2, Mail, Sparkles, ShieldCheck, Globe } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Loader2,
+  Mail,
+  Sparkles,
+  ShieldCheck,
+  Globe,
+  TrendingDown,
+  Lock,
+  Users,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
 import { generateAudit } from "@/lib/audit.functions";
 import type { AuditReport } from "@/lib/audit-types";
+import { formatNumber, formatUsdShort } from "@/lib/cost-model";
 import { toast } from "sonner";
 
 type Step = "website" | "email" | "loading" | "report";
@@ -13,6 +28,7 @@ export function AuditSplash() {
   const [website, setWebsite] = useState("");
   const [email, setEmail] = useState("");
   const [audit, setAudit] = useState<AuditReport | null>(null);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,6 +59,7 @@ export function AuditSplash() {
         return;
       }
       setAudit(result.audit);
+      setLeadId(result.lead_id);
       setEmailSent(result.email_sent);
       setStep("report");
     } catch (err) {
@@ -58,13 +75,13 @@ export function AuditSplash() {
     setWebsite("");
     setEmail("");
     setAudit(null);
+    setLeadId(null);
     setEmailSent(false);
     setError(null);
   }
 
   return (
     <section className="relative isolate overflow-hidden bg-[#0B1F3B] text-white">
-      {/* Background — deep navy with soft overlay grid + restrained gold glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -85,7 +102,6 @@ export function AuditSplash() {
       />
 
       <div className="relative mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:py-32">
-        {/* Eyebrow */}
         <div className="flex justify-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
             <Sparkles className="h-3.5 w-3.5" />
@@ -93,12 +109,9 @@ export function AuditSplash() {
           </span>
         </div>
 
-        {/* Headline */}
         <h1 className="mx-auto mt-7 max-w-3xl text-center text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl lg:text-[64px]">
           Identify where AI can{" "}
-          <span className="text-[#F5C84C]">
-            transform operations
-          </span>{" "}
+          <span className="text-[#F5C84C]">transform operations</span>{" "}
           across your company.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
@@ -106,7 +119,6 @@ export function AuditSplash() {
           operational gaps, and automation opportunities across your organization.
         </p>
 
-        {/* Flow */}
         <div className="mx-auto mt-12 max-w-2xl">
           {step === "website" && (
             <form onSubmit={onWebsiteSubmit} className="group relative">
@@ -178,9 +190,7 @@ export function AuditSplash() {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
-                {error && (
-                  <div className="mt-3 text-sm text-destructive">{error}</div>
-                )}
+                {error && <div className="mt-3 text-sm text-destructive">{error}</div>}
                 <div className="mt-5 flex items-center gap-2 text-xs text-slate-500">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Enterprise-grade privacy. We never share or sell your information.
@@ -192,12 +202,14 @@ export function AuditSplash() {
           {step === "loading" && (
             <div className="rounded-2xl border border-white/10 bg-white p-10 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
               <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#0B1F3B]" />
-              <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">Analyzing {website}…</h3>
+              <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
+                Analyzing {website}…
+              </h3>
               <ul className="mx-auto mt-6 max-w-sm space-y-2.5 text-left text-sm text-slate-600">
                 <LoadingStep label="Scanning your website" delay={0} />
                 <LoadingStep label="Enriching with company intelligence" delay={1} />
-                <LoadingStep label="Mapping AI deployment opportunities" delay={2} />
-                <LoadingStep label="Scoring autonomous workforce readiness" delay={3} />
+                <LoadingStep label="Calculating addressable workforce" delay={2} />
+                <LoadingStep label="Modeling annual cost of inaction" delay={3} />
               </ul>
             </div>
           )}
@@ -207,13 +219,13 @@ export function AuditSplash() {
               audit={audit}
               website={website}
               email={email}
+              leadId={leadId}
               emailSent={emailSent}
               onReset={reset}
             />
           )}
         </div>
 
-        {/* Trust bar */}
         {step !== "report" && (
           <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
             <Trust label="30-second audit" />
@@ -256,129 +268,243 @@ function AuditReportCard({
   audit,
   website,
   email,
+  leadId,
   emailSent,
   onReset,
 }: {
   audit: AuditReport;
   website: string;
   email: string;
+  leadId: string | null;
   emailSent: boolean;
   onReset: () => void;
 }) {
   const score = Math.round(audit.autonomous_workforce_score);
+  const cm = audit.cost_model;
   return (
-    <div className="rounded-3xl border bg-card p-8 shadow-2xl sm:p-10">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-            Your AI Readiness Audit
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+      {/* Header */}
+      <div className="border-b border-slate-100 p-8 sm:p-10">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0B1F3B]">
+              AI Readiness Diagnostic
+            </div>
+            <h2 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
+              {audit.company_name}
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              {website} · {audit.industry} · {audit.size_estimate}
+            </p>
           </div>
-          <h2 className="mt-1 text-2xl font-bold sm:text-3xl">{audit.company_name}</h2>
-          <p className="text-sm text-muted-foreground">
-            {website} · {audit.industry} · {audit.size_estimate}
+          <button
+            type="button"
+            onClick={onReset}
+            className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-900 hover:underline"
+          >
+            Run another
+          </button>
+        </div>
+        {emailSent && (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+            <Mail className="h-3.5 w-3.5" /> A copy was emailed to {email}
+          </div>
+        )}
+      </div>
+
+      {/* THE COST OF INACTION — the hero number */}
+      <div className="relative overflow-hidden bg-[#0B1F3B] p-8 text-white sm:p-10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div className="relative">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F5C84C]">
+            <TrendingDown className="h-3.5 w-3.5" />
+            Annual Cost of Inaction
+          </div>
+          <div className="mt-3 flex items-baseline gap-3 leading-none">
+            <div className="text-6xl font-extrabold tracking-tight sm:text-7xl">
+              {formatUsdShort(cm.annual_value_at_risk)}
+            </div>
+            <div className="text-sm text-white/60">/year</div>
+          </div>
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/75">
+            in fully-loaded labor value locked inside repeatable, addressable work at{" "}
+            {audit.company_name} — every year you wait.
           </p>
+
+          <div className="mt-6 grid gap-2 sm:grid-cols-3">
+            <Stat
+              icon={<Users className="h-3.5 w-3.5" />}
+              label="Employees"
+              value={formatNumber(cm.employees)}
+              hint={cm.employee_source === "exact" ? "verified" : "estimated"}
+            />
+            <Stat
+              icon={<Users className="h-3.5 w-3.5" />}
+              label="Addressable roles"
+              value={formatNumber(cm.addressable_roles)}
+              hint={cm.industry_label}
+            />
+            <Stat
+              icon={<Clock className="h-3.5 w-3.5" />}
+              label="Recoverable / week"
+              value={`${formatNumber(cm.weekly_hours_reclaimable)} hrs`}
+              hint={`${formatNumber(cm.annual_hours_reclaimable)} hrs/yr`}
+            />
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onReset}
-          className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-        >
-          Run another
-        </button>
       </div>
 
-      {emailSent && (
-        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
-          <Mail className="h-3.5 w-3.5" />A copy was emailed to {email}
-        </div>
-      )}
-
-      <div className="mt-6 grid gap-6 rounded-2xl border bg-gradient-to-br from-brand/10 via-card to-primary/10 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
-        <div className="text-center">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Autonomous Workforce Score
+      {/* 5-year competitive gap */}
+      <div className="border-b border-amber-200/60 bg-gradient-to-br from-amber-50 to-white p-6 sm:px-10">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-800">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              5-Year Competitive Gap
+            </div>
+            <p className="mt-1 text-sm text-slate-700">
+              Cumulative value lost if competitors deploy AI before you do.
+            </p>
           </div>
-          <div className="mt-1 text-7xl font-extrabold leading-none text-primary">
+          <div className="text-3xl font-extrabold tracking-tight text-[#0B1F3B] sm:text-4xl">
+            {formatUsdShort(cm.five_year_cost_of_inaction)}
+          </div>
+        </div>
+      </div>
+
+      {/* Score + summary */}
+      <div className="grid gap-6 p-8 sm:grid-cols-[auto_1fr] sm:p-10">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5 text-center">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            Workforce Score
+          </div>
+          <div className="mt-1 text-5xl font-extrabold leading-none text-[#0B1F3B]">
             {score}
-            <span className="text-2xl text-muted-foreground">/100</span>
+            <span className="text-lg text-slate-400">/100</span>
           </div>
         </div>
-        <p className="text-sm text-foreground/80">{audit.score_rationale}</p>
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">Executive Summary</h3>
+          <p className="mt-2 text-sm leading-relaxed text-slate-700">{audit.executive_summary}</p>
+          <p className="mt-3 text-xs leading-relaxed text-slate-500">{audit.score_rationale}</p>
+        </div>
       </div>
 
-      <div className="mt-8">
-        <h3 className="text-base font-semibold">Executive Summary</h3>
-        <p className="mt-2 text-sm leading-relaxed text-foreground/80">
-          {audit.executive_summary}
+      {/* Pain categories — name the wound, not the bandage */}
+      <div className="border-t border-slate-100 px-8 pb-8 pt-6 sm:px-10 sm:pb-10">
+        <h3 className="text-base font-semibold text-slate-900">
+          What's hiding in your operations
+        </h3>
+        <p className="mt-1 text-xs text-slate-500">
+          High-volume manual work surfaced from your industry, size, and tech stack signals.
         </p>
-      </div>
-
-      <div className="mt-8">
-        <h3 className="text-base font-semibold">Top AI Deployment Opportunities</h3>
-        <div className="mt-3 grid gap-3">
-          {audit.top_opportunities.map((opp) => (
-            <div key={opp.title} className="rounded-xl border bg-background p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="font-semibold">{opp.title}</div>
-                <div className="flex items-center gap-1.5 text-[11px]">
-                  <Tag tone="brand">{opp.department}</Tag>
-                  <Tag tone={opp.impact === "High" ? "success" : "muted"}>{opp.impact} impact</Tag>
-                  <Tag tone={opp.effort === "Low" ? "success" : "muted"}>{opp.effort} effort</Tag>
-                  <Tag tone="primary">~{opp.estimated_hours_saved_per_week} hrs/wk</Tag>
+        <div className="mt-4 grid gap-3">
+          {audit.pain_categories.map((p, i) => (
+            <div
+              key={`${p.department}-${i}`}
+              className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-[#0B1F3B]/30"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#0B1F3B]">
+                    {p.department}
+                  </div>
+                  <p className="mt-1.5 text-sm font-medium text-slate-800">{p.symptom}</p>
+                </div>
+                <div className="shrink-0 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-right">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">
+                    Trapped
+                  </div>
+                  <div className="text-sm font-bold text-[#0B1F3B]">
+                    ~{formatNumber(cm.pain_hours_per_year[i] ?? 0)} hrs/yr
+                  </div>
                 </div>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">{opp.description}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 sm:grid-cols-2">
-        <div>
-          <h3 className="text-base font-semibold">Risks to Watch</h3>
-          <ul className="mt-2 space-y-1.5 text-sm text-foreground/80">
-            {audit.risks.map((r) => (
-              <li key={r} className="flex gap-2">
-                <span className="text-warning">•</span>
-                <span>{r}</span>
-              </li>
-            ))}
-          </ul>
+      {/* Locked CTA */}
+      <div className="relative overflow-hidden border-t border-slate-100 bg-gradient-to-br from-[#0B1F3B] via-[#13294f] to-[#0B1F3B] p-8 sm:p-10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[#F5C84C]/20 blur-3xl"
+        />
+        <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#F5C84C]">
+              <Lock className="h-3 w-3" />
+              Your roadmap is ready
+            </div>
+            <h3 className="mt-3 text-2xl font-bold leading-tight text-white sm:text-[28px]">
+              Sign up to unlock your deployment plan.
+            </h3>
+            <ul className="mt-4 space-y-2 text-sm text-white/80">
+              <LockedItem>Role-by-role automation map for {audit.company_name}</LockedItem>
+              <LockedItem>90-day pilot plan with prioritized workflows</LockedItem>
+              <LockedItem>ROI projections by department and quarter</LockedItem>
+            </ul>
+          </div>
+          <Link
+            to="/signup"
+            search={{ from: "audit", lead: leadId ?? undefined } as never}
+            className="group inline-flex h-14 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#F5C84C] px-7 text-base font-bold tracking-tight text-[#0B1F3B] shadow-lg shadow-black/30 transition hover:brightness-105"
+          >
+            Create your account
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </Link>
         </div>
-        <div>
-          <h3 className="text-base font-semibold">Next Steps</h3>
-          <ol className="mt-2 space-y-1.5 text-sm text-foreground/80">
-            {audit.next_steps.map((r, i) => (
-              <li key={r} className="flex gap-2">
-                <span className="font-mono text-brand">{i + 1}.</span>
-                <span>{r}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
+      </div>
+
+      {/* Methodology footer */}
+      <div className="border-t border-slate-100 bg-slate-50 px-8 py-4 text-[11px] leading-relaxed text-slate-500 sm:px-10">
+        <span className="font-semibold text-slate-700">Methodology:</span> figures derived from
+        your verified headcount × industry-standard fully-loaded labor cost (BLS 2023, $
+        {formatNumber(cm.fully_loaded_cost_per_role)}/role) × automatable-work share for{" "}
+        {cm.industry_label} (McKinsey, 2023). 5-year figure compounded for competitive productivity
+        gap.
       </div>
     </div>
   );
 }
 
-function Tag({
-  children,
-  tone,
+function Stat({
+  icon,
+  label,
+  value,
+  hint,
 }: {
-  children: React.ReactNode;
-  tone: "brand" | "primary" | "success" | "muted";
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  hint: string;
 }) {
-  const tones: Record<string, string> = {
-    brand: "bg-brand/15 text-brand border-brand/30",
-    primary: "bg-primary/10 text-primary border-primary/20",
-    success: "bg-success/15 text-success border-success/30",
-    muted: "bg-muted text-muted-foreground border-border",
-  };
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 font-medium ${tones[tone]}`}
-    >
-      {children}
-    </span>
+    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/55">
+        {icon}
+        {label}
+      </div>
+      <div className="mt-1 text-lg font-bold text-white">{value}</div>
+      <div className="text-[11px] text-white/50">{hint}</div>
+    </div>
+  );
+}
+
+function LockedItem({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2.5">
+      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#F5C84C]" />
+      <span>{children}</span>
+    </li>
   );
 }
