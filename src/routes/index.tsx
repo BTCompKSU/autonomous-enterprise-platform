@@ -36,8 +36,6 @@ function Index() {
           ))}
         </div>
       </section>
-
-      <ArchitectureFooter />
     </main>
   );
 }
