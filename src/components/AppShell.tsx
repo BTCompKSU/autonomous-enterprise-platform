@@ -5,9 +5,9 @@ import logoUrl from "@/assets/logo.png";
 
 const nav = [
   { to: "/opportunity", label: "Opportunity Map" },
-  { to: "/skill-module", label: "Agent Builder" },
+  { to: "/dashboard", label: "Executive Audit" },
   { to: "/employee", label: "Employee Report" },
-  { to: "/dashboard", label: "Executive" },
+  { to: "/skill-module", label: "Agent Builder" },
 ] as const;
 
 export function AppHeader() {
