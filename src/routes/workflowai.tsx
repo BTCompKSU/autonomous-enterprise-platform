@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Zap,
   LayoutGrid,
-  History,
+  History as _History,
   Users,
   Settings,
   Mail,
@@ -26,6 +26,10 @@ import {
   UserRound,
   Brain,
   ArrowRight,
+  Plus,
+  X,
+  Library,
+  GraduationCap,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
@@ -47,17 +51,17 @@ import {
 export const Route = createFileRoute("/workflowai")({
   head: () => ({
     meta: [
-      { title: "WorkflowAI — Emulator Builder Demo" },
+      { title: "Emulation Station — Customize Your Skill" },
       {
         name: "description",
         content:
-          "Build, simulate, and govern AI workflows with human-in-the-loop review. Demo: Invoice Processing for Meridian Financial Group.",
+          "Train an off-the-shelf AI skill with your own knowledge. Maria's workbench for Invoice Generation — adjust comfort, add knowledge, review what AI handles for you.",
       },
-      { property: "og:title", content: "WorkflowAI — Emulator Builder Demo" },
+      { property: "og:title", content: "Emulation Station — Customize Your Skill" },
       {
         property: "og:description",
         content:
-          "Visual emulator builder with confidence-based human review. Watch invoices flow through extract → check → approve → export.",
+          "Your skills, amplified. Customize an AI skill with your own proprietary blend of knowledge.",
       },
     ],
   }),
@@ -110,6 +114,14 @@ function WorkflowAIPage() {
   const [progress, setProgress] = useState(0);
   const [activeNode, setActiveNode] = useState<number | null>(null);
   const [reviewedRun3, setReviewedRun3] = useState(false);
+  const [expertMode, setExpertMode] = useState(false);
+  const [knowledge, setKnowledge] = useState<string[]>([
+    "NET-30 default for new vendors; prefer PDF delivery",
+    "Approvals over $10k → CFO; over $50k → CFO + CEO",
+    "Acme Corp invoices always missing PO — pull from latest SOW",
+    "Use Maria's branded invoice template (logo top-left, terms footer)",
+    "Round line totals to 2 decimals; never auto-apply discounts >5%",
+  ]);
   const [feedbackLog, setFeedbackLog] = useState<string[]>([
     "[run_003] po_number correction logged ✓",
     "[run_003] amount correction logged ✓",
@@ -199,54 +211,71 @@ function WorkflowAIPage() {
             progress={progress}
             onRun={runSimulation}
             onExport={exportJSON}
+            expertMode={expertMode}
+            setExpertMode={setExpertMode}
           />
           <main className="flex-1 overflow-x-hidden p-4 md:p-6">
-            <Tabs defaultValue="builder" className="w-full">
-              <TabsList className="bg-slate-800/60 text-slate-400">
-                <TabsTrigger value="builder" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Workflow Canvas
-                </TabsTrigger>
-                <TabsTrigger value="runs" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Run Simulator
-                </TabsTrigger>
-                <TabsTrigger value="oversight" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Human Oversight
-                </TabsTrigger>
-                <TabsTrigger value="impact" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
-                  Impact
-                </TabsTrigger>
-              </TabsList>
+            {!expertMode ? (
+              <MySkillTab
+                threshold={threshold}
+                setThreshold={setThreshold}
+                knowledge={knowledge}
+                setKnowledge={setKnowledge}
+                runs={runStatuses}
+                running={running}
+                onRun={runSimulation}
+              />
+            ) : (
+              <Tabs defaultValue="builder" className="w-full">
+                <TabsList className="bg-slate-800/60 text-slate-400">
+                  <TabsTrigger value="builder" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Workflow Canvas
+                  </TabsTrigger>
+                  <TabsTrigger value="runs" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Run Simulator
+                  </TabsTrigger>
+                  <TabsTrigger value="oversight" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Human Oversight
+                  </TabsTrigger>
+                  <TabsTrigger value="impact" className="data-[state=active]:bg-[#F5C84C] data-[state=active]:text-[#0B1F3B]">
+                    Impact
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="builder" className="mt-4">
-                <WorkflowCanvas
-                  activeNode={activeNode}
-                  threshold={threshold}
-                  setThreshold={setThreshold}
-                  running={running}
-                />
-              </TabsContent>
-              <TabsContent value="runs" className="mt-4">
-                <RunSimulator runs={runStatuses} totalSaved={totalSaved} running={running} />
-              </TabsContent>
-              <TabsContent value="oversight" className="mt-4">
-                <OversightQueue
-                  run3={runStatuses[2]}
-                  reviewed={reviewedRun3}
-                  onApprove={approveCorrections}
-                  feedbackLog={feedbackLog}
-                />
-              </TabsContent>
-              <TabsContent value="impact" className="mt-4">
-                <ImpactDashboard
-                  hoursWeek={liveHoursWeek}
-                  autoRate={liveAutoRate}
-                />
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="builder" className="mt-4">
+                  <WorkflowCanvas
+                    activeNode={activeNode}
+                    threshold={threshold}
+                    setThreshold={setThreshold}
+                    running={running}
+                  />
+                </TabsContent>
+                <TabsContent value="runs" className="mt-4">
+                  <RunSimulator runs={runStatuses} totalSaved={totalSaved} running={running} />
+                </TabsContent>
+                <TabsContent value="oversight" className="mt-4">
+                  <OversightQueue
+                    run3={runStatuses[2]}
+                    reviewed={reviewedRun3}
+                    onApprove={approveCorrections}
+                    feedbackLog={feedbackLog}
+                  />
+                </TabsContent>
+                <TabsContent value="impact" className="mt-4">
+                  <ImpactDashboard
+                    hoursWeek={liveHoursWeek}
+                    autoRate={liveAutoRate}
+                  />
+                </TabsContent>
+              </Tabs>
+            )}
 
-            <footer className="mt-10 flex items-center justify-center gap-2 border-t border-slate-800 py-6 text-xs text-slate-500">
-              <Sparkles className="h-3.5 w-3.5 text-[#F5C84C]" />
-              Powered by AI · WorkflowAI Demo
+            <footer className="mt-10 flex flex-col items-center justify-center gap-1 border-t border-slate-800 py-6 text-xs text-slate-500">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-[#F5C84C]" />
+                Powered by AI · Emulation Station
+              </div>
+              <div className="text-[10px] italic text-slate-600">Your skills, amplified.</div>
             </footer>
           </main>
         </div>
@@ -258,20 +287,24 @@ function WorkflowAIPage() {
 // ============= SIDEBAR =============
 function SideNav() {
   const items = [
-    { icon: Sparkles, label: "Emulator Builder", active: true },
-    { icon: LayoutGrid, label: "My Workflows" },
-    { icon: History, label: "Run History" },
-    { icon: Users, label: "Team" },
+    { icon: Sparkles, label: "My Skill", active: true },
+    { icon: LayoutGrid, label: "My Skills" },
+    { icon: Library, label: "Skill Library" },
+    { icon: GraduationCap, label: "Training History" },
+    { icon: Users, label: "My Team" },
     { icon: Settings, label: "Settings" },
   ];
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900/60 md:flex">
       <div className="flex items-center gap-2 border-b border-slate-800 px-5 py-4">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#F5C84C]">
-          <Zap className="h-4 w-4 text-[#0B1F3B]" />
+          <Sparkles className="h-4 w-4 text-[#0B1F3B]" />
         </span>
-        <div className="text-sm font-semibold tracking-tight">
-          Workflow<span className="text-[#F5C84C]">AI</span>
+        <div className="text-sm font-semibold leading-tight tracking-tight">
+          Emulation
+          <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#F5C84C]">
+            Station
+          </div>
         </div>
       </div>
       <nav className="flex-1 p-3">
@@ -313,33 +346,60 @@ function TopBar({
   progress,
   onRun,
   onExport,
+  expertMode,
+  setExpertMode,
 }: {
   running: boolean;
   progress: number;
   onRun: () => void;
   onExport: () => void;
+  expertMode: boolean;
+  setExpertMode: (v: boolean) => void;
 }) {
   return (
     <div className="border-b border-slate-800 bg-slate-900/40 backdrop-blur">
       <div className="flex flex-wrap items-center gap-3 px-4 py-3 md:px-6">
         <div className="flex items-center gap-2 text-xs text-slate-400">
-          <span>Workflows</span>
+          <span>Skill Library</span>
           <span className="text-slate-600">/</span>
-          <span className="font-medium text-slate-200">Invoice Processing Automation</span>
+          <span>Invoice Generation</span>
+          <span className="text-slate-600">/</span>
+          <span className="font-medium text-slate-200">Maria's version</span>
         </div>
-        <span className="rounded-full bg-[#F59E0B]/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#F59E0B]">
-          Simulated
+        <span className="rounded-full bg-[#F5C84C]/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#F5C84C]">
+          Customized by Maria
         </span>
-        <span className="hidden rounded-full border border-slate-700 px-2.5 py-0.5 text-[10px] text-slate-400 md:inline">
-          {DATA.company} · {DATA.employees} employees
-        </span>
+        {expertMode && (
+          <span className="rounded-full bg-purple-500/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-300">
+            Expert mode
+          </span>
+        )}
         <div className="ml-auto flex items-center gap-2">
+          {/* Simple ↔ Expert toggle */}
+          <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800/60 p-0.5 text-[11px]">
+            <button
+              onClick={() => setExpertMode(false)}
+              className={`rounded-md px-2.5 py-1 font-medium transition ${
+                !expertMode ? "bg-[#F5C84C] text-[#0B1F3B]" : "text-slate-300 hover:text-white"
+              }`}
+            >
+              Simple
+            </button>
+            <button
+              onClick={() => setExpertMode(true)}
+              className={`rounded-md px-2.5 py-1 font-medium transition ${
+                expertMode ? "bg-[#F5C84C] text-[#0B1F3B]" : "text-slate-300 hover:text-white"
+              }`}
+            >
+              Expert
+            </button>
+          </div>
           <button
             onClick={onExport}
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
           >
             <Download className="h-3.5 w-3.5" />
-            Export JSON
+            Export
           </button>
           <button
             onClick={onRun}
@@ -347,7 +407,7 @@ function TopBar({
             className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5C84C] px-3 py-1.5 text-xs font-medium text-[#0B1F3B] shadow-lg shadow-[#F5C84C]/20 transition hover:bg-[#E0B43A] disabled:opacity-60"
           >
             <Play className="h-3.5 w-3.5" />
-            {running ? "Running…" : "Run Simulation"}
+            {running ? "Running…" : "Try It Out"}
           </button>
         </div>
       </div>
@@ -359,6 +419,251 @@ function TopBar({
           />
         </div>
       )}
+    </div>
+  );
+}
+
+// ============= MY SKILL TAB (Simple mode default) =============
+function MySkillTab({
+  threshold,
+  setThreshold,
+  knowledge,
+  setKnowledge,
+  runs,
+  running,
+  onRun,
+}: {
+  threshold: number;
+  setThreshold: (v: number) => void;
+  knowledge: string[];
+  setKnowledge: React.Dispatch<React.SetStateAction<string[]>>;
+  runs: (typeof DATA.runs[number] & { autoApproved: boolean; saved: number })[];
+  running: boolean;
+  onRun: () => void;
+}) {
+  const [draft, setDraft] = useState("");
+  const pct = Math.round(threshold * 100);
+  const comfortLabel =
+    pct >= 95 ? "Ask me more" : pct >= 85 ? "Balanced" : "Trust it";
+
+  function addKnowledge() {
+    const v = draft.trim();
+    if (!v) return;
+    setKnowledge((k) => [...k, v]);
+    setDraft("");
+  }
+
+  function removeKnowledge(i: number) {
+    setKnowledge((k) => k.filter((_, idx) => idx !== i));
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Skill card header */}
+      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900/80 to-slate-900/40">
+        <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
+              <Sparkles className="h-3 w-3" />
+              Off-the-shelf skill · customized
+            </div>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+              Invoice Generation
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-300">
+              AI helps you draft and send invoices using your knowledge. You review anything it's unsure about — and your edits teach it for next time.
+            </p>
+          </div>
+          {/* Confidence dial */}
+          <div className="flex shrink-0 items-center gap-4">
+            <div className="relative h-28 w-28">
+              <svg width={112} height={112} className="-rotate-90">
+                <circle cx={56} cy={56} r={48} stroke="#1e293b" strokeWidth={10} fill="none" />
+                <circle
+                  cx={56}
+                  cy={56}
+                  r={48}
+                  stroke="#F5C84C"
+                  strokeWidth={10}
+                  strokeLinecap="round"
+                  fill="none"
+                  strokeDasharray={2 * Math.PI * 48}
+                  strokeDashoffset={2 * Math.PI * 48 * (1 - threshold)}
+                  style={{ transition: "stroke-dashoffset 600ms ease" }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-2xl font-bold text-white">{pct}%</div>
+                <div className="text-[9px] uppercase tracking-wider text-slate-400">
+                  Comfort
+                </div>
+              </div>
+            </div>
+            <div className="hidden text-xs text-slate-400 sm:block">
+              <div className="font-semibold text-slate-200">{comfortLabel}</div>
+              <div className="mt-0.5">Below this, I review.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+        {/* My Knowledge */}
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-[#F5C84C]" />
+            <h3 className="text-base font-semibold text-white">My Knowledge</h3>
+            <span className="ml-auto rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-slate-400">
+              {knowledge.length}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-slate-400">
+            Your proprietary blend — vendor preferences, approval rules, exceptions, your template. The AI uses this every time.
+          </p>
+
+          <div className="mt-4 space-y-2">
+            {knowledge.map((k, i) => (
+              <div
+                key={`${k}-${i}`}
+                className="group flex items-start gap-2 rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
+              >
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#F5C84C]" />
+                <span className="flex-1 text-sm text-slate-200">{k}</span>
+                <button
+                  onClick={() => removeKnowledge(i)}
+                  className="opacity-0 transition group-hover:opacity-100"
+                  aria-label="Remove"
+                >
+                  <X className="h-3.5 w-3.5 text-slate-500 hover:text-rose-400" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 flex gap-2">
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addKnowledge();
+                }
+              }}
+              placeholder="Add a rule, preference, or exception…"
+              className="flex-1 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#F5C84C] focus:outline-none"
+            />
+            <button
+              onClick={addKnowledge}
+              className="inline-flex items-center gap-1 rounded-lg bg-[#F5C84C] px-3 py-2 text-xs font-semibold text-[#0B1F3B] hover:brightness-110"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add
+            </button>
+          </div>
+        </div>
+
+        {/* Comfort slider */}
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+          <div className="flex items-center gap-2">
+            <Heart className="h-4 w-4 text-[#F5C84C]" />
+            <h3 className="text-base font-semibold text-white">My Comfort Level</h3>
+          </div>
+          <p className="mt-1 text-xs text-slate-400">
+            How much should AI handle on its own?
+          </p>
+
+          <div className="mt-5 text-center">
+            <div className="text-4xl font-bold text-[#F5C84C]">{pct}%</div>
+            <div className="mt-1 text-[11px] uppercase tracking-wider text-slate-400">
+              {comfortLabel}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <Slider
+              value={[threshold * 100]}
+              onValueChange={(v) => setThreshold(v[0] / 100)}
+              min={70}
+              max={100}
+              step={1}
+            />
+            <div className="mt-2 flex justify-between text-[10px] text-slate-500">
+              <span>Trust it</span>
+              <span>Balanced</span>
+              <span>Ask me more</span>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-lg border border-slate-800 bg-slate-950/40 p-3 text-[11px] text-slate-400">
+            Anything below <span className="font-mono text-slate-200">{pct}%</span> confidence comes to you for a quick review.
+          </div>
+        </div>
+      </div>
+
+      {/* How it helps me today */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-white">How it helps me today</h3>
+            <p className="text-xs text-slate-400">Today's invoices, handled with your rules.</p>
+          </div>
+          <button
+            onClick={onRun}
+            disabled={running}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5C84C] px-3 py-1.5 text-xs font-semibold text-[#0B1F3B] shadow-lg shadow-[#F5C84C]/20 hover:brightness-110 disabled:opacity-60"
+          >
+            <Play className="h-3.5 w-3.5" />
+            {running ? "Running…" : "Try It Out"}
+          </button>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {runs.map((r) => {
+            const conf = Math.round(r.confidence * 100);
+            const auto = r.autoApproved;
+            const tone = auto ? "#10B981" : "#F59E0B";
+            return (
+              <div
+                key={r.id}
+                className="rounded-xl border border-slate-800 bg-slate-900/70 p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs">
+                    <FileText className="h-4 w-4 text-slate-400" />
+                    <span className="font-mono text-slate-300">{r.id}</span>
+                  </div>
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    style={{ background: `${tone}22`, color: tone }}
+                  >
+                    {auto ? "AI handled it" : "Quick review"}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-2xl font-bold" style={{ color: tone }}>
+                    {conf}%
+                  </span>
+                  <span className="text-[11px] text-slate-400">confidence</span>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                  {auto
+                    ? `Drafted, validated against your rules, ready to send. Saved you ~${r.saved} min.`
+                    : `Flagged for your eyes — a few fields need a glance. Saved you ~${r.saved} min vs. doing it from scratch.`}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Tip strip */}
+      <div className="flex items-start gap-3 rounded-xl border border-[#F5C84C]/30 bg-[#F5C84C]/5 px-4 py-3 text-xs text-slate-300">
+        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#F5C84C]" />
+        <div>
+          Want to tinker under the hood? Flip the{" "}
+          <span className="font-semibold text-white">Simple → Expert</span> toggle in the top bar to see the full workflow canvas, simulator, and oversight tools.
+        </div>
+      </div>
     </div>
   );
 }
@@ -381,11 +686,11 @@ type NodeDef = {
 const NODES: NodeDef[] = [
   { id: 1, x: 440, y: 30,  w: 220, icon: Mail,        label: "Incoming Invoice",      sub: "Source: Email / Upload",   color: "border-slate-600" },
   { id: 2, x: 430, y: 160, w: 240, icon: Sparkles,    label: "Extract Invoice Data",  sub: "7 fields extracted",       color: "border-[#F5C84C]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
-  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Confidence Check",      sub: "Threshold control",        color: "border-[#F5C84C]", diamond: true },
+  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Double-check threshold", sub: "Comfort control",         color: "border-[#F5C84C]", diamond: true },
   { id: 4, x: 120, y: 470, w: 240, icon: UserCheck,   label: "Maria Review Queue",    sub: "Reviewer: Maria Reyes",    color: "border-[#F59E0B]" },
   { id: 5, x: 430, y: 600, w: 240, icon: CheckCircle2,label: "Approval Step",         sub: "Auto or Manual",           color: "border-[#10B981]" },
   { id: 6, x: 430, y: 730, w: 240, icon: Database,    label: "Export to Finance",     sub: "Destination: ERP_SIM",     color: "border-sky-500" },
-  { id: 7, x: 430, y: 860, w: 240, icon: BookOpen,    label: "Learning Feedback",     sub: "Corrections → model",      color: "border-purple-500" },
+  { id: 7, x: 430, y: 860, w: 240, icon: BookOpen,    label: "What I taught it",      sub: "This week's corrections",  color: "border-purple-500" },
 ];
 
 function WorkflowCanvas({

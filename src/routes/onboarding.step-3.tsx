@@ -342,7 +342,7 @@ function ReportPhase({
           to="/workflowai"
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#F5C84C] px-8 py-4 text-base font-semibold tracking-tight text-[#0B1F3B] shadow-lg shadow-black/30 transition hover:brightness-110"
         >
-          Enter WorkflowAI
+          Open Emulation Station
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

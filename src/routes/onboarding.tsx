@@ -71,7 +71,7 @@ function OnboardingLayout() {
             to="/workflowai"
             className="text-xs font-medium text-white/60 transition hover:text-white"
           >
-            Skip for now →
+            Skip to Emulation Station →
           </Link>
         </div>
 
