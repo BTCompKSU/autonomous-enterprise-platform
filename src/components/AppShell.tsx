@@ -15,17 +15,12 @@ const marketingNav = [
 
 const adminNav = [
   { to: "/dashboard", label: "Dashboard" },
-  { to: "/employee", label: "Employee View" },
-  { to: "/assessment", label: "Assessment" },
-  { to: "/skill-module", label: "Emulator Builder" },
   { to: "/admin/employees", label: "Team" },
   { to: "/admin/governance", label: "Governance" },
 ] as const;
 
 const employeeNav = [
   { to: "/employee", label: "My Report" },
-  { to: "/assessment", label: "Assessment" },
-  { to: "/skill-module", label: "Emulator Builder" },
 ] as const;
 
 export function AppHeader() {
