@@ -405,7 +405,7 @@ function BucketBadge({ bucket }: { bucket: RoleTask["bucket"] }) {
     <span
       className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tones[bucket]}`}
     >
-      {bucket}
+      {bucket === "OWN" ? "AUTHOR" : bucket}
     </span>
   );
 }
