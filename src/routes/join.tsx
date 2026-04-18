@@ -7,6 +7,16 @@ import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/join")({
   component: JoinPage,
+  errorComponent: ({ error, reset }) => (
+    <main className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-md flex-col justify-center px-6 py-12">
+      <h1 className="text-2xl font-bold">Couldn't join</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      <div className="mt-6 flex gap-2">
+        <button onClick={reset} className="rounded-md border px-4 py-2 text-sm">Try again</button>
+        <Link to="/dashboard" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Go to dashboard</Link>
+      </div>
+    </main>
+  ),
 });
 
 function JoinPage() {
@@ -52,6 +62,12 @@ function JoinPage() {
       const { data: sess } = await supabase.auth.getSession();
       const accessToken = sess.session?.access_token;
       if (!accessToken) throw new Error("No session. Please sign in again.");
+      // If the user already belongs to an org, skip redeem and just route them.
+      if (auth.orgId) {
+        toast.info("You're already part of an organization.");
+        window.location.href = auth.role === "admin" ? "/dashboard" : "/employee";
+        return;
+      }
       await redeemInviteCode({
         data: { code: code.trim().toUpperCase() },
         headers: { Authorization: `Bearer ${accessToken}` },
