@@ -276,7 +276,6 @@ export const generateAudit = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<GenerateAuditResponse> => {
     let leadId: string | null = null;
-    const sb = getServerSupabase();
     const email = data.email.trim().toLowerCase();
     try {
       const { url, domain } = normalizeUrl(data.website);
