@@ -389,12 +389,18 @@ function WorkflowCanvas({
   activeNode,
   threshold,
   setThreshold,
+  running,
 }: {
   activeNode: number | null;
   threshold: number;
   setThreshold: (v: number) => void;
+  running?: boolean;
 }) {
-  // Connectors as SVG paths
+  const [fit, setFit] = useState(false);
+  const CANVAS_W = 800;
+  const CANVAS_H = 1100;
+
+  // Connectors as SVG paths — also used to animate the flow dot.
   const connectors = [
     { from: 1, to: 2, color: "#475569" },
     { from: 2, to: 3, color: "#4F46E5" },
@@ -405,81 +411,99 @@ function WorkflowCanvas({
     { from: 6, to: 7, color: "#A855F7" },
   ];
 
+  // Build path strings + ids so <animateMotion> can reference them.
+  const pathDefs = connectors.map((c, i) => {
+    const a = NODES.find((n) => n.id === c.from)!;
+    const b = NODES.find((n) => n.id === c.to)!;
+    const ax = a.x + a.w / 2;
+    const ay = a.y + 60;
+    const bx = b.x + b.w / 2;
+    const by = b.y + 10;
+    const mid = (ay + by) / 2;
+    return {
+      ...c,
+      idx: i,
+      pathId: `flow-path-${i}`,
+      d: `M ${ax} ${ay} C ${ax} ${mid}, ${bx} ${mid}, ${bx} ${by}`,
+      labelX: (ax + bx) / 2,
+      labelY: mid - 6,
+    };
+  });
+
+  // Dot animation: chain through connectors. Auto path skips connector index 2 (3→4) and 4 (4→5).
+  // For demo, use the human-review path so all branches are exercised.
+  const flowSequence = [0, 1, 2, 4, 5, 6]; // 1→2→3→4→5→6→7
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
       <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Workflow Canvas</h3>
-          <span className="text-[10px] text-slate-500">Hover nodes for config</span>
+          <div className="flex items-center gap-2">
+            <span className="hidden text-[10px] text-slate-500 md:inline">
+              {fit ? "Fit mode" : "Pan / scroll"}
+            </span>
+            <button
+              onClick={() => setFit((f) => !f)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/60 px-2.5 py-1 text-[11px] text-slate-300 hover:bg-slate-800"
+              title="Fit to screen"
+            >
+              <Maximize2 className="h-3 w-3" />
+              {fit ? "Exit fit" : "Fit to screen"}
+            </button>
+          </div>
         </div>
-        <div className="relative h-[860px] w-full overflow-auto rounded-xl bg-[radial-gradient(circle,_rgba(71,85,105,0.25)_1px,_transparent_1px)] [background-size:18px_18px]">
-          <svg className="absolute inset-0 h-[860px] w-[900px]" style={{ pointerEvents: "none" }}>
-            {connectors.map((c, i) => {
-              const a = NODES.find((n) => n.id === c.from)!;
-              const b = NODES.find((n) => n.id === c.to)!;
-              const ax = a.x + a.w / 2;
-              const ay = a.y + 60;
-              const bx = b.x + b.w / 2;
-              const by = b.y + 10;
-              const mid = (ay + by) / 2;
-              const path = `M ${ax} ${ay} C ${ax} ${mid}, ${bx} ${mid}, ${bx} ${by}`;
-              return (
-                <g key={i}>
-                  <path d={path} stroke={c.color} strokeWidth={2} fill="none" className="flow-line" opacity={0.85} />
-                  {c.label && (
-                    <text x={(ax + bx) / 2} y={mid - 6} textAnchor="middle" fill={c.color} fontSize="10" className="font-medium">
-                      {c.label}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
 
-          {NODES.map((n) => {
-            const Icon = n.icon;
-            const active = activeNode === n.id;
-            return (
-              <div
-                key={n.id}
-                className="group absolute"
-                style={{ left: n.x, top: n.y, width: n.w }}
-                title={JSON.stringify({ id: n.id, label: n.label }, null, 2)}
+        <div
+          className={
+            fit
+              ? "relative w-full overflow-hidden rounded-xl bg-[radial-gradient(circle,_rgba(71,85,105,0.25)_1px,_transparent_1px)] [background-size:18px_18px]"
+              : "relative h-[680px] w-full overflow-auto rounded-xl bg-[radial-gradient(circle,_rgba(71,85,105,0.25)_1px,_transparent_1px)] [background-size:18px_18px]"
+          }
+        >
+          {fit ? (
+            // FIT MODE: single SVG containing both connectors AND foreignObject node cards, scaled.
+            <svg
+              viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
+              preserveAspectRatio="xMidYMid meet"
+              className="h-auto w-full"
+            >
+              <CanvasContents
+                pathDefs={pathDefs}
+                activeNode={activeNode}
+                threshold={threshold}
+                running={running}
+                flowSequence={flowSequence}
+                asForeignObject
+              />
+            </svg>
+          ) : (
+            // PAN MODE: absolutely positioned cards over an SVG of the same width/height.
+            <div className="relative" style={{ width: CANVAS_W, height: CANVAS_H }}>
+              <svg
+                width={CANVAS_W}
+                height={CANVAS_H}
+                className="absolute inset-0"
+                style={{ pointerEvents: "none" }}
               >
-                <div
-                  className={`relative rounded-xl border-2 ${n.color} bg-slate-900/90 p-3 shadow-lg transition ${
-                    active ? "node-active scale-[1.03] ring-2 ring-[#4F46E5]/60" : ""
-                  } ${n.diamond ? "rotate-45" : ""}`}
-                >
-                  <div className={n.diamond ? "-rotate-45" : ""}>
-                    <div className="flex items-center gap-2">
-                      <span className="grid h-7 w-7 place-items-center rounded-md bg-slate-800">
-                        <Icon className="h-3.5 w-3.5 text-slate-200" />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-xs font-semibold">{n.label}</div>
-                        <div className="truncate text-[10px] text-slate-400">{n.sub}</div>
-                      </div>
-                    </div>
-                    {n.pills && (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {n.pills.map((p) => (
-                          <span key={p} className="rounded bg-[#4F46E5]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#A5B4FC]">
-                            {p}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {n.id === 3 && (
-                      <div className="mt-2 text-[10px] text-slate-400">
-                        Threshold: <span className="font-mono text-white">{(threshold * 100).toFixed(0)}%</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                <CanvasContents
+                  pathDefs={pathDefs}
+                  activeNode={activeNode}
+                  threshold={threshold}
+                  running={running}
+                  flowSequence={flowSequence}
+                />
+              </svg>
+              {NODES.map((n) => (
+                <NodeCard
+                  key={n.id}
+                  node={n}
+                  active={activeNode === n.id}
+                  threshold={threshold}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -521,6 +545,144 @@ function WorkflowCanvas({
             <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#10B981]" /> Auto-approved</li>
             <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-purple-500" /> Feedback loop</li>
           </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// SVG inner contents — connectors + optional foreignObject nodes (fit mode).
+function CanvasContents({
+  pathDefs,
+  activeNode,
+  threshold,
+  running,
+  flowSequence,
+  asForeignObject,
+}: {
+  pathDefs: Array<{
+    idx: number;
+    pathId: string;
+    d: string;
+    color: string;
+    label?: string;
+    labelX: number;
+    labelY: number;
+  }>;
+  activeNode: number | null;
+  threshold: number;
+  running?: boolean;
+  flowSequence: number[];
+  asForeignObject?: boolean;
+}) {
+  // Build the chained-path string for animateMotion (concat M…C segments).
+  const chained = flowSequence.map((i) => pathDefs[i].d).join(" ");
+  return (
+    <>
+      <defs>
+        {pathDefs.map((p) => (
+          <path key={p.pathId} id={p.pathId} d={p.d} />
+        ))}
+      </defs>
+      {pathDefs.map((p) => (
+        <g key={p.idx}>
+          <path
+            d={p.d}
+            stroke={p.color}
+            strokeWidth={2}
+            fill="none"
+            className="flow-line"
+            opacity={0.85}
+          />
+          {p.label && (
+            <text
+              x={p.labelX}
+              y={p.labelY}
+              textAnchor="middle"
+              fill={p.color}
+              fontSize="10"
+              className="font-medium"
+            >
+              {p.label}
+            </text>
+          )}
+        </g>
+      ))}
+      {running && (
+        <g>
+          <circle r={7} fill="#F5C84C" opacity={0.95}>
+            <animate
+              attributeName="r"
+              values="6;9;6"
+              dur="0.8s"
+              repeatCount="indefinite"
+            />
+            <animateMotion dur="2.4s" repeatCount="indefinite" path={chained} rotate="auto" />
+          </circle>
+        </g>
+      )}
+      {asForeignObject &&
+        NODES.map((n) => (
+          <foreignObject key={n.id} x={n.x} y={n.y} width={n.w} height={n.diamond ? 110 : 130}>
+            <NodeCard node={n} active={activeNode === n.id} threshold={threshold} />
+          </foreignObject>
+        ))}
+    </>
+  );
+}
+
+function NodeCard({
+  node: n,
+  active,
+  threshold,
+}: {
+  node: NodeDef;
+  active: boolean;
+  threshold: number;
+}) {
+  const Icon = n.icon;
+  const positioned = !active; // placeholder to keep types
+  void positioned;
+  return (
+    <div
+      className="group"
+      style={{ position: "absolute", left: n.x, top: n.y, width: n.w }}
+    >
+      <div
+        className={`relative rounded-xl border-2 ${n.color} bg-slate-900/90 p-3 shadow-lg transition ${
+          active ? "scale-[1.04] ring-2 ring-[#F5C84C] animate-pulse" : ""
+        } ${n.diamond ? "rotate-45" : ""}`}
+      >
+        <div className={n.diamond ? "-rotate-45" : ""}>
+          <div className="flex items-center gap-2">
+            <span className="grid h-7 w-7 place-items-center rounded-md bg-slate-800">
+              <Icon className="h-3.5 w-3.5 text-slate-200" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs font-semibold">{n.label}</div>
+              <div className="truncate text-[10px] text-slate-400">{n.sub}</div>
+            </div>
+          </div>
+          {n.pills && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {n.pills.map((p) => (
+                <span
+                  key={p}
+                  className="rounded bg-[#4F46E5]/15 px-1.5 py-0.5 text-[9px] font-mono text-[#A5B4FC]"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          )}
+          {n.id === 3 && (
+            <div className="mt-2 text-[10px] text-slate-400">
+              Threshold:{" "}
+              <span className="font-mono text-white">
+                {(threshold * 100).toFixed(0)}%
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
