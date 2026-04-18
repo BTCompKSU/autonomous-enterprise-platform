@@ -1,39 +1,80 @@
 
 
-## Diagnosis
+## Plan: Skill Assessment Page (authed)
 
-The `leads` table has **zero rows** — every audit submission has failed before any row was written. RLS is correctly configured (anon INSERT is allowed for valid emails, no SELECT for anyone). The current server function uses `supabaseAdmin` (service role), which *should* bypass RLS, but the table being empty means the service-role write is never landing — almost certainly because `SUPABASE_SERVICE_ROLE_KEY` is not actually being injected into the Worker runtime, so `client.server.ts` throws on first use.
+A new authenticated route where employees take an assessment, submit answers, and get an AI-generated analysis. Place it under the `_authed` guard so only logged-in org members reach it.
 
-We've now bounced between three configurations (anon-key, service-role-key, RLS-policy-tweaks) and each one fails for a different runtime reason. This is the loop you're describing.
+### Route
 
-## The fix: stop depending on key-format / runtime env injection
+`src/routes/_authed/assessment.tsx` → `/assessment`
 
-Route every `leads` write through two `SECURITY DEFINER` Postgres functions. They execute as `postgres` (bypass RLS structurally, no key gymnastics), and they're called via `supabase.rpc(...)` from the anon client — which we've proven reaches the runtime (signup/login/invite all work today through anon).
+Visible to both employees and admins (admins for previewing). Add a nav link in `AppShell` for authenticated users.
 
-### Migration
+### UI flow (single page, three states)
 
-Two new functions:
-- `create_pending_lead(_website text, _email text) returns uuid` — validates inputs, inserts a `pending` row, returns `id`.
-- `finalize_lead(_lead_id uuid, _status text, _audit jsonb, _enrichment jsonb, _error text)` — updates the row.
+1. **Intake** — multi-step form. Questions are defined in a typed array at the top of the file so we can iterate quickly. Supports these question types out of the box:
+   - `single_choice` (radio)
+   - `multi_choice` (checkboxes)
+   - `scale` (1–5 slider)
+   - `short_text` (textarea, 500-char cap)
+   
+   Progress bar + "Back / Next" nav. Validates each step before advancing (zod).
 
-Both `SECURITY DEFINER`, `SET search_path = public`, owned by `postgres`. `GRANT EXECUTE ... TO anon, authenticated`.
+2. **Submitting** — button shows spinner; calls `submitAssessment` server fn which:
+   - validates payload
+   - inserts an `assessments` row (status `pending`, answers jsonb)
+   - calls Lovable AI (`google/gemini-2.5-pro`) with a system prompt + the answers, expecting structured JSON
+   - updates the row with `analysis` jsonb + status `completed` (or `failed` + error)
+   - returns the analysis to the client
 
-Optionally tighten the `leads` RLS to deny direct INSERT/UPDATE entirely — all writes will go through these RPCs, so the table becomes write-only via vetted code paths.
+3. **Result** — renders the analysis: overall readiness score, strengths, gaps, recommended next skills, and 2–3 suggested AI agents to deploy. Includes "Retake" and "Save & view in dashboard" buttons.
 
-### Code changes
+### Data model (one migration)
 
-- `src/lib/audit.functions.ts`:
-  - Drop the `supabaseAdmin` import.
-  - Use the regular `supabase` (anon) client.
-  - Replace the `.from("leads").insert(...)` with `supabase.rpc("create_pending_lead", {...})`.
-  - Replace the `.from("leads").update(...)` (success and failure paths) with `supabase.rpc("finalize_lead", {...})`.
+```text
+assessments
+  id uuid pk
+  org_id uuid              -- = profile.org_id
+  user_id uuid             -- = auth.uid()
+  status text              -- pending | completed | failed
+  answers jsonb            -- {questionId: value}
+  analysis jsonb           -- AI output
+  error text
+  created_at, updated_at timestamptz
+```
 
-That's a single file edit + one migration. No env-var dependency, no key-format dependency, no RLS policy tweaking.
+RLS:
+- `SELECT`: own rows OR admin of same org
+- `INSERT/UPDATE/DELETE`: blocked directly; all writes go through SECURITY DEFINER RPCs (same pattern we just used for `leads` to avoid the env-key loop)
 
-## Why this finally breaks the loop
+RPCs:
+- `create_assessment(_answers jsonb) returns uuid` — inserts `pending` row for `auth.uid()` + their `org_of(auth.uid())`
+- `finalize_assessment(_id uuid, _status text, _analysis jsonb, _error text)` — updates row, only if `user_id = auth.uid()`
 
-- The anon path is the only path proven to work in this Worker runtime.
-- `SECURITY DEFINER` functions are the standard Postgres mechanism for trusted server logic — they don't care which key called them, only that the role has `EXECUTE` permission.
-- If a future deployment again ships a key in a different format, this still works — `EXECUTE` is granted to the role, not tied to a specific key encoding.
-- Validation (email regex, length) lives at the DB layer, so even though we're calling from anon, garbage can't be inserted.
+### Server function
+
+`src/lib/assessment.functions.ts` — `submitAssessment({answers})`:
+- uses `requireSupabaseAuth` middleware (JWT-bound supabase client)
+- calls `create_assessment` RPC → gets `id`
+- calls Lovable AI Gateway (`https://ai.gateway.lovable.dev/v1/chat/completions`) with `LOVABLE_API_KEY`, `response_format: { type: "json_object" }`, model `google/gemini-2.5-pro`
+- parses + validates the JSON
+- calls `finalize_assessment` RPC with the result
+- returns `{ ok: true, assessment_id, analysis }` (or `{ ok: false, error }`)
+
+Handles 429 / 402 from the gateway with friendly messages.
+
+### Files
+
+**New**
+- `supabase/migrations/<ts>_assessments.sql` — table + RLS + 2 RPCs
+- `src/lib/assessment-types.ts` — `Question`, `Answer`, `AssessmentAnalysis` types
+- `src/lib/assessment.functions.ts` — `submitAssessment` server fn
+- `src/routes/_authed/assessment.tsx` — the page
+
+**Edit**
+- `src/components/AppShell.tsx` — add "Assessment" nav link for authed users
+
+### Open follow-ups (not in this plan, ask after build)
+- Whether admins should see a list of all assessments in their org on `/admin/employees`
+- Whether the existing `tasks` array in `skill-module.tsx` should be replaced by results from the latest assessment
 
