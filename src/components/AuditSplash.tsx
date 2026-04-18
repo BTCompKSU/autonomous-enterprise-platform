@@ -215,10 +215,10 @@ export function AuditSplash() {
 
         {/* Trust bar */}
         {step !== "report" && (
-          <div className="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
             <Trust label="30-second audit" />
             <Trust label="No credit card required" />
-            <Trust label="Built on enterprise-grade AI" />
+            <Trust label="Enterprise-grade security" />
           </div>
         )}
       </div>
