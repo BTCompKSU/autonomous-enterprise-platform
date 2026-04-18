@@ -21,8 +21,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-// Replace with the real video ID when available
-const YOUTUBE_ID = "dQw4w9WgXcQ";
+const YOUTUBE_ID = "9dsgplJK-mo";
 
 function DemoPage() {
   return (
