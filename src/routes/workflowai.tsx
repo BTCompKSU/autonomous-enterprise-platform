@@ -872,6 +872,10 @@ function OversightQueue({
   onApprove: () => void;
   feedbackLog: string[];
 }) {
+  const fieldDiffs = [
+    { field: "po_number", original: "PO-2024-8821", corrected: "PO-2024-8812" },
+    { field: "amount", original: "$12,400.00", corrected: "$12,450.00" },
+  ];
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
@@ -889,7 +893,17 @@ function OversightQueue({
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-slate-200">{run3.id}</span>
+              <div className="flex items-center gap-2">
+                {reviewed ? (
+                  <CheckCircle2 className="h-4 w-4 animate-scale-in text-[#10B981]" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-[#F59E0B]" />
+                )}
+                <span className="font-mono text-sm text-slate-200">
+                  {reviewed ? "" : "Review Required — "}
+                  {run3.id}
+                </span>
+              </div>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                   reviewed
@@ -901,28 +915,62 @@ function OversightQueue({
               </span>
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              Reason: Low confidence: {Math.round(run3.confidence * 100)}% (below 90% threshold)
+              Confidence:{" "}
+              <span className="font-mono text-slate-200">
+                {Math.round(run3.confidence * 100)}%
+              </span>{" "}
+              (below 90% threshold)
             </p>
+
             <div className="mt-3">
-              <div className="text-[10px] uppercase tracking-wide text-slate-500">Fields flagged</div>
+              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                Flagged fields
+              </div>
               <div className="mt-1 flex flex-wrap gap-1">
                 {run3.corrections.map((c) => (
-                  <span key={c} className="rounded bg-[#F59E0B]/15 px-2 py-0.5 text-[11px] font-mono text-[#F59E0B]">
-                    {c}
+                  <span
+                    key={c}
+                    className="rounded bg-[#F59E0B]/15 px-2 py-0.5 text-[11px] font-mono text-[#F59E0B]"
+                  >
+                    [{c}]
                   </span>
                 ))}
               </div>
             </div>
+
+            <div className="mt-4 space-y-2">
+              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                Field corrections
+              </div>
+              {fieldDiffs.map((d) => (
+                <div
+                  key={d.field}
+                  className="rounded-lg border border-slate-700/60 bg-slate-900/60 p-2.5"
+                >
+                  <div className="text-[10px] font-mono text-slate-400">{d.field}</div>
+                  <div className="mt-1 flex items-center gap-2 text-[11px]">
+                    <span className="rounded bg-[#F59E0B]/15 px-1.5 py-0.5 font-mono text-[#F59E0B] line-through">
+                      {d.original}
+                    </span>
+                    <ArrowRight className="h-3 w-3 text-slate-500" />
+                    <span className="rounded bg-[#10B981]/15 px-1.5 py-0.5 font-mono text-[#10B981]">
+                      {d.corrected}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {!reviewed && (
               <div className="mt-4 flex gap-2">
                 <button
                   onClick={onApprove}
                   className="flex-1 rounded-lg bg-[#10B981] px-3 py-2 text-xs font-semibold text-white hover:bg-[#059669]"
                 >
-                  Approve Corrections ✓
+                  ✓ Approve Corrections
                 </button>
                 <button className="flex-1 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800">
-                  Reject ✗
+                  ✗ Reject
                 </button>
               </div>
             )}
@@ -938,10 +986,13 @@ function OversightQueue({
         {/* Feedback Log */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
           <div className="mb-3 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 animate-pulse text-[#4F46E5]" />
+            <Brain className="h-4 w-4 animate-pulse text-[#4F46E5]" />
             <h3 className="text-sm font-semibold">AI Learning Log</h3>
+            <span className="ml-auto rounded-full bg-[#4F46E5]/15 px-2 py-0.5 text-[10px] font-semibold text-[#A5B4FC]">
+              Feedback Learned
+            </span>
           </div>
-          <div className="rounded-lg bg-black/40 p-3 font-mono text-[11px] leading-relaxed text-slate-300">
+          <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 font-mono text-[11px] leading-relaxed text-emerald-400">
             {feedbackLog.map((line, i) => (
               <div key={i} className="animate-fade-in">
                 <span className="text-slate-600">$ </span>
