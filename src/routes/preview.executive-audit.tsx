@@ -351,12 +351,6 @@ export function PreviewBanner({
             Get my free audit
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link
-            to="/"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            ← Back to home
-          </Link>
         </div>
       </div>
     </section>
