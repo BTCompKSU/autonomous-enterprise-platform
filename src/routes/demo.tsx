@@ -31,12 +31,11 @@ function DemoPage() {
         <div className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
           Guided Demo
         </div>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#0B1F3B] sm:text-4xl">
           See UpSkill USA in action.
         </h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground">
-          A walkthrough of the four pillars: opportunity mapping, executive audit, employee
-          analysis, and the emulator builder.
+        <p className="mt-3 whitespace-nowrap text-muted-foreground">
+          A walkthrough of the four pillars: opportunity, executive audit, employee analysis, emulator builder.
         </p>
 
         <div className="mt-8 overflow-hidden rounded-2xl border bg-card shadow-sm">
