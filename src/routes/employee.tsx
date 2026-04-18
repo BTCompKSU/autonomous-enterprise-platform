@@ -3,6 +3,7 @@ import { GraduationCap, TrendingUp, Award } from "lucide-react";
 import { ConfidenceBadge } from "@/components/judging/ConfidenceBadge";
 import { WorkforceImpactCard } from "@/components/judging/WorkforceImpactCard";
 import { DemoTip } from "@/components/judging/DemoMode";
+import { AuditCTA } from "@/components/AuditCTA";
 
 export const Route = createFileRoute("/employee")({
   component: EmployeeReport,
@@ -80,6 +81,12 @@ function EmployeeReport() {
           oversight for AP. Her role transformed; her seniority increased.
         </p>
       </div>
+
+      <AuditCTA
+        className="mt-8"
+        headline="See how AI will reshape your workforce"
+        subline="Get a free analysis of which roles transform, which scale, and where new opportunities open up."
+      />
     </main>
   );
 }

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, ArrowRight } from "lucide-react";
 import { WorkflowScoreGauge } from "@/components/judging/WorkflowScoreGauge";
 import { DemoTip } from "@/components/judging/DemoMode";
+import { AuditCTA } from "@/components/AuditCTA";
 
 export const Route = createFileRoute("/opportunity")({
   component: OpportunityMap,
@@ -68,6 +69,12 @@ function OpportunityMap() {
           You're 2 departments away.
         </p>
       </div>
+
+      <AuditCTA
+        className="mt-10"
+        headline="See your own opportunity landscape"
+        subline="Get a department-by-department breakdown of where AI can deliver value in your business — free."
+      />
     </main>
   );
 }
