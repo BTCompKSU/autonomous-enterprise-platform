@@ -65,10 +65,10 @@ export function AppHeader() {
                 key={n.to}
                 to={n.to}
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-sm transition-colors",
+                  "px-3 py-1.5 text-sm font-bold transition-colors",
                   active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "bg-primary text-brand"
+                    : "rounded-full text-muted-foreground hover:text-foreground",
                 )}
               >
                 {n.label}
