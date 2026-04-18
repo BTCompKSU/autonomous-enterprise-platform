@@ -50,7 +50,7 @@ function OpportunityMap() {
                 </div>
               </div>
               <Link
-                to="/skill-module"
+                to="/preview/agent-builder"
                 className="mt-4 inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground transition hover:bg-accent"
               >
                 Explore emulators <ArrowRight className="h-3 w-3" />

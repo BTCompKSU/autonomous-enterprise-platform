@@ -14,7 +14,6 @@ import {
   UserCheck,
   Wrench,
 } from "lucide-react";
-import { AppHeader } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -28,6 +27,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { submitAssessment } from "@/lib/assessment.functions";
+import { authHeaders } from "@/lib/server-fn-auth";
 import type {
   Answers,
   AnswerValue,
@@ -193,7 +193,7 @@ function AssessmentPage() {
     }
     setStep("submitting");
     try {
-      const res = await submitAssessment({ data: { answers } });
+      const res = await submitAssessment({ data: { answers }, headers: await authHeaders() });
       if (!res.ok) {
         toast.error(res.error);
         setStep("intake");
@@ -217,7 +217,6 @@ function AssessmentPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
       <main className="mx-auto max-w-5xl px-6 py-10">
         {step === "intake" && (
           <IntakeView
@@ -613,7 +612,7 @@ function ResultView({
           <RefreshCw className="mr-2 h-4 w-4" /> Retake assessment
         </Button>
         <Button asChild className="bg-brand hover:bg-brand/90 text-brand-foreground">
-          <Link to="/skill-module">Open Emulator Builder</Link>
+          <Link to="/preview/agent-builder">Open Emulator Builder</Link>
         </Button>
       </div>
     </div>

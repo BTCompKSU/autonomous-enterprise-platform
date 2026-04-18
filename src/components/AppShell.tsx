@@ -43,6 +43,9 @@ export function AppHeader() {
     setMobileOpen(false);
   }, [pathname]);
 
+  // Onboarding pages render their own header — don't double up.
+  if (pathname.startsWith("/onboarding")) return null;
+
   const nav =
     auth.role === "admin"
       ? adminNav
