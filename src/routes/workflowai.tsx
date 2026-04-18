@@ -374,14 +374,15 @@ type NodeDef = {
   pills?: string[];
 };
 
+// Layout: vertical center axis ~x=550. node_4 sits LEFT of axis.
 const NODES: NodeDef[] = [
-  { id: 1, x: 40, y: 40, w: 200, icon: Mail, label: "Incoming Invoice", sub: "Source: Email / Upload", color: "border-slate-600" },
-  { id: 2, x: 40, y: 180, w: 220, icon: Sparkles, label: "Extract Invoice Data", sub: "7 fields extracted", color: "border-[#4F46E5]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
-  { id: 3, x: 60, y: 400, w: 200, icon: Gauge, label: "Confidence Check", sub: "Threshold control", color: "border-[#4F46E5]", diamond: true },
-  { id: 4, x: 320, y: 380, w: 220, icon: UserCheck, label: "Maria Review Queue", sub: "Reviewer: Maria Reyes", color: "border-[#F59E0B]" },
-  { id: 5, x: 600, y: 400, w: 200, icon: CheckCircle2, label: "Approval Step", sub: "Auto or Manual", color: "border-[#10B981]" },
-  { id: 6, x: 600, y: 560, w: 220, icon: Database, label: "Export to Finance", sub: "Destination: ERP_SIM", color: "border-sky-500" },
-  { id: 7, x: 600, y: 700, w: 220, icon: BookOpen, label: "Learning Feedback", sub: "Corrections → model", color: "border-purple-500" },
+  { id: 1, x: 440, y: 30,  w: 220, icon: Mail,        label: "Incoming Invoice",      sub: "Source: Email / Upload",   color: "border-slate-600" },
+  { id: 2, x: 430, y: 160, w: 240, icon: Sparkles,    label: "Extract Invoice Data",  sub: "7 fields extracted",       color: "border-[#4F46E5]", pills: ["vendor_name", "invoice_number", "amount", "po_number", "due_date", "line_items"] },
+  { id: 3, x: 450, y: 340, w: 200, icon: Gauge,       label: "Confidence Check",      sub: "Threshold control",        color: "border-[#4F46E5]", diamond: true },
+  { id: 4, x: 120, y: 470, w: 240, icon: UserCheck,   label: "Maria Review Queue",    sub: "Reviewer: Maria Reyes",    color: "border-[#F59E0B]" },
+  { id: 5, x: 430, y: 600, w: 240, icon: CheckCircle2,label: "Approval Step",         sub: "Auto or Manual",           color: "border-[#10B981]" },
+  { id: 6, x: 430, y: 730, w: 240, icon: Database,    label: "Export to Finance",     sub: "Destination: ERP_SIM",     color: "border-sky-500" },
+  { id: 7, x: 430, y: 860, w: 240, icon: BookOpen,    label: "Learning Feedback",     sub: "Corrections → model",      color: "border-purple-500" },
 ];
 
 function WorkflowCanvas({
