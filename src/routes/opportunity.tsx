@@ -21,9 +21,6 @@ function OpportunityMap() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <header className="flex flex-col gap-2">
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-          Screen 02 — Opportunity Map
-        </span>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Where can AI deliver reliable value, today?
         </h1>
