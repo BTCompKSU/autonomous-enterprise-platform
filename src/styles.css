@@ -67,9 +67,9 @@
   --primary: oklch(0.22 0.06 265);            /* deep navy */
   --primary-foreground: oklch(0.985 0.005 240);
 
-  --brand: oklch(0.22 0.06 265);               /* navy (was teal) */
+  --brand: oklch(0.623 0.214 259.815);         /* #3B82F6 electric blue */
   --brand-foreground: oklch(0.985 0.005 240);
-  --brand-glow: oklch(0.32 0.08 265);
+  --brand-glow: oklch(0.74 0.16 255);
 
   --secondary: oklch(0.96 0.01 250);
   --secondary-foreground: oklch(0.22 0.06 265);
