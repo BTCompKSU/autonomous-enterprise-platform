@@ -208,9 +208,12 @@ export const logActivity = createServerFn({ method: "POST" })
     const { data: prof } = await supabase.from("profiles").select("org_id").eq("id", userId).maybeSingle();
     const orgId = prof?.org_id as string | undefined;
     if (!orgId) throw new Error("No organization");
-    const { error } = await supabase
-      .from("activity_log")
-      .insert({ org_id: orgId, actor_id: userId, action: data.action, meta: data.meta ?? null });
+    const { error } = await supabase.from("activity_log").insert({
+      org_id: orgId,
+      actor_id: userId,
+      action: data.action,
+      meta: (data.meta ?? null) as never,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
