@@ -85,7 +85,7 @@ export function AppHeader() {
               </Link>
               <Link
                 to="/demo"
-                className="inline-flex items-center gap-2 rounded-full border border-brand bg-brand px-3 py-1.5 text-xs font-medium text-brand-foreground transition-colors hover:bg-brand/90"
+                className="inline-flex items-center gap-2 rounded-full border border-brand bg-brand px-3 py-1.5 text-xs font-medium text-warning transition-colors hover:bg-brand/90"
               >
                 <PlayCircle className="h-3.5 w-3.5" />
                 Watch Demo
