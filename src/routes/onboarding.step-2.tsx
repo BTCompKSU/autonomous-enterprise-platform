@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { Plus, X } from "lucide-react";
 import { getDepartment } from "@/lib/job-categories";
 import { useOnboardingProfile } from "@/lib/onboarding-store";
@@ -19,6 +19,16 @@ function Step2() {
   const [selected, setSelected] = useState<string[]>(profile.selected_tasks);
   const [custom, setCustom] = useState<string[]>(profile.custom_tasks);
   const [draft, setDraft] = useState("");
+
+  // Auto-pre-select the department's top 5 skills the first time the user
+  // lands here with an empty task list. Don't clobber later edits.
+  useEffect(() => {
+    if (!dept) return;
+    if (profile.selected_tasks.length > 0 || profile.custom_tasks.length > 0) return;
+    setSelected(dept.top_skills);
+    update({ selected_tasks: dept.top_skills });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dept?.category]);
 
   const totalCount = selected.length + custom.length;
 
