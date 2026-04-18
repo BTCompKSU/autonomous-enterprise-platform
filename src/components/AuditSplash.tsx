@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { WorkforceScoreScale } from "@/components/WorkforceScoreScale";
 import {
   ArrowRight,
   CheckCircle2,
