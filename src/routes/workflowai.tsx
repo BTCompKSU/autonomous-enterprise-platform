@@ -220,6 +220,7 @@ function WorkflowAIPage() {
                   activeNode={activeNode}
                   threshold={threshold}
                   setThreshold={setThreshold}
+                  running={running}
                 />
               </TabsContent>
               <TabsContent value="runs" className="mt-4">
