@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Server can finalize pending leads" ON public.leads;
