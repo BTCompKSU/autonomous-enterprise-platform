@@ -83,10 +83,10 @@ export function AuditSplash() {
   }
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#0B1F3B] text-white">
+    <section className="relative isolate overflow-hidden bg-[#0B1F3B] text-white print:bg-white print:text-slate-900">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 print:hidden"
         style={{
           background:
             "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(255,255,255,0.08), transparent 60%), radial-gradient(ellipse 50% 40% at 85% 110%, rgba(245,200,76,0.10), transparent 65%)",
@@ -94,7 +94,7 @@ export function AuditSplash() {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        className="pointer-events-none absolute inset-0 opacity-[0.06] print:hidden"
         style={{
           backgroundImage:
             "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
@@ -103,8 +103,8 @@ export function AuditSplash() {
         }}
       />
 
-      <div className="relative mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:py-32">
-        <div className="flex justify-center">
+      <div className="relative mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:py-32 print:max-w-none print:p-0 print:py-0">
+        <div className="flex justify-center print:hidden">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
             <Sparkles className="h-3.5 w-3.5" />
             Enterprise AI Readiness Audit
