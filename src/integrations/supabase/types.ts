@@ -87,6 +87,42 @@ export type Database = {
           },
         ]
       }
+      assessments: {
+        Row: {
+          analysis: Json | null
+          answers: Json
+          created_at: string
+          error: string | null
+          id: string
+          org_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis?: Json | null
+          answers?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          org_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis?: Json | null
+          answers?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          org_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       employee_agent_access: {
         Row: {
           can_use_builder: boolean
@@ -290,6 +326,7 @@ export type Database = {
         Args: { _full_name: string; _org_name: string }
         Returns: string
       }
+      create_assessment: { Args: { _answers: Json }; Returns: string }
       create_invite_code: {
         Args: { _expires_in_hours: number; _max_uses: number }
         Returns: string
@@ -297,6 +334,10 @@ export type Database = {
       create_pending_lead: {
         Args: { _email: string; _website: string }
         Returns: string
+      }
+      finalize_assessment: {
+        Args: { _analysis: Json; _error: string; _id: string; _status: string }
+        Returns: undefined
       }
       finalize_lead: {
         Args: {

@@ -11,6 +11,7 @@ const marketingNav = [
 const adminNav = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/employee", label: "Employee View" },
+  { to: "/assessment", label: "Assessment" },
   { to: "/skill-module", label: "Agent Builder" },
   { to: "/admin/employees", label: "Team" },
   { to: "/admin/governance", label: "Governance" },
@@ -18,6 +19,7 @@ const adminNav = [
 
 const employeeNav = [
   { to: "/employee", label: "My Report" },
+  { to: "/assessment", label: "Assessment" },
   { to: "/skill-module", label: "Agent Builder" },
 ] as const;
 

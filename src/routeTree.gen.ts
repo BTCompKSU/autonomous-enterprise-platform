@@ -18,6 +18,7 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedSkillModuleRouteImport } from './routes/_authed/skill-module'
 import { Route as AuthedEmployeeRouteImport } from './routes/_authed/employee'
+import { Route as AuthedAssessmentRouteImport } from './routes/_authed/assessment'
 import { Route as AuthedAdminRouteImport } from './routes/_authed/_admin'
 import { Route as AuthedAdminDashboardRouteImport } from './routes/_authed/_admin/dashboard'
 import { Route as AuthedAdminAdminGovernanceRouteImport } from './routes/_authed/_admin/admin.governance'
@@ -67,6 +68,11 @@ const AuthedEmployeeRoute = AuthedEmployeeRouteImport.update({
   path: '/employee',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedAssessmentRoute = AuthedAssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedAdminRoute = AuthedAdminRouteImport.update({
   id: '/_admin',
   getParentRoute: () => AuthedRoute,
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
   '/dashboard': typeof AuthedAdminDashboardRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
+  '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
   '/dashboard': typeof AuthedAdminDashboardRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/opportunity': typeof OpportunityRoute
   '/signup': typeof SignupRoute
   '/_authed/_admin': typeof AuthedAdminRouteWithChildren
+  '/_authed/assessment': typeof AuthedAssessmentRoute
   '/_authed/employee': typeof AuthedEmployeeRoute
   '/_authed/skill-module': typeof AuthedSkillModuleRoute
   '/_authed/_admin/dashboard': typeof AuthedAdminDashboardRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/opportunity'
     | '/signup'
+    | '/assessment'
     | '/employee'
     | '/skill-module'
     | '/dashboard'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/opportunity'
     | '/signup'
+    | '/assessment'
     | '/employee'
     | '/skill-module'
     | '/dashboard'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/opportunity'
     | '/signup'
     | '/_authed/_admin'
+    | '/_authed/assessment'
     | '/_authed/employee'
     | '/_authed/skill-module'
     | '/_authed/_admin/dashboard'
@@ -250,6 +262,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedEmployeeRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/assessment': {
+      id: '/_authed/assessment'
+      path: '/assessment'
+      fullPath: '/assessment'
+      preLoaderRoute: typeof AuthedAssessmentRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/_admin': {
       id: '/_authed/_admin'
       path: ''
@@ -299,12 +318,14 @@ const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
 
 interface AuthedRouteChildren {
   AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
+  AuthedAssessmentRoute: typeof AuthedAssessmentRoute
   AuthedEmployeeRoute: typeof AuthedEmployeeRoute
   AuthedSkillModuleRoute: typeof AuthedSkillModuleRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAdminRoute: AuthedAdminRouteWithChildren,
+  AuthedAssessmentRoute: AuthedAssessmentRoute,
   AuthedEmployeeRoute: AuthedEmployeeRoute,
   AuthedSkillModuleRoute: AuthedSkillModuleRoute,
 }
