@@ -81,6 +81,12 @@ function EmployeeReport() {
           oversight for AP. Her role transformed; her seniority increased.
         </p>
       </div>
+
+      <AuditCTA
+        className="mt-8"
+        headline="See how AI will reshape your workforce"
+        subline="Get a free analysis of which roles transform, which scale, and where new opportunities open up."
+      />
     </main>
   );
 }
