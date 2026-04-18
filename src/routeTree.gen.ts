@@ -17,6 +17,9 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PreviewExecutiveAuditRouteImport } from './routes/preview.executive-audit'
+import { Route as PreviewEmployeeAnalysisRouteImport } from './routes/preview.employee-analysis'
+import { Route as PreviewAgentBuilderRouteImport } from './routes/preview.agent-builder'
 import { Route as AuthedSkillModuleRouteImport } from './routes/_authed/skill-module'
 import { Route as AuthedEmployeeRouteImport } from './routes/_authed/employee'
 import { Route as AuthedAssessmentRouteImport } from './routes/_authed/assessment'
@@ -62,6 +65,21 @@ const AuthedRoute = AuthedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewExecutiveAuditRoute = PreviewExecutiveAuditRouteImport.update({
+  id: '/preview/executive-audit',
+  path: '/preview/executive-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewEmployeeAnalysisRoute = PreviewEmployeeAnalysisRouteImport.update({
+  id: '/preview/employee-analysis',
+  path: '/preview/employee-analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewAgentBuilderRoute = PreviewAgentBuilderRouteImport.update({
+  id: '/preview/agent-builder',
+  path: '/preview/agent-builder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedSkillModuleRoute = AuthedSkillModuleRouteImport.update({
@@ -112,6 +130,9 @@ export interface FileRoutesByFullPath {
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
+  '/preview/agent-builder': typeof PreviewAgentBuilderRoute
+  '/preview/employee-analysis': typeof PreviewEmployeeAnalysisRoute
+  '/preview/executive-audit': typeof PreviewExecutiveAuditRoute
   '/dashboard': typeof AuthedAdminDashboardRoute
   '/admin/employees': typeof AuthedAdminAdminEmployeesRoute
   '/admin/governance': typeof AuthedAdminAdminGovernanceRoute
@@ -127,6 +148,9 @@ export interface FileRoutesByTo {
   '/assessment': typeof AuthedAssessmentRoute
   '/employee': typeof AuthedEmployeeRoute
   '/skill-module': typeof AuthedSkillModuleRoute
+  '/preview/agent-builder': typeof PreviewAgentBuilderRoute
+  '/preview/employee-analysis': typeof PreviewEmployeeAnalysisRoute
+  '/preview/executive-audit': typeof PreviewExecutiveAuditRoute
   '/dashboard': typeof AuthedAdminDashboardRoute
   '/admin/employees': typeof AuthedAdminAdminEmployeesRoute
   '/admin/governance': typeof AuthedAdminAdminGovernanceRoute
@@ -145,6 +169,9 @@ export interface FileRoutesById {
   '/_authed/assessment': typeof AuthedAssessmentRoute
   '/_authed/employee': typeof AuthedEmployeeRoute
   '/_authed/skill-module': typeof AuthedSkillModuleRoute
+  '/preview/agent-builder': typeof PreviewAgentBuilderRoute
+  '/preview/employee-analysis': typeof PreviewEmployeeAnalysisRoute
+  '/preview/executive-audit': typeof PreviewExecutiveAuditRoute
   '/_authed/_admin/dashboard': typeof AuthedAdminDashboardRoute
   '/_authed/_admin/admin/employees': typeof AuthedAdminAdminEmployeesRoute
   '/_authed/_admin/admin/governance': typeof AuthedAdminAdminGovernanceRoute
@@ -162,6 +189,9 @@ export interface FileRouteTypes {
     | '/assessment'
     | '/employee'
     | '/skill-module'
+    | '/preview/agent-builder'
+    | '/preview/employee-analysis'
+    | '/preview/executive-audit'
     | '/dashboard'
     | '/admin/employees'
     | '/admin/governance'
@@ -177,6 +207,9 @@ export interface FileRouteTypes {
     | '/assessment'
     | '/employee'
     | '/skill-module'
+    | '/preview/agent-builder'
+    | '/preview/employee-analysis'
+    | '/preview/executive-audit'
     | '/dashboard'
     | '/admin/employees'
     | '/admin/governance'
@@ -194,6 +227,9 @@ export interface FileRouteTypes {
     | '/_authed/assessment'
     | '/_authed/employee'
     | '/_authed/skill-module'
+    | '/preview/agent-builder'
+    | '/preview/employee-analysis'
+    | '/preview/executive-audit'
     | '/_authed/_admin/dashboard'
     | '/_authed/_admin/admin/employees'
     | '/_authed/_admin/admin/governance'
@@ -208,6 +244,9 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OpportunityRoute: typeof OpportunityRoute
   SignupRoute: typeof SignupRoute
+  PreviewAgentBuilderRoute: typeof PreviewAgentBuilderRoute
+  PreviewEmployeeAnalysisRoute: typeof PreviewEmployeeAnalysisRoute
+  PreviewExecutiveAuditRoute: typeof PreviewExecutiveAuditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -266,6 +305,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/executive-audit': {
+      id: '/preview/executive-audit'
+      path: '/preview/executive-audit'
+      fullPath: '/preview/executive-audit'
+      preLoaderRoute: typeof PreviewExecutiveAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/employee-analysis': {
+      id: '/preview/employee-analysis'
+      path: '/preview/employee-analysis'
+      fullPath: '/preview/employee-analysis'
+      preLoaderRoute: typeof PreviewEmployeeAnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/agent-builder': {
+      id: '/preview/agent-builder'
+      path: '/preview/agent-builder'
+      fullPath: '/preview/agent-builder'
+      preLoaderRoute: typeof PreviewAgentBuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/skill-module': {
@@ -362,6 +422,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OpportunityRoute: OpportunityRoute,
   SignupRoute: SignupRoute,
+  PreviewAgentBuilderRoute: PreviewAgentBuilderRoute,
+  PreviewEmployeeAnalysisRoute: PreviewEmployeeAnalysisRoute,
+  PreviewExecutiveAuditRoute: PreviewExecutiveAuditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
