@@ -35,10 +35,16 @@ function SignupPage() {
       if (signErr) throw signErr;
 
       // If auto-confirm is on, sign in immediately
-      const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
       if (signInErr) throw signInErr;
 
-      await bootstrapAdminOrg({ data: { org_name: orgName, full_name: fullName } });
+      const accessToken = signInData.session?.access_token;
+      if (!accessToken) throw new Error("No session after sign-in. Please try logging in.");
+
+      await bootstrapAdminOrg({
+        data: { org_name: orgName, full_name: fullName },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       toast.success("Organization created — welcome!");
       window.location.href = "/dashboard";
     } catch (err) {
