@@ -28,7 +28,7 @@ const FACTS = [
 
 function Step3() {
   const router = useRouter();
-  const { profile, update } = useOnboardingProfile();
+  const { profile, update, hydrated } = useOnboardingProfile();
   const allSkills = useMemo(
     () => [...profile.selected_tasks, ...profile.custom_tasks],
     [profile.selected_tasks, profile.custom_tasks],
