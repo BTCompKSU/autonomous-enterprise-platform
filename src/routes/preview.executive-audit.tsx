@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AppHeader } from "@/components/AppShell";
+
 import { ArrowRight, Sparkles, TrendingUp, Building2, Users, Clock, DollarSign } from "lucide-react";
 
 export const Route = createFileRoute("/preview/executive-audit")({
