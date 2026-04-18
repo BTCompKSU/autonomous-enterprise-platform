@@ -1205,7 +1205,12 @@ function ImpactDashboard({ hoursWeek, autoRate }: { hoursWeek: number; autoRate:
                     />
                   ))}
                 </Pie>
-                <RTooltip contentStyle={{ background: "#0F172A", border: "1px solid #334155", borderRadius: 8 }} />
+                <RTooltip
+                  contentStyle={{ background: "#0F172A", border: "1px solid #334155", borderRadius: 8, color: "#ffffff" }}
+                  itemStyle={{ color: "#ffffff" }}
+                  labelStyle={{ color: "#94a3b8" }}
+                  formatter={(value: number, name: string) => [`${value}%`, name]}
+                />
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
