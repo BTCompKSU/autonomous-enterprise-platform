@@ -33,7 +33,7 @@ export const ENTERPRISE_JOB_CATEGORIES: JobCategory[] = [
     category: "Finance and Accounting",
     focus: "Money, reporting, compliance",
     top_skills: ["Financial modeling","Budgeting","Forecasting","Financial reporting","FP&A"],
-    skills: ["Financial modeling","Budgeting","Forecasting","GAAP and IFRS","Accounting","Variance analysis","Cash flow management","Auditing","Tax strategy","Cost accounting","Financial reporting","FP&A","Revenue recognition","Internal controls","Risk assessment","Capital planning","Investment analysis","Treasury management","Expense management","ERP systems","Data reconciliation","Compliance reporting","Financial strategy","Pricing strategy","Margin analysis","Cost optimization","Scenario modeling","Portfolio analysis","Due diligence","Financial dashboards"],
+    skills: ["Financial modeling","Budgeting","Forecasting","GAAP and IFRS","Accounting","Variance analysis","Cash flow management","Auditing","Tax strategy","Cost accounting","Financial reporting","FP&A","Revenue recognition","Internal controls","Risk assessment","Capital planning","Investment analysis","Treasury management","Expense management","ERP systems","Data reconciliation","Compliance reporting","Financial strategy","Pricing strategy","Margin analysis","Cost optimization","Scenario modeling","Portfolio analysis","Due diligence","Financial dashboards","Invoicing"],
   },
   {
     category: "Sales",
