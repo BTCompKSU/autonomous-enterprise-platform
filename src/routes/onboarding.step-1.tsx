@@ -111,7 +111,7 @@ function Step1() {
           to="/workflowai"
           className="text-center text-sm text-white/60 transition hover:text-white"
         >
-          Skip for now →
+          Skip to Emulation Station →
         </Link>
         <button
           type="button"

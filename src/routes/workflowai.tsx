@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Zap,
   LayoutGrid,
-  History,
+  History as _History,
   Users,
   Settings,
   Mail,
