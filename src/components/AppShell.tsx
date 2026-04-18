@@ -5,11 +5,10 @@ import { useAuth } from "@/lib/auth-context";
 import { useState, useRef, useEffect } from "react";
 
 const marketingNav = [
-  { to: "/opportunity", label: "Opportunity Landscape" },
-  { to: "/preview/executive-audit", label: "Executive Audit" },
-  { to: "/preview/employee-analysis", label: "Employee Analysis" },
-  { to: "/preview/agent-builder", label: "Agent Builder" },
-  { to: "/workflowai", label: "WorkflowAI" },
+  { to: "/opportunity", label: "Opportunity" },
+  { to: "/preview/executive-audit", label: "Executives" },
+  { to: "/preview/employee-analysis", label: "Employees" },
+  { to: "/preview/agent-builder", label: "Agents" },
   { to: "/faq", label: "FAQ" },
 ] as const;
 
