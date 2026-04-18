@@ -16,10 +16,9 @@ export const Route = createFileRoute("/onboarding")({
 });
 
 const STEPS = [
-  { path: "/onboarding/step-1", label: "Role" },
-  { path: "/onboarding/step-2", label: "Department" },
-  { path: "/onboarding/step-3", label: "Tasks" },
-  { path: "/onboarding/step-4", label: "Analyze" },
+  { path: "/onboarding/step-1", label: "Department" },
+  { path: "/onboarding/step-2", label: "Tasks" },
+  { path: "/onboarding/step-3", label: "Analyze" },
 ];
 
 function OnboardingLayout() {
