@@ -3,6 +3,7 @@ import { GraduationCap, TrendingUp, Award } from "lucide-react";
 import { ConfidenceBadge } from "@/components/judging/ConfidenceBadge";
 import { WorkforceImpactCard } from "@/components/judging/WorkforceImpactCard";
 import { DemoTip } from "@/components/judging/DemoMode";
+import { AuditCTA } from "@/components/AuditCTA";
 
 export const Route = createFileRoute("/employee")({
   component: EmployeeReport,
