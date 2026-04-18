@@ -1,5 +1,6 @@
-import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import type { RouterContext } from "@/router";
 import appCss from "../styles.css?url";
@@ -7,6 +8,17 @@ import faviconUrl from "@/assets/favicon.png";
 import { DemoModeProvider } from "@/components/judging/DemoMode";
 import { AppHeader } from "@/components/AppShell";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
+
+function AuthRouterSync() {
+  const auth = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    router.update({ context: { ...router.options.context, auth } });
+    if (!auth.loading) void router.invalidate();
+  }, [auth, router]);
+  return null;
+}
 
 function NotFoundComponent() {
   return (
@@ -90,11 +102,14 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <DemoModeProvider>
-        <AppHeader />
-        <Outlet />
-        <Toaster richColors position="top-center" />
-      </DemoModeProvider>
+      <AuthProvider>
+        <AuthRouterSync />
+        <DemoModeProvider>
+          <AppHeader />
+          <Outlet />
+          <Toaster richColors position="top-center" />
+        </DemoModeProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
