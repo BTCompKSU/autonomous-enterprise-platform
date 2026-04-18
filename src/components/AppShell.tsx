@@ -9,6 +9,7 @@ const marketingNav = [
   { to: "/preview/executive-audit", label: "Executive Audit" },
   { to: "/preview/employee-analysis", label: "Employee Analysis" },
   { to: "/preview/agent-builder", label: "Agent Builder" },
+  { to: "/workflowai", label: "WorkflowAI" },
   { to: "/faq", label: "FAQ" },
 ] as const;
 
