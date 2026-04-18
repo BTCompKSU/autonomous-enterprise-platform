@@ -9,6 +9,10 @@ export interface OnboardingProfile {
   selected_tasks: string[];
   custom_tasks: string[];
   analysis: RoleAnalysis | null;
+  /** Signature of the top_skills set last auto-applied for the current department.
+   *  Used to detect when job-categories.ts updated top_skills and we need to
+   *  re-preselect them on step 2. */
+  top_skills_signature: string;
 }
 
 const EMPTY: OnboardingProfile = {
@@ -16,6 +20,7 @@ const EMPTY: OnboardingProfile = {
   selected_tasks: [],
   custom_tasks: [],
   analysis: null,
+  top_skills_signature: "",
 };
 
 function read(): OnboardingProfile {
