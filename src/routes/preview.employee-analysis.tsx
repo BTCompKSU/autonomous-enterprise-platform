@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { PreviewBanner, BottomCTA } from "./preview.executive-audit";
 import { Clock, TrendingUp, Sparkles, CheckCircle2 } from "lucide-react";
+import mariaAvatar from "@/assets/maria-avatar.png";
 
 export const Route = createFileRoute("/preview/employee-analysis")({
   head: () => ({
@@ -99,8 +100,8 @@ function PreviewEmployeeAnalysis() {
         <div className="rounded-3xl border bg-card p-8 shadow-2xl sm:p-10">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand to-primary text-xl font-bold text-brand-foreground">
-                MA
+              <div className="h-14 w-14 overflow-hidden rounded-full ring-2 ring-brand/30">
+                <img src={mariaAvatar} alt="Maria Alvarez" className="h-full w-full object-cover" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold sm:text-3xl">{MARIA.name}</h2>
