@@ -34,6 +34,8 @@ function buildUserMessage(department: string, skills: string[]): string {
     ...skills.map((s) => `- ${s}`),
     "",
     "Treat this skill list as ground truth for what this person actually does. Do not invent tasks unrelated to these skills, but you may add 2-4 supporting/adjacent tasks that naturally co-occur.",
+    "",
+    "Return between 10 and 20 tasks total.",
   ].join("\n");
 }
 
