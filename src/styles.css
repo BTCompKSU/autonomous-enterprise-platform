@@ -64,12 +64,12 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.04 260);
 
-  --primary: oklch(0.22 0.06 265);            /* deep navy */
+  --primary: oklch(0.24 0.08 263);            /* deep navy — matches logo #07244C */
   --primary-foreground: oklch(0.985 0.005 240);
 
-  --brand: oklch(0.22 0.06 265);               /* deep navy (logo background) */
+  --brand: oklch(0.24 0.08 263);               /* deep navy (logo background #07244C) */
   --brand-foreground: oklch(0.985 0.005 240);
-  --brand-glow: oklch(0.32 0.08 265);
+  --brand-glow: oklch(0.34 0.1 263);
 
   --secondary: oklch(0.96 0.01 250);
   --secondary-foreground: oklch(0.22 0.06 265);
