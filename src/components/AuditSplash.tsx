@@ -111,12 +111,12 @@ export function AuditSplash() {
           </span>
         </div>
 
-        <h1 className="mx-auto mt-7 max-w-3xl text-center text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl lg:text-[64px]">
+        <h1 className="mx-auto mt-7 max-w-3xl text-center text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl lg:text-[64px] print:hidden">
           Identify where AI can{" "}
           <span className="text-[#F5C84C]">transform operations</span>{" "}
           across your company.
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg print:hidden">
           Enter your company URL to generate a real-time audit of AI-ready workflows,
           operational gaps, and automation opportunities across your organization.
         </p>
