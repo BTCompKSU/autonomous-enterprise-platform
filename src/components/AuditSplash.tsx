@@ -63,46 +63,47 @@ export function AuditSplash() {
   }
 
   return (
-    <section className="relative isolate overflow-hidden">
-      {/* Background */}
+    <section className="relative isolate overflow-hidden bg-[#0B1F3B] text-white">
+      {/* Background — deep navy with soft overlay grid + restrained gold glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklab, var(--color-brand) 25%, transparent), transparent 60%), radial-gradient(ellipse 60% 50% at 80% 110%, color-mix(in oklab, var(--color-primary) 30%, transparent), transparent 60%)",
+            "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(255,255,255,0.08), transparent 60%), radial-gradient(ellipse 50% 40% at 85% 110%, rgba(245,200,76,0.10), transparent 65%)",
         }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.035]"
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage:
-            "linear-gradient(var(--color-foreground) 1px, transparent 1px), linear-gradient(90deg, var(--color-foreground) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
+            "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 80%)",
         }}
       />
 
       <div className="relative mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:py-32">
         {/* Eyebrow */}
         <div className="flex justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-brand">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#F5C84C]/40 bg-[#F5C84C]/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#F5C84C]">
             <Sparkles className="h-3.5 w-3.5" />
-            Free AI Readiness Audit
+            Enterprise AI Readiness Audit
           </span>
         </div>
 
         {/* Headline */}
-        <h1 className="mx-auto mt-6 max-w-3xl text-center text-5xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-          See exactly where AI{" "}
-          <span className="bg-gradient-to-r from-brand to-primary bg-clip-text text-transparent">
-            replaces work
+        <h1 className="mx-auto mt-7 max-w-3xl text-center text-4xl font-semibold leading-[1.08] tracking-[-0.015em] text-white sm:text-5xl lg:text-[64px]">
+          Identify where AI can{" "}
+          <span className="text-[#F5C84C]">
+            transform operations
           </span>{" "}
-          at your company.
+          across your company.
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-lg text-muted-foreground sm:text-xl">
-          Drop in your website. We'll analyze your business, score your Autonomous Workforce
-          readiness, and email you a personalized AI deployment report.
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
+          Enter your company URL to generate a real-time audit of AI-ready workflows,
+          operational gaps, and automation opportunities across your organization.
         </p>
 
         {/* Flow */}
