@@ -7,6 +7,7 @@ import { DemoTip } from "@/components/judging/DemoMode";
 import { AuditCTA } from "@/components/AuditCTA";
 import { useAuth } from "@/lib/auth-context";
 import { getMyEmployeeAccess, logActivity } from "@/lib/org.functions";
+import { authHeaders } from "@/lib/server-fn-auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authed/skill-module")({
@@ -30,12 +31,18 @@ function SkillModule() {
       setCanUseBuilder(true);
       return;
     }
-    void getMyEmployeeAccess({ data: undefined }).then((r) => setCanUseBuilder(r.can_use_builder));
+    void (async () => {
+      const r = await getMyEmployeeAccess({ data: undefined, headers: await authHeaders() });
+      setCanUseBuilder(r.can_use_builder);
+    })();
   }, [auth.role]);
 
   const requestAccess = async () => {
     try {
-      await logActivity({ data: { action: "request_builder_access" } });
+      await logActivity({
+        data: { action: "request_builder_access" },
+        headers: await authHeaders(),
+      });
       toast.success("Request sent to your admin");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send request");

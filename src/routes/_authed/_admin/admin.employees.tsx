@@ -9,6 +9,7 @@ import {
   listOrgActivity,
   setEmployeeBuilderAccess,
 } from "@/lib/org.functions";
+import { authHeaders } from "@/lib/server-fn-auth";
 
 export const Route = createFileRoute("/_authed/_admin/admin/employees")({
   component: AdminEmployeesPage,
@@ -46,10 +47,11 @@ function AdminEmployeesPage() {
 
   const refresh = async () => {
     try {
+      const headers = await authHeaders();
       const [{ employees }, { codes }, { activity }] = await Promise.all([
-        listOrgEmployees({ data: undefined }),
-        listInviteCodes({ data: undefined }),
-        listOrgActivity({ data: { limit: 30 } }),
+        listOrgEmployees({ data: undefined, headers }),
+        listInviteCodes({ data: undefined, headers }),
+        listOrgActivity({ data: { limit: 30 }, headers }),
       ]);
       setEmployees(employees);
       setCodes(codes);
@@ -70,6 +72,7 @@ function AdminEmployeesPage() {
     try {
       const { code } = await createInviteCode({
         data: { expires_in_hours: 168, max_uses: 5 },
+        headers: await authHeaders(),
       });
       await navigator.clipboard.writeText(code).catch(() => {});
       toast.success(`Invite code ${code} copied to clipboard`);
@@ -85,6 +88,7 @@ function AdminEmployeesPage() {
     try {
       await setEmployeeBuilderAccess({
         data: { employee_id: e.user_id, can_use_builder: !e.can_use_builder },
+        headers: await authHeaders(),
       });
       await refresh();
     } catch (err) {

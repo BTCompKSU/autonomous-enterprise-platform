@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Pause, Play, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { listAgentGovernance, setAgentGovernance } from "@/lib/org.functions";
+import { authHeaders } from "@/lib/server-fn-auth";
 
 export const Route = createFileRoute("/_authed/_admin/admin/governance")({
   component: GovernancePage,
@@ -24,7 +25,10 @@ function GovernancePage() {
 
   const load = async () => {
     try {
-      const { governance } = await listAgentGovernance({ data: undefined });
+      const { governance } = await listAgentGovernance({
+        data: undefined,
+        headers: await authHeaders(),
+      });
       const map: Record<string, GovRow> = {};
       for (const g of governance) {
         map[g.skill_id] = {
@@ -61,6 +65,7 @@ function GovernancePage() {
           min_confidence: next.min_confidence,
           is_paused: next.is_paused,
         },
+        headers: await authHeaders(),
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
