@@ -102,7 +102,7 @@ function OnboardingLayout() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-5xl px-6 py-12 animate-fade-in">
+      <main className="relative z-10 mx-auto max-w-5xl px-6 py-12">
         <Outlet />
       </main>
     </div>
