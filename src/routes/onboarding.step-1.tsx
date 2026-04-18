@@ -38,10 +38,19 @@ const ICONS: Record<DepartmentKey, typeof Crown> = {
 
 function Step1() {
   const navigate = useNavigate();
-  const { profile, update } = useOnboardingProfile();
+  const { profile, update, hydrated } = useOnboardingProfile();
   const [selected, setSelected] = useState<DepartmentKey | "">(
     profile.selected_department,
   );
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    // Small grace period so the entrance animation finishes before tiles
+    // become interactive — prevents accidental clicks on a still-animating UI.
+    const t = setTimeout(() => setReady(true), 600);
+    return () => clearTimeout(t);
+  }, [hydrated]);
 
   const pick = (dept: DepartmentKey) => {
     setSelected(dept);
