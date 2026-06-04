@@ -1,64 +1,54 @@
+## Goal
 
+Transform the homepage into a single long-scroll page with four anchored sections — Opportunity, Executive Audit, Employee Analysis, Emulator Builder — instead of routing visitors to four separate pages.
 
-## Code Review — Loose Ends to Clean Up
+## Approach
 
-After auditing routes, server functions, and nav, here are the real issues remaining. Most are residue from the recent auth-header refactor and the nav cleanup.
+Keep all existing section content intact (no visual redesign). Extract the page bodies from the four current routes into reusable section components, then compose them on the home route with anchor IDs and a sticky in-page nav.
 
-### 1. Server functions still missing auth headers (will 401 → blank screen)
+## Sections (in order)
 
-`requireSupabaseAuth` middleware is on these functions but the call sites don't pass `authHeaders()`:
+1. Hero + WhyNow strip (existing `AuditSplash` + `WhyNowStrip`) — unchanged
+2. `#opportunity` — Opportunity Map (from `src/routes/opportunity.tsx`)
+3. `#executives` — Executive Audit preview (from `src/routes/preview.executive-audit.tsx`)
+4. `#employees` — Employee Analysis preview (from `src/routes/preview.employee-analysis.tsx`)
+5. `#emulators` — Emulator Builder preview (from `src/routes/preview.agent-builder.tsx`)
+6. Pillars + final CTA — unchanged
 
-- **`submitAssessment`** in `src/routes/_authed/assessment.tsx` line 196 — `await submitAssessment({ data: { answers } })` has no headers. First user to take the assessment hits the same `[object Response]` blank screen we just fixed elsewhere.
-- **`analyzeOnboarding`** in `src/lib/onboarding-analysis.functions.ts` does NOT use `requireSupabaseAuth` — fine, leave it. But verify it stays public since the onboarding flow is unauthenticated.
+## In-page navigation
 
-Fix: add `headers: await authHeaders()` to the `submitAssessment` call.
+- Sticky sub-nav bar appears under the header once the user scrolls past the hero, with four anchor links: Opportunity · Executives · Employees · Emulators.
+- `scroll-margin-top` on each section so anchors don't hide under the sticky header.
+- Smooth scroll via CSS (`scroll-behavior: smooth` on `html`).
+- Each section gets a subtle eyebrow + divider for visual rhythm; the redundant per-page "PreviewBanner" hero is dropped in favor of section headers.
 
-### 2. Stale `/skill-module` and `/assessment` links after nav cleanup
+## Section CTAs
 
-We removed these from the nav (correctly — they show demo/dummy data), but they're still reachable via:
-
-- `src/routes/opportunity.tsx` line 53 — "View skill module" button → `/skill-module`
-- `src/routes/_authed/assessment.tsx` line 616 — "Open Emulator Builder" → `/skill-module`
-
-Since `/skill-module` and `/assessment` live under `_authed`, marketing visitors clicking these from `/opportunity` get bounced to `/login`. Two options:
-
-- **A (recommended):** Point `/opportunity`'s link to the public preview `/preview/agent-builder` instead of `/skill-module`. Keep the routes themselves alive for direct-link demos.
-- **B:** Delete `/skill-module` and `/assessment` route files entirely.
-
-I'll go with **A** — preserves the demo URLs the team has been sharing, just stops marketing visitors from hitting the auth wall.
-
-### 3. Redundant guard in `join.tsx`
-
-We added BOTH a `useEffect` redirect (lines 33-38) AND a submit-handler guard (lines 66-70) for "already in an org." The effect already covers it before the form can be submitted. The submit guard is dead code; remove for clarity.
-
-### 4. Dead/orphaned route files
-
-- `src/routes/step-1.tsx`, `step-2.tsx`, `step-3.tsx` — top-level redirect stubs to `/onboarding/step-X`. Harmless but unused; safe to leave for backward-compat with old shared links. **Leave.**
-
-### 5. Hard-coded `[1]?.toUpperCase()` crash risk in AppShell
-
-Line 102: `(auth.fullName ?? auth.user?.email ?? "?")[0]?.toUpperCase()` — when both are nullish it falls back to `"?"` which is fine. Already safe. **No change.**
-
-### 6. Onboarding header overlap with global `<AppHeader />`
-
-`src/routes/onboarding.tsx` renders its own dark header AND the global `AppHeader` is also mounted in `__root.tsx`. So onboarding pages show two headers stacked. Confirmed by reading both files.
-
-Fix: Either hide `AppHeader` on `/onboarding/*` routes, or remove the inner onboarding header. Cleanest: in `AppHeader`, return `null` when `pathname.startsWith("/onboarding")`.
-
-### 7. Same double-header issue on `/assessment`
-
-`assessment.tsx` line 17 imports and renders `<AppHeader />` itself (line 220). Since it's already mounted globally in `__root.tsx`, this renders the header twice. Remove the import + `<AppHeader />` usage in `assessment.tsx`.
-
----
+Each section keeps its bottom CTA but now links to `/opportunity` audit form (anchor `#audit` on the hero) instead of cross-linking to sibling preview pages.
 
 ## Files to change
 
 | File | Change |
 |---|---|
-| `src/routes/_authed/assessment.tsx` | Add `authHeaders()` to `submitAssessment` call; remove duplicate `<AppHeader />` and its import |
-| `src/routes/opportunity.tsx` | Repoint `/skill-module` link → `/preview/agent-builder` |
-| `src/routes/join.tsx` | Drop the redundant `auth.orgId` block in `submit` (lines 66-70) |
-| `src/components/AppShell.tsx` | Hide global header on `/onboarding/*` routes |
+| `src/components/sections/OpportunitySection.tsx` | New — body of opportunity.tsx as a section (no `<main>` wrapper, no page-level padding hero) |
+| `src/components/sections/ExecutiveAuditSection.tsx` | New — body of preview.executive-audit.tsx |
+| `src/components/sections/EmployeeAnalysisSection.tsx` | New — body of preview.employee-analysis.tsx |
+| `src/components/sections/EmulatorBuilderSection.tsx` | New — body of preview.agent-builder.tsx |
+| `src/components/HomeSectionNav.tsx` | New — sticky anchor nav |
+| `src/routes/index.tsx` | Compose: Hero → WhyNow → sticky nav → 4 sections → Pillars → CTA. Update preview cards to `<a href="#…">` anchors. |
+| `src/routes/opportunity.tsx` | Replace with redirect to `/#opportunity` (keeps old links working) |
+| `src/routes/preview.executive-audit.tsx` | Redirect to `/#executives` |
+| `src/routes/preview.employee-analysis.tsx` | Redirect to `/#employees` |
+| `src/routes/preview.agent-builder.tsx` | Redirect to `/#emulators` |
+| `src/styles.css` | Add `html { scroll-behavior: smooth }` and `.section-anchor { scroll-margin-top: 80px }` |
+| `src/components/AppShell.tsx` / nav | Update any header links pointing to those four routes to use `/#anchor` |
 
-No DB or schema changes. No new files.
+## SEO note
 
+Consolidating four routes into one removes three indexable pages. Since these were preview/marketing variants of the same audit story, this is acceptable. Old URLs redirect so external links don't break. The home route's `head()` gets an expanded description covering all four sections.
+
+## Out of scope
+
+- No visual redesign of section internals
+- No changes to the audit flow, server functions, or auth
+- No changes to `/onboarding`, `/demo`, `/faq`, `/_authed/*`
