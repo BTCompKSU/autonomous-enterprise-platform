@@ -6,11 +6,11 @@ import { useAuth } from "@/lib/auth-context";
 import { useState, useRef, useEffect } from "react";
 
 const marketingNav = [
-  { to: "/opportunity", label: "Opportunity" },
-  { to: "/preview/executive-audit", label: "Executives" },
-  { to: "/preview/employee-analysis", label: "Employees" },
-  { to: "/preview/agent-builder", label: "Emulators" },
-  { to: "/faq", label: "FAQ" },
+  { to: "/", hash: "opportunity", label: "Opportunity" },
+  { to: "/", hash: "executives", label: "Executives" },
+  { to: "/", hash: "employees", label: "Employees" },
+  { to: "/", hash: "emulators", label: "Emulators" },
+  { to: "/faq", hash: undefined, label: "FAQ" },
 ] as const;
 
 const adminNav = [
