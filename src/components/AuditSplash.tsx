@@ -16,6 +16,7 @@ import {
   Clock,
   AlertTriangle,
   Printer,
+  Play,
 } from "lucide-react";
 import { generateAudit } from "@/lib/audit.functions";
 import type { AuditReport } from "@/lib/audit-types";
@@ -229,11 +230,22 @@ export function AuditSplash() {
         </div>
 
         {step !== "report" && (
-          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3 print:hidden">
-            <Trust label="30-second audit" />
-            <Trust label="No credit card required" />
-            <Trust label="Enterprise-grade security" />
-          </div>
+          <>
+            <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3 print:hidden">
+              <Trust label="30-second audit" />
+              <Trust label="No credit card required" />
+              <Trust label="Enterprise-grade security" />
+            </div>
+            <div className="mt-6 flex justify-center print:hidden">
+              <Link
+                to="/demo"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#F5C84C] px-6 py-3 text-sm font-bold tracking-tight text-[#0B1F3B] shadow-lg shadow-black/30 transition hover:brightness-105"
+              >
+                <Play className="h-4 w-4 fill-current" />
+                Watch Demo
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </section>
