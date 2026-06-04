@@ -6,6 +6,19 @@ import { toast } from "sonner";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
+function safeRedirect(url: string | undefined, fallback: string): string {
+  if (!url) return fallback;
+  // Only allow same-origin relative paths starting with a single "/"
+  if (!url.startsWith("/") || url.startsWith("//")) return fallback;
+  try {
+    const parsed = new URL(url, window.location.origin);
+    if (parsed.origin === window.location.origin) return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    /* fall through */
+  }
+  return fallback;
+}
+
 export const Route = createFileRoute("/login")({
   validateSearch: (s) => searchSchema.parse(s),
   beforeLoad: ({ context, search }) => {
@@ -33,7 +46,7 @@ function LoginPage() {
     }
     toast.success("Signed in");
     // Hard navigation to ensure auth state propagates everywhere
-    window.location.href = search.redirect ?? "/dashboard";
+    window.location.href = safeRedirect(search.redirect, "/dashboard");
   };
 
   return (
