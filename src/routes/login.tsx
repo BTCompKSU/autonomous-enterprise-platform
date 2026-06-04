@@ -33,7 +33,7 @@ function LoginPage() {
     }
     toast.success("Signed in");
     // Hard navigation to ensure auth state propagates everywhere
-    window.location.href = search.redirect ?? "/dashboard";
+    window.location.href = safeRedirect(search.redirect, "/dashboard");
   };
 
   return (
