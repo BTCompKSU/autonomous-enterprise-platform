@@ -61,11 +61,13 @@ export function AppHeader() {
         </Link>
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {nav.map((n) => {
-            const active = pathname === n.to;
+            const hash = "hash" in n ? n.hash : undefined;
+            const active = pathname === n.to && !hash;
             return (
               <Link
-                key={n.to}
+                key={n.label}
                 to={n.to}
+                hash={hash}
                 className={cn(
                   "inline-flex items-center justify-center rounded-full px-3 py-1.5 text-center text-sm font-bold transition-colors",
                   active
