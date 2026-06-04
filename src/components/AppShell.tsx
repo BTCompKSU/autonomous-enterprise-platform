@@ -161,11 +161,13 @@ export function AppHeader() {
         >
           <ul className="flex flex-col gap-1">
             {nav.map((n) => {
-              const active = pathname === n.to;
+              const hash = "hash" in n ? n.hash : undefined;
+              const active = pathname === n.to && !hash;
               return (
-                <li key={n.to}>
+                <li key={n.label}>
                   <Link
                     to={n.to}
+                    hash={hash}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
                       "block rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
