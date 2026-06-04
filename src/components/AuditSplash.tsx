@@ -16,6 +16,7 @@ import {
   Clock,
   AlertTriangle,
   Printer,
+  Play,
 } from "lucide-react";
 import { generateAudit } from "@/lib/audit.functions";
 import type { AuditReport } from "@/lib/audit-types";
