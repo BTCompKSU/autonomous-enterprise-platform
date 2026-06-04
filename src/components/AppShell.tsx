@@ -6,11 +6,11 @@ import { useAuth } from "@/lib/auth-context";
 import { useState, useRef, useEffect } from "react";
 
 const marketingNav = [
-  { to: "/opportunity", label: "Opportunity" },
-  { to: "/preview/executive-audit", label: "Executives" },
-  { to: "/preview/employee-analysis", label: "Employees" },
-  { to: "/preview/agent-builder", label: "Emulators" },
-  { to: "/faq", label: "FAQ" },
+  { to: "/", hash: "opportunity", label: "Opportunity" },
+  { to: "/", hash: "executives", label: "Executives" },
+  { to: "/", hash: "employees", label: "Employees" },
+  { to: "/", hash: "emulators", label: "Emulators" },
+  { to: "/faq", hash: undefined, label: "FAQ" },
 ] as const;
 
 const adminNav = [
@@ -61,11 +61,13 @@ export function AppHeader() {
         </Link>
         <nav className="hidden flex-1 items-center gap-1 md:flex">
           {nav.map((n) => {
-            const active = pathname === n.to;
+            const hash = "hash" in n ? n.hash : undefined;
+            const active = pathname === n.to && !hash;
             return (
               <Link
-                key={n.to}
+                key={n.label}
                 to={n.to}
+                hash={hash}
                 className={cn(
                   "inline-flex items-center justify-center rounded-full px-3 py-1.5 text-center text-sm font-bold transition-colors",
                   active
@@ -159,11 +161,13 @@ export function AppHeader() {
         >
           <ul className="flex flex-col gap-1">
             {nav.map((n) => {
-              const active = pathname === n.to;
+              const hash = "hash" in n ? n.hash : undefined;
+              const active = pathname === n.to && !hash;
               return (
-                <li key={n.to}>
+                <li key={n.label}>
                   <Link
                     to={n.to}
+                    hash={hash}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
                       "block rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
