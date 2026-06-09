@@ -297,12 +297,13 @@ async function trySendAuditEmail(
 export const generateAudit = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<GenerateAuditResponse> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let leadId: string | null = null;
     const email = data.email.trim().toLowerCase();
     try {
       const { url, domain } = normalizeUrl(data.website);
 
-      const insert = await supabase.rpc("create_pending_lead", {
+      const insert = await supabaseAdmin.rpc("create_pending_lead", {
         _website: domain,
         _email: email,
       });
@@ -323,7 +324,7 @@ export const generateAudit = createServerFn({ method: "POST" })
 
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
 
-      await supabase.rpc("finalize_lead", {
+      await supabaseAdmin.rpc("finalize_lead", {
         _lead_id: leadId,
         _status: "completed",
         _audit: JSON.parse(JSON.stringify(audit)),
@@ -348,7 +349,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("generateAudit failed:", message);
       if (leadId) {
-        await supabase.rpc("finalize_lead", {
+        await supabaseAdmin.rpc("finalize_lead", {
           _lead_id: leadId,
           _status: "failed",
           _audit: null,
