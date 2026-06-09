@@ -324,7 +324,7 @@ export const generateAudit = createServerFn({ method: "POST" })
 
       const emailSent = await trySendAuditEmail(data.email, domain, audit);
 
-      await supabase.rpc("finalize_lead", {
+      await supabaseAdmin.rpc("finalize_lead", {
         _lead_id: leadId,
         _status: "completed",
         _audit: JSON.parse(JSON.stringify(audit)),
@@ -349,7 +349,7 @@ export const generateAudit = createServerFn({ method: "POST" })
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("generateAudit failed:", message);
       if (leadId) {
-        await supabase.rpc("finalize_lead", {
+        await supabaseAdmin.rpc("finalize_lead", {
           _lead_id: leadId,
           _status: "failed",
           _audit: null,
